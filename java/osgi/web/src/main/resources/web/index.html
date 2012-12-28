@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+	<!--<![endif]-->
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>TinTin Cloud IDE</title>
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width">
+
+		<link rel="stylesheet" href="css/bootstrap/bootstrap.min.css">
+		<link rel="stylesheet" href="css/bootstrap/bootstrap-responsive.min.css">
+		<link rel="styleesheet" href="css/filetree/jqueryFileTree.css">
+
+		<style type="text/css">
+			body {
+				padding-top: 60px;
+				padding-bottom: 40px;
+			}
+			.sidebar-nav {
+				padding: 9px 0;
+			}
+		</style>
+
+		<script data-main="js/main.js" src="js/libs/require/require.js"></script>
+	</head>
+	<body>
+		<!--[if lt IE 7]>
+		<p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+		<![endif]-->
+
+		<!-- This code is taken from http://twitter.github.com/bootstrap/examples/hero.html -->
+
+		<div id="menu" class="navbar navbar-inverse navbar-fixed-top">
+			<div class="navbar-inner">
+				<div class="container-fluid">
+					<a href="#" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </a>
+					<a class="brand" href="#">DEVCLOUD - Web Based Integrated Development Environment</a>
+					<div class="nav-collapse collapse">
+						<ul class="nav"></ul>
+						<!--TODO
+						Buraya user bilgisi konulabilir... User'in Account'uyla ilgili isleri yapabilecegi menu, fotografi falan.
+						-->
+						<!--<form class="navbar-form pull-right">
+						<input class="span2" type="text" placeholder="Email">
+						<input class="span2" type="password" placeholder="Password">
+						<button type="submit" class="btn">Sign in</button>
+						</form>-->
+						<div id="userPanel" class="navbar-text pull-right">
+							<script type="template" id="account-layout">
+								Welcome <%= username %>
+								<a class="btn btn-primary btn-small" id="logoutButton">Logout</a>
+							</script>
+						</div>
+					</div><!--/.nav-collapse -->
+				</div>
+			</div>
+		</div>
+		<div class="container-fluid">
+			<div class="row-fluid">
+				<div class="span12">
+					<div id="main_section" class="container-fluid"></div>
+				</div>
+			</div>
+		</div>
+		<div class="well navbar navbar-fixed-bottom">
+			<footer>
+				<p>
+					&copy; Tintin 2012
+				</p>
+			</footer>
+		</div>
+
+	</body>
+</html>
