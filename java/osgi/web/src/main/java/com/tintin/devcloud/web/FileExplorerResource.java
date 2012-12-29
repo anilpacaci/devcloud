@@ -43,6 +43,7 @@ package com.tintin.devcloud.web;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +53,8 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 /**
  * 
@@ -63,9 +66,11 @@ public class FileExplorerResource {
 	private static final String APPLICATION_FORM_URLENCODED = null;
 
 	@POST
-	public String getStatus(@FormParam("dir") String dir) {
+	@Produces(MediaType.TEXT_HTML)
+	public Response getStatus(@FormParam("dir") String dir) {
 		StringBuilder response = new StringBuilder();
 		try {
+			dir = URLDecoder.decode(dir, "UTF-8");
 			File folder = new File(dir);
 			File[] listOfFiles = folder.listFiles();
 
@@ -84,21 +89,23 @@ public class FileExplorerResource {
 			response.append("<ul class='jqueryFileTree' style='display: none;'>");
 
 			for (File fold : folderList) {
+				String path = fold.getAbsolutePath().replace("\\", "/");
 				response.append(
-						"<li class='directory collapsed'><a href='#' rel='")
-						.append(fold.getName()).append("'>")
+				"<li class='directory collapsed'><a href='#' rel='")
+						.append(path + fold.getName()).append("'>")
 						.append(fold.getName()).append("</a></li>");
 			}
 			for (File file : fileList) {
+				String path = file.getAbsolutePath().replace("\\", "/");
 				response.append("<li class='file ext_txt'><a href='#' rel='")
-						.append(file.getName()).append("'>")
+						.append(path + file.getName()).append("'>")
 						.append(file.getName()).append("</a></li>");
 			}
 			response.append("</ul>");
 		} catch (Exception e) {
-			return e.toString();
+			return Response.serverError().build();
 		}
 
-		return response.toString();
+		return Response.ok(response.toString()).build();
 	}
 }

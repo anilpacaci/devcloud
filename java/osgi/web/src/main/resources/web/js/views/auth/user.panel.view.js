@@ -7,11 +7,12 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/auth/user_panel.html
 
 		logout : function() {
 			this.model.clear();
+			$.ajax({
+				type : 'DELETE',
+				url : URL + 'auth'
+			});
+			$.cookie('SID', null);
 			this.options.vent.trigger('auth:logout');
-		},
-		
-		close : function() {
-		this.remove();
 		}
 	});
 	return UserPanelView;

@@ -23,42 +23,47 @@ define(['jquery', 'underscore', 'backbone', 'marionette', 'js/views/auth/login.v
 
 	var EditorApp = new Marionette.Application();
 	var vent = EditorApp.vent;
+	var loginModel = new LoginModel();
+	var user = new UserModel();
+
 	EditorApp.addInitializer(function(options) {
-		var loginModel = new LoginModel();
+		var SID = $.cookie('SID');
 
-		if (loginModel.get('rememberMe')) {
-			//EditorApp.mainRegion.show(new EditorView());
-			EditorApp.userPanelRegion.show(new UserPanelView({
-				model : loginModel,
-				vent : vent
-			}));
-
-			EditorApp.mainRegion.show(new MainLayout({
-				vent : vent
-			}));
-		} else {
-			EditorApp.mainRegion.show(new LoginView({
-				model : loginModel,
-				vent : vent
-			}));
+		if (!SID) {
+			vent.trigger('auth:logout');
+		}// there is cookie, verify SID from server, direct home or login
+		else {
+			user.fetch({
+				//SID verified, user returned, directing home page
+				success : function(response) {
+					vent.trigger('auth:loggedIn', user);
+				},
+				//SID unverified, direct to login page
+				error : function(response) {
+					vent.trigger('auth:logout');
+				}
+			});
 		}
-		vent.bindTo(vent, 'auth:loggedIn', function() {
-			//EditorApp.mainRegion.show(new EditorView());
-			EditorApp.userPanelRegion.show(new UserPanelView({
-				model : loginModel,
-				vent : vent
-			}));
-			EditorApp.mainRegion.show(new MainLayout());
-			//EditorApp.consoleRegion.show(new ConsoleView());
-		});
 
-		vent.bindTo(vent, 'auth:logout', function() {
-			EditorApp.userPanelRegion.close();
-			EditorApp.mainRegion.show(new LoginView({
-				model : loginModel,
-				vent : vent
-			}));
-		});
+	});
+
+	vent.bindTo(vent, 'auth:loggedIn', function() {
+		//EditorApp.mainRegion.show(new EditorView());
+		EditorApp.userPanelRegion.show(new UserPanelView({
+			model : user,
+			vent : vent
+		}));
+		EditorApp.mainRegion.show(new MainLayout());
+		//EditorApp.consoleRegion.show(new ConsoleView());
+	});
+
+	vent.bindTo(vent, 'auth:logout', function() {
+		EditorApp.userPanelRegion.close();
+		EditorApp.mainRegion.show(new LoginView({
+			model : loginModel,
+			vent : vent,
+			user : user
+		}));
 	});
 
 	EditorApp.addRegions({

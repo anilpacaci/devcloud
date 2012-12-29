@@ -55,6 +55,7 @@ public class JerseyApplication extends Application {
 		Set<Class<?>> result = new HashSet<Class<?>>();
 		result.add(SaveResource.class);
 		result.add(FileExplorerResource.class);
+		result.add(AuthenticationResource.class);
 		return result;
 	}
 
