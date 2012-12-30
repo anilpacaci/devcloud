@@ -11,8 +11,8 @@ io.sockets.on('connection', function(socket) {
   var term = pty.fork(process.env.SHELL || 'sh', [], {
     name: 'xterm',
     cols: 80,
-    rows: 24,
-    cwd: process.env.HOME
+    rows: 20,
+    cwd: process.env.PWD
   });
 
   term.on('data', function(data) {
