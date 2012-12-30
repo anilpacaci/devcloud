@@ -13,12 +13,16 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.devcloud.tintin</groupId>
     <artifactId>launcher</artifactId>
-    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>launcher Launchpad Standalone</name>
     <description>launcher Launchpad Standalone</description>
+	<parent>
+		<groupId>com.tintin.devcloud</groupId>
+        <artifactId>parent</artifactId>
+        <version>0.1</version>
+        <relativePath>../parent</relativePath>
+	</parent>
     <build>
         <plugins>
             <plugin>
@@ -49,6 +53,24 @@
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>
                     </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>.</directory>
+                            <includes>
+                                <include>databases/**</include>
+                                <include>sling/</include>
+                                <include>jackrabbit/</include>
+                                <include>derby.log</include>
+                            </includes>
+                        </fileset>
+                    </filesets>
                 </configuration>
             </plugin>
         </plugins>

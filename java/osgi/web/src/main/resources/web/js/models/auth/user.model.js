@@ -1,4 +1,4 @@
-define(['backbone', 'js/models/auth/organization.model'], function(Backbone, OrganizationModel) {
+define(['backbone'], function(Backbone) {
 	var UserModel = Backbone.Model.extend({
 		url : URL + 'auth',
 		defaults : {
@@ -9,7 +9,6 @@ define(['backbone', 'js/models/auth/organization.model'], function(Backbone, Org
 			name : '',
 			surname : '',
 			accessLevel : '',
-			affiliation : '',
 			registrationTime : ''
 		},
 	});

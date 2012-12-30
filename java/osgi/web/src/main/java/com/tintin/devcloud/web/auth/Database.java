@@ -13,6 +13,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.derby.jdbc.EmbeddedDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,13 +46,14 @@ public class Database {
 	}
 
 	private Database() throws IllegalAccessException {
-		try {
-			Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+//		try {
+			new EmbeddedDriver();
+//			Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
 			logger.info("Derby driver has been loaded");
-		} catch (ClassNotFoundException e) {
-			logger.error("Error at connecting to Derby Database for AuthenticationManager");
-			throw new IllegalAccessException(e.getMessage());
-		}
+//		} catch (ClassNotFoundException e) {
+//			logger.error("Error at connecting to Derby Database for AuthenticationManager");
+//			throw new IllegalAccessException(e.getMessage());
+//		}
 	}
 
 	private Connection getConnection() throws SQLException {
@@ -122,7 +124,7 @@ public class Database {
 				+ "password VARCHAR(32) NOT NULL, " + "title VARCHAR(63), "
 				+ "name VARCHAR(255), " + "surname VARCHAR(255), "
 				+ "access_level SMALLINT, " + "registration_time TIMESTAMP, "
-				+ "UNIQUE(email), " + "PRIMARY KEY(id); ";
+				+ "UNIQUE(email), " + "PRIMARY KEY(id))";
 
 		String createSessionTable = "CREATE TABLE sessions ("
 				+ "userid INTEGER NOT NULL, "

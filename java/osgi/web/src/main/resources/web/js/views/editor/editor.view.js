@@ -5,15 +5,17 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 		events : {
 			'click button' : 'saveButton'
 		},
+		initalize : function() {
+			vent = this.options.vent;
+			this.bindTo(vent, 'editor:open', function(file) {
+				alert(file);
+			})
+		},
 		onRender : function() {
 			vent = this.options.vent;
 			this.editor = ace.edit(this.$('#editor').get(0));
 			this.editor.setTheme("ace/theme/monokai");
 			this.editor.getSession().setMode("ace/mode/c_cpp");
-
-			this.bindTo(vent, 'editor:open', function(file) {
-				alert(file);
-			})
 		},
 
 		saveButton : function() {

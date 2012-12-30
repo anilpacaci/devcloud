@@ -1,4 +1,4 @@
-define(['jquery', 'underscore', 'backbone', 'marionette', 'js/views/auth/login.view', 'js/views/auth/user.panel.view', 'js/layouts/main.layout', 'js/models/auth/login.model', 'jquery_cookie', 'bootstrap'], function($, _, Backbone, Marionette, LoginView, UserPanelView, MainLayout, LoginModel) {
+define(['jquery', 'underscore', 'backbone', 'marionette', 'js/views/auth/login.view', 'js/views/auth/user.panel.view', 'js/layouts/main.layout', 'js/models/auth/login.model', 'js/models/auth/user.model', 'jquery_cookie', 'bootstrap'], function($, _, Backbone, Marionette, LoginView, UserPanelView, MainLayout, LoginModel, UserModel) {
 
 	/**
 	 * SOME GLOBAL FUNCTIONS THAT ARE OVERRIDED *
@@ -53,7 +53,9 @@ define(['jquery', 'underscore', 'backbone', 'marionette', 'js/views/auth/login.v
 			model : user,
 			vent : vent
 		}));
-		EditorApp.mainRegion.show(new MainLayout());
+		EditorApp.mainRegion.show(new MainLayout({
+			user : user
+		}));
 		//EditorApp.consoleRegion.show(new ConsoleView());
 	});
 

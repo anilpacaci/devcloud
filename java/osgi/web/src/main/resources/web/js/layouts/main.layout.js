@@ -11,8 +11,10 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 
 		onRender : function() {
 			vent = this.options.vent;
+			user = this.options.user;
 			this.fileTree.show(new FileExplorerView({
-				vent : vent
+				vent : vent,
+				user : user
 			}));
 			this.editor.show(new EditorView({
 				vent : vent

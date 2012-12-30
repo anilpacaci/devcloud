@@ -40,12 +40,13 @@
 
 package com.tintin.devcloud.web;
 
-import com.sun.jersey.spi.container.servlet.ServletContainer;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.logging.Logger;
+
 import javax.servlet.ServletException;
+
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -54,6 +55,8 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 import org.osgi.util.tracker.ServiceTracker;
+
+import com.sun.jersey.spi.container.servlet.ServletContainer;
 
 public class Activator implements BundleActivator {
 
@@ -154,6 +157,8 @@ public class Activator implements BundleActivator {
 		Dictionary<String, String> jerseyServletParams = new Hashtable<String, String>();
 		jerseyServletParams.put("javax.ws.rs.Application",
 				JerseyApplication.class.getName());
+		jerseyServletParams.put("com.sun.jersey.api.json.POJOMappingFeature",
+				"true");
 		return jerseyServletParams;
 	}
 }

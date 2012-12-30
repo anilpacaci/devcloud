@@ -4,8 +4,9 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/explorer/file
 		className : '',
 		onRender : function() {
 			vent = this.options.vent;
+			user = this.options.user;
 			this.$('#fileTree').fileTree({
-				root : $.cookie('username'),
+				root : user.get('email'),
 				script : 'http://localhost:8080/devcloud/fileExplorer',
 				expandSpeed : 1000,
 				collapseSpeed : 1000,

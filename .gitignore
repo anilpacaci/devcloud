@@ -1,1 +1,9 @@
 target
+sling
+jackrabbit
+derby.log
+load
+.settings
+.classpath
+.project
+devcloudUserDatabase

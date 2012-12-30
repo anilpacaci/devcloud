@@ -35,7 +35,8 @@ define(['jquery', 'backbone', 'marionette', 'js/models/auth/user.model', 'text!t
 							exp = Math.floor((unt - now) / (24 * 60 * 60 * 1000));
 						}
 						$.cookie("SID", response.sessionID, {
-							expires : exp
+							expires : exp,
+							path : '/'
 						});
 						// now user will be obtained with SID
 						var user = self.options.user;

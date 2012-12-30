@@ -1,5 +1,7 @@
 package com.tintin.devcloud.web;
 
+import java.io.File;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.CookieParam;
 import javax.ws.rs.DELETE;
@@ -28,7 +30,7 @@ public class AuthenticationResource {
 			.getLogger(AuthenticationResource.class);
 
 	public static final String SID = "SID";
-	
+
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -73,6 +75,10 @@ public class AuthenticationResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getUser(@CookieParam(SID) String sessionID) {
 		User user = WebUtil.getUser(sessionID);
+		File userDirectory = new File(user.getEmail());
+		if (!userDirectory.exists()) {
+			userDirectory.mkdir();
+		}
 		return Response.ok(user).build();
 	}
 

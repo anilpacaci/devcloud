@@ -92,13 +92,13 @@ public class FileExplorerResource {
 				String path = fold.getAbsolutePath().replace("\\", "/");
 				response.append(
 				"<li class='directory collapsed'><a href='#' rel='")
-						.append(path + fold.getName()).append("'>")
+						.append(path).append("/'>")
 						.append(fold.getName()).append("</a></li>");
 			}
 			for (File file : fileList) {
 				String path = file.getAbsolutePath().replace("\\", "/");
 				response.append("<li class='file ext_txt'><a href='#' rel='")
-						.append(path + file.getName()).append("'>")
+						.append(path).append("'>")
 						.append(file.getName()).append("</a></li>");
 			}
 			response.append("</ul>");
