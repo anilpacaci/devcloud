@@ -77,11 +77,6 @@
             </dependency>
 
             <!-- JERSEY for the JAX-RS API -->
-            <dependency>
-                <groupId>com.sun.jersey</groupId>
-                <artifactId>jersey-server</artifactId>
-                <version>1.16</version>
-            </dependency>
 			<dependency>
                 <groupId>com.sun.jersey</groupId>
                 <artifactId>jersey-server</artifactId>
@@ -102,11 +97,6 @@
                 <artifactId>jersey-json</artifactId>
                 <version>1.16</version>
             </dependency>
-			<dependency>
-				<groupId>com.sun.jersey</groupId>
-				<artifactId>jersey-json</artifactId>
-				<version>1.16</version>
-			</dependency>
 
         </dependencies>
     </dependencyManagement>
