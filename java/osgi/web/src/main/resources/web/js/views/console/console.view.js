@@ -2,6 +2,22 @@ define(['jquery', 'backbone', 'marionette', 'socketio', 'term' , 'text!templates
 	var ConsoleView = Marionette.ItemView.extend({
 		template : ConsoleTemplate,
 		className : '',
+
+		initalize : function() {
+			vent = this.options.vent;
+			_this = this;
+			this.bindTo(vent, 'terminal:focused', function() {
+				if(_this.terminal) {
+					_this.terminal.focus();
+				}
+			})
+			this.bindTo(vent, 'terminal:unfocused', function() {
+				if(_this.terminal) {
+					_this.terminal.unfocus();
+				}
+			})
+		},
+
 		onRender : function() {
 			this.terminal = new Terminal(80,10);
 			this.socket = io.connect('http://localhost:8081/');
@@ -14,12 +30,13 @@ define(['jquery', 'backbone', 'marionette', 'socketio', 'term' , 'text!templates
 				});
 
 				_this.terminal.open(_this.$('#console').get(0));
-
 				_this.socket.on('data', function(data) {
 					_this.terminal.write(data);
 				});
 
+				_this.terminal.unfocus();
 			});
+			this.initalize();
 		},
 
 		// saveButton : function() {

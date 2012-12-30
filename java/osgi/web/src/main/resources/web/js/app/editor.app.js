@@ -54,7 +54,8 @@ define(['jquery', 'underscore', 'backbone', 'marionette', 'js/views/auth/login.v
 			vent : vent
 		}));
 		EditorApp.mainRegion.show(new MainLayout({
-			user : user
+			user : user,
+			vent : vent
 		}));
 		//EditorApp.consoleRegion.show(new ConsoleView());
 	});

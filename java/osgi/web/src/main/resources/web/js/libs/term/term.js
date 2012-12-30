@@ -306,6 +306,10 @@ Terminal.debug = false;
 
 Terminal.focus = null;
 
+Terminal.prototype.unfocus = function() {
+  Terminal.focus = null;
+}
+
 Terminal.prototype.focus = function() {
   if (Terminal.focus === this) return;
   if (Terminal.focus) {

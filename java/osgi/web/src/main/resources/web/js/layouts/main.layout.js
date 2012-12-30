@@ -9,6 +9,10 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			fileTree : '#fileTreeRegion'
 		},
 
+		events : {
+			'shown a[data-toggle="tab"]' : 'tabShown'
+		},
+
 		onRender : function() {
 			vent = this.options.vent;
 			user = this.options.user;
@@ -19,7 +23,17 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			this.editor.show(new EditorView({
 				vent : vent
 			}));
-			//this.terminal.show(new ConsoleView());
+			this.terminal.show(new ConsoleView({
+				vent : vent
+			}));
+		},
+
+		tabShown : function(e) {
+			if(e.target.hash == '#terminalRegion') {
+				this.options.vent.trigger('terminal:focused');
+			} else {
+				this.options.vent.trigger('terminal:unfocused');
+			}
 		}
 	});
 
