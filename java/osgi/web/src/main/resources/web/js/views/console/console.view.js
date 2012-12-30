@@ -19,7 +19,7 @@ define(['jquery', 'backbone', 'marionette', 'socketio', 'term' , 'text!templates
 		},
 
 		onRender : function() {
-			this.terminal = new Terminal(80,10);
+			this.terminal = new Terminal(80,24);
 			this.socket = io.connect('http://localhost:8081/');
 
 			var _this = this;
