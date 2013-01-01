@@ -97,7 +97,8 @@
                 <artifactId>jersey-json</artifactId>
                 <version>1.16</version>
             </dependency>
-
+			
+		
         </dependencies>
     </dependencyManagement>
 

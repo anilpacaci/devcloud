@@ -77,6 +77,8 @@ public class Activator implements BundleActivator {
 
 	@Override
 	public synchronized void stop(BundleContext bundleContext) throws Exception {
+		databaseManager = null;
+		dbManagerServiceRegistration.unregister();
 	}
 
 }
