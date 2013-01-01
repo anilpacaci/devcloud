@@ -91,11 +91,19 @@
 			<artifactId>derby</artifactId>
 			<version>10.9.1.0</version>
 		</bundle>
+		
 	</startLevel>
 
 
 	<!-- level 20+ is for DEVCLOUD components -->
 	<!-- level 29 is for web module after everything is loaded -->
+	<startLevel level="28">
+		<bundle>
+			<groupId>com.tintin.devcloud</groupId>
+			<artifactId>database</artifactId>
+			<version>0.1</version>
+		</bundle>
+	</startLevel>
 	<startLevel level="29">
 		<bundle>
 			<groupId>com.tintin.devcloud</groupId>

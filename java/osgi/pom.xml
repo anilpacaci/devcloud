@@ -13,6 +13,7 @@
     	<module>parent</module>
     	<module>web</module>
     	<module>launcher</module>
+    	<module>database</module>
   	</modules>
 
 </project>
