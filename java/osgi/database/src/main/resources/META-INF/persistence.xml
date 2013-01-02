@@ -1,6 +1,6 @@
 <persistence version="1.0"
 	xmlns="http://java.sun.com/xml/ns/persistence">
-	<persistence-unit name="datamodel">
+	<persistence-unit name="model">
 		<provider>org.hibernate.ejb.HibernatePersistence</provider>
 
 		<class>com.tintin.devcloud.database.model.User</class>

@@ -63,12 +63,25 @@
                 <configuration>
                     <filesets>
                         <fileset>
-                            <directory>.</directory>
+                            <directory>../</directory>
                             <includes>
                                 <include>databases/**</include>
-                                <include>sling/</include>
                                 <include>jackrabbit/</include>
                                 <include>derby.log</include>
+                                <include>load/</include>
+                            </includes>
+                        </fileset>
+                        <fileset>
+                            <directory>../sling/startup/</directory>
+                            <includes>
+                                <include>28/</include>
+                                <include>29/</include>
+                            </includes>
+                        </fileset>
+                        <fileset>
+                            <directory>../sling/</directory>
+                            <includes>
+                                <include>felix/</include>
                             </includes>
                         </fileset>
                     </filesets>

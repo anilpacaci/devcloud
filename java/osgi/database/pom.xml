@@ -146,11 +146,28 @@
 						<Bundle-Name>Cloud IDE Database Bundle</Bundle-Name>
 						<Implementation-Title>com-tintin-devcloud-database</Implementation-Title>
 						<Implementation-Version>${project.version}</Implementation-Version>
+						<Embed-Transitive>true</Embed-Transitive>
+						<Embed-Dependency>hibernate-jpa-2.0-api</Embed-Dependency>
+						<Meta-Persistance>META-INF/persistence.xml</Meta-Persistance>
 					</instructions>
 					<unpackBundle>true</unpackBundle>
 				</configuration>
 			</plugin>
-
+			<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>.</directory>
+                            <includes>
+                                <include>target/</include>
+                            </includes>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>

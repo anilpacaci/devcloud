@@ -15,7 +15,7 @@ public class DatabaseManager implements IDatabaseManager {
 	public DatabaseManager(Activator activator) {
 		this.activator = activator;
 		
-		modelEMF = Persistence.createEntityManagerFactory("datamodel");
+		modelEMF = Persistence.createEntityManagerFactory("model");
 	}
 	
 	@Override
