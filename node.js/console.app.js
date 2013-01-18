@@ -14,13 +14,20 @@ io.sockets.on('connection', function(socket) {
   socket.on('create_terminal', function(data) {
     var terminal_id = uuid.v4();
     var path = data.path;
+    var width = data.width;
+    var height = data.height;
+
     if(!path)
       path = process.env.PWD;
+    if(!width)
+      width = 100;
+    if(!height)
+      height = 20;
     console.log('create_terminal request:\n' + JSON.stringify(data) + '\n');
     var term = pty.fork(process.env.SHELL || 'sh', [], {
       name: 'xterm',
-      cols: 80,
-      rows: 20,
+      cols: width,
+      rows: height,
       cwd: path//process.env.PWD
     });
 
@@ -49,7 +56,7 @@ io.sockets.on('connection', function(socket) {
     var terminal_data = data.data;
     for(var i=0; i<socket.terminals.length; i++) {
       if(terminal_id == socket.terminals[i].id) {
-        socket.terminals[i].term.write(data);
+        socket.terminals[i].term.write(data.data);
         break;
       }
     }

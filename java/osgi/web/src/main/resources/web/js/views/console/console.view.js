@@ -27,15 +27,17 @@ define(['jquery', 'backbone', 'marionette', 'socketio', 'term' , 'text!templates
 			this.socket = this.options.socket;
 			this.user = this.options.user;
 
+			var width = 120;
+			var height = 20;
 			this.socket.on('create_terminal_response', function(data) {
 				if(!_this.terminal) {
-					_this.terminal = new Terminal(80,20);
+					_this.terminal = new Terminal(width,height);
 					_this.terminal_id = data.id;
 
 					_this.terminal.open(_this.$('#console').get(0));
 
 					_this.terminal.on('data', function(data) {
-						_this.socket.emit('data', {id: terminal_id, data: data});
+						_this.socket.emit('data', {id: _this.terminal_id, data: data});
 					});
 
 					_this.socket.on('data', function(data) {
@@ -48,7 +50,7 @@ define(['jquery', 'backbone', 'marionette', 'socketio', 'term' , 'text!templates
 				}
 			})
 
-			this.socket.emit('create_terminal', {path: this.user.get('workspacePath')});
+			this.socket.emit('create_terminal', {path: this.user.get('workspacePath'), width: width, height: height});
 
 			// this.socket.on('connect', function {
 			// 	_this.socket.emit('create_terminal')
