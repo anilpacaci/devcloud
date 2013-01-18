@@ -16,6 +16,7 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 		onRender : function() {
 			vent = this.options.vent;
 			user = this.options.user;
+			socket = this.options.socket;
 			this.fileTree.show(new FileExplorerView({
 				vent : vent,
 				user : user
@@ -24,7 +25,9 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 				vent : vent
 			}));
 			this.terminal.show(new ConsoleView({
-				vent : vent
+				vent : vent,
+				user : user,
+				socket : socket
 			}));
 		},
 

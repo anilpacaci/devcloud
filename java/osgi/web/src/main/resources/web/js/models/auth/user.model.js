@@ -9,7 +9,8 @@ define(['backbone'], function(Backbone) {
 			name : '',
 			surname : '',
 			accessLevel : '',
-			registrationTime : ''
+			registrationTime : '',
+			workspacePath : ''
 		},
 	});
 	return UserModel;

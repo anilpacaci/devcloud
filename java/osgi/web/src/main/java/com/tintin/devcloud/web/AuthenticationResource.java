@@ -79,6 +79,7 @@ public class AuthenticationResource {
 		if (!userDirectory.exists()) {
 			userDirectory.mkdir();
 		}
+		user.setWorkspacePath(userDirectory.getAbsolutePath());
 		return Response.ok(user).build();
 	}
 

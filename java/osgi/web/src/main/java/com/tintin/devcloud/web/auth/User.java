@@ -12,6 +12,7 @@ public class User {
 	private String surname;
 	private int accessLevel;
 	private Date registrationTime;
+	private String workspacePath;
 
 	public User() {
 		super();
@@ -107,6 +108,14 @@ public class User {
 
 	public void setRegistrationTime(Date registrationTime) {
 		this.registrationTime = registrationTime;
+	}
+
+	public String getWorkspacePath() {
+		return workspacePath;
+	}
+
+	public void setWorkspacePath(String workspacePath) {
+		this.workspacePath = workspacePath;
 	}
 
 }

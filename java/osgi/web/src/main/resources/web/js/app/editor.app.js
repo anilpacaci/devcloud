@@ -1,4 +1,4 @@
-define(['jquery', 'underscore', 'backbone', 'marionette', 'js/views/auth/login.view', 'js/views/auth/user.panel.view', 'js/layouts/main.layout', 'js/models/auth/login.model', 'js/models/auth/user.model', 'jquery_cookie', 'bootstrap'], function($, _, Backbone, Marionette, LoginView, UserPanelView, MainLayout, LoginModel, UserModel) {
+define(['jquery', 'underscore', 'backbone', 'marionette', 'socketio', 'js/views/auth/login.view', 'js/views/auth/user.panel.view', 'js/layouts/main.layout', 'js/models/auth/login.model', 'js/models/auth/user.model', 'jquery_cookie', 'bootstrap'], function($, _, Backbone, Marionette, io, LoginView, UserPanelView, MainLayout, LoginModel, UserModel) {
 
 	/**
 	 * SOME GLOBAL FUNCTIONS THAT ARE OVERRIDED *
@@ -25,6 +25,7 @@ define(['jquery', 'underscore', 'backbone', 'marionette', 'js/views/auth/login.v
 	var vent = EditorApp.vent;
 	var loginModel = new LoginModel();
 	var user = new UserModel();
+	var socket = null;
 
 	EditorApp.addInitializer(function(options) {
 		var SID = $.cookie('SID');
@@ -49,14 +50,20 @@ define(['jquery', 'underscore', 'backbone', 'marionette', 'js/views/auth/login.v
 
 	vent.bindTo(vent, 'auth:loggedIn', function() {
 		//EditorApp.mainRegion.show(new EditorView());
-		EditorApp.userPanelRegion.show(new UserPanelView({
-			model : user,
-			vent : vent
-		}));
-		EditorApp.mainRegion.show(new MainLayout({
-			user : user,
-			vent : vent
-		}));
+		socket = io.connect('http://localhost:8081/');
+
+		socket.on('connect', function() {
+			EditorApp.userPanelRegion.show(new UserPanelView({
+				model : user,
+				vent : vent
+			}));
+			EditorApp.mainRegion.show(new MainLayout({
+				user : user,
+				socket : socket,
+				vent : vent
+			}));
+		});
+		
 		//EditorApp.consoleRegion.show(new ConsoleView());
 	});
 

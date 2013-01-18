@@ -19,23 +19,54 @@ define(['jquery', 'backbone', 'marionette', 'socketio', 'term' , 'text!templates
 		},
 
 		onRender : function() {
-			this.terminal = new Terminal(80,20);
-			this.socket = io.connect('http://localhost:8081/');
-
 			var _this = this;
 
-			this.socket.on('connect', function() {
-				_this.terminal.on('data', function(data) {
-					_this.socket.emit('data', data);
-				});
+			this.terminal = null;
+			this.terminal_id = null;//new Terminal(80,20);
+			
+			this.socket = this.options.socket;
+			this.user = this.options.user;
 
-				_this.terminal.open(_this.$('#console').get(0));
-				_this.socket.on('data', function(data) {
-					_this.terminal.write(data);
-				});
+			this.socket.on('create_terminal_response', function(data) {
+				if(!_this.terminal) {
+					_this.terminal = new Terminal(80,20);
+					_this.terminal_id = data.id;
 
-				_this.terminal.unfocus();
-			});
+					_this.terminal.open(_this.$('#console').get(0));
+
+					_this.terminal.on('data', function(data) {
+						_this.socket.emit('data', {id: terminal_id, data: data});
+					});
+
+					_this.socket.on('data', function(data) {
+						if(_this.terminal_id == data.id) {
+							_this.terminal.write(data.data);
+						}
+					});
+
+					_this.terminal.unfocus();
+				}
+			})
+
+			this.socket.emit('create_terminal', {path: this.user.get('workspacePath')});
+
+			// this.socket.on('connect', function {
+			// 	_this.socket.emit('create_terminal')
+			// });
+			// var _this = this;
+
+			// this.socket.on('connect', function() {
+			// 	_this.terminal.on('data', function(data) {
+			// 		_this.socket.emit('data', data);
+			// 	});
+
+			// 	_this.terminal.open(_this.$('#console').get(0));
+			// 	_this.socket.on('data', function(data) {
+			// 		_this.terminal.write(data);
+			// 	});
+
+			// 	_this.terminal.unfocus();
+			// });
 			this.initalize();
 		},
 
