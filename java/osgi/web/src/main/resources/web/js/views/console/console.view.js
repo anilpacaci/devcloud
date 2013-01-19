@@ -6,13 +6,13 @@ define(['jquery', 'backbone', 'marionette', 'socketio', 'term' , 'text!templates
 		initalize : function() {
 			vent = this.options.vent;
 			_this = this;
-			this.bindTo(vent, 'terminal:focused', function() {
-				if(_this.terminal) {
+			this.bindTo(vent, 'terminal:focused', function(id) {
+				if(_this.terminal && id == _this.terminal_id) {
 					_this.terminal.focus();
 				}
 			})
-			this.bindTo(vent, 'terminal:unfocused', function() {
-				if(_this.terminal) {
+			this.bindTo(vent, 'terminal:unfocused', function(id) {
+				if(_this.terminal && id == _this.terminal_id) {
 					_this.terminal.unfocus();
 				}
 			})
@@ -22,26 +22,27 @@ define(['jquery', 'backbone', 'marionette', 'socketio', 'term' , 'text!templates
 			var _this = this;
 
 			this.terminal = null;
-			this.terminal_id = null;//new Terminal(80,20);
+			this.terminal_uuid = null;//new Terminal(80,20);
 			
 			this.socket = this.options.socket;
 			this.user = this.options.user;
+			this.terminal_id = this.options.id;
 
 			var width = 120;
 			var height = 20;
 			this.socket.on('create_terminal_response', function(data) {
 				if(!_this.terminal) {
 					_this.terminal = new Terminal(width,height);
-					_this.terminal_id = data.id;
+					_this.terminal_uuid = data.id;
 
 					_this.terminal.open(_this.$('#console').get(0));
 
 					_this.terminal.on('data', function(data) {
-						_this.socket.emit('data', {id: _this.terminal_id, data: data});
+						_this.socket.emit('data', {id: _this.terminal_uuid, data: data});
 					});
 
 					_this.socket.on('data', function(data) {
-						if(_this.terminal_id == data.id) {
+						if(_this.terminal_uuid == data.id) {
 							_this.terminal.write(data.data);
 						}
 					});

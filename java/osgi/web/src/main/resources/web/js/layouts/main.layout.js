@@ -4,13 +4,15 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 
 		regions : {
 			editor : "#editorRegion",
-			terminal : "#terminalRegion",
+			// terminal : "#terminalRegion",
 			menu : "#menu",
-			fileTree : '#fileTreeRegion'
+			fileTree : '#fileTreeRegion',
+			// tabs : '#tabs'
 		},
 
 		events : {
-			'shown a[data-toggle="tab"]' : 'tabShown'
+			'shown a[data-toggle="tab"]' : 'tabShown',
+			'click a[id="new_terminal_button"]' : 'addNewTerminal'
 		},
 
 		onRender : function() {
@@ -24,18 +26,38 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			this.editor.show(new EditorView({
 				vent : vent
 			}));
-			this.terminal.show(new ConsoleView({
-				vent : vent,
-				user : user,
-				socket : socket
-			}));
+			this.terminal_count = 0;
+			// this.terminal.show(new ConsoleView({
+			// 	vent : vent,
+			// 	user : user,
+			// 	socket : socket
+			// }));
 		},
 
 		tabShown : function(e) {
-			if(e.target.hash == '#terminalRegion') {
-				this.options.vent.trigger('terminal:focused');
+			if(e.target.hash.slice(0,e.target.hash.length-1) == '#terminalRegion') {
+				this.options.vent.trigger('terminal:focused', e.target.hash[e.target.hash.length-1]);
 			} else {
 				this.options.vent.trigger('terminal:unfocused');
+			}
+		},
+
+		addNewTerminal : function(e) {
+			if(this.terminal_count < 5) {
+				$('#tabs').append('<li class><a href="#terminalRegion' + this.terminal_count + '" data-toggle="tab">Terminal ' + this.terminal_count + '</a></li>');
+				$('#tab_content').append('<div class="tab-pane fade" id="terminalRegion' + this.terminal_count + '"></div>');
+
+				var consoleView = new ConsoleView({
+					vent : vent,
+					user : user,
+					socket : socket,
+					id : this.terminal_count
+				});
+				consoleView.render();
+				$('#terminalRegion'+this.terminal_count).append(consoleView.el);
+				this.terminal_count++;
+			} else {
+				alert("You can not create more than 5 terminals.")
 			}
 		}
 	});
