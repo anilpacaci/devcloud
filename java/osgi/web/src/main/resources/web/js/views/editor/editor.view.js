@@ -32,14 +32,20 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 		},
 
 		saveButton : function() {
+			var file = this.model;
+			if (!file.get('fileName')) {
+				var path = prompt('Enter path to save file:', 'path to save');
+				path = $.cookie('email') + '/' + path;
+				file.close();
+				file = new FileModel({
+					path : path
+				});
+			}
+			file.set('content', this.editor.getValue());
 			$.ajax({
 				type : "POST",
 				url : "http://localhost:8080/devcloud/fileResource",
-				data : {
-					filename : this.$('#filename').val(),
-					content : this.editor.getValue(),
-					username : $.cookie('username')
-				},
+				data : JSON.stringify(this.model),
 				success : function() {
 				}
 			});
