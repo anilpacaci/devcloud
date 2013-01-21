@@ -43,20 +43,29 @@ package com.tintin.devcloud.web;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.net.URLDecoder;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.CookieParam;
 import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.apache.commons.io.FileUtils;
+
+import com.tintin.devcloud.web.util.FileModel;
 
 /**
  * 
  * @author japod
  */
-@Path("/save")
-public class SaveResource {
+@Path("/fileResource")
+public class FileResource {
 
 	private static final String APPLICATION_FORM_URLENCODED = null;
 
@@ -84,6 +93,21 @@ public class SaveResource {
 		}
 
 		return "successfull";
+	}
+
+	@GET
+	@Produces(MediaType.APPLICATION_FORM_URLENCODED)
+	public Response getFile(@QueryParam("filename") String fileName) {
+		try {
+			fileName = URLDecoder.decode(fileName, "UTF-8");
+			File file = new File(fileName);
+			String content = FileUtils.readFileToString(file);
+
+			return Response.ok(new FileModel(fileName, content)).build();
+		} catch (Exception e) {
+			return Response.serverError().build();
+		}
+
 	}
 
 }

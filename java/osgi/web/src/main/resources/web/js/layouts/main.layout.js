@@ -30,6 +30,7 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 
 			this.bindTo(vent, 'main:logout', function() {
 				vent.trigger('terminal:unfocused');
+				vent.trigger('terminal:destroy');
 			})
 			// this.terminal.show(new ConsoleView({
 			// 	vent : vent,

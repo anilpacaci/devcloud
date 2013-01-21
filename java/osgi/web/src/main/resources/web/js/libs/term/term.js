@@ -326,22 +326,36 @@ Terminal.prototype.focus = function() {
  * Global Events for key handling
  */
 
+function keydown(ev) {
+  if(Terminal.focus) {
+    return Terminal.focus.keyDown(ev);
+  }
+}
+
+function keypress(ev) {
+  if(Terminal.focus) {
+    return Terminal.focus.keyPress(ev);
+  }
+}
+
 Terminal.bindKeys = function() {
   if (Terminal.focus) return;
 
   // We could put an "if (Terminal.focus)" check
   // here, but it shouldn't be necessary.
-  on(document, 'keydown', function(ev) {
-    if(Terminal.focus) {
-      return Terminal.focus.keyDown(ev);
-    }
-  }, true);
+  on(document, 'keydown', keydown, true);
 
-  on(document, 'keypress', function(ev) {
-    if(Terminal.focus) {
-      return Terminal.focus.keyPress(ev);
-    }
-  }, true);
+  on(document, 'keypress', keypress, true);
+};
+
+Terminal.unbindKeys = function() {
+  if (Terminal.focus) return;
+
+  // We could put an "if (Terminal.focus)" check
+  // here, but it shouldn't be necessary.
+  off(document, 'keydown', keydown, true);
+
+  off(document, 'keypress', keypress, true);
 };
 
 /**
@@ -762,6 +776,7 @@ Terminal.prototype.bindMouse = function() {
  */
 
 Terminal.prototype.destroy = function() {
+  Terminal.unbindKeys();
   this.readable = false;
   this.writable = false;
   this._events = {};

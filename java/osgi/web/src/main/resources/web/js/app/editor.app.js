@@ -49,7 +49,6 @@ define(['jquery', 'underscore', 'backbone', 'marionette', 'socketio', 'js/views/
 	});
 
 	vent.bindTo(vent, 'auth:loggedIn', function() {
-		//EditorApp.mainRegion.show(new EditorView());
 		if(!socket || !socket.socket.connected) {
 			socket = io.connect('http://localhost:8081/');
 

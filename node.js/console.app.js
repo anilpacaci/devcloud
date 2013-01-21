@@ -80,6 +80,7 @@ io.sockets.on('connection', function(socket) {
     for(var i=0; i<socket.terminals.length; i++) {
       socket.terminals[i].term.destroy();
     }
+    socket.terminals = []
     // socket.disconnect();
     var index = socketList.indexOf(socket);
     socketList.splice(index, 1);

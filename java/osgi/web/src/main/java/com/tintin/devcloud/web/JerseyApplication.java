@@ -53,7 +53,7 @@ public class JerseyApplication extends Application {
 	@Override
 	public Set<Class<?>> getClasses() {
 		Set<Class<?>> result = new HashSet<Class<?>>();
-		result.add(SaveResource.class);
+		result.add(FileResource.class);
 		result.add(FileExplorerResource.class);
 		result.add(AuthenticationResource.class);
 		return result;

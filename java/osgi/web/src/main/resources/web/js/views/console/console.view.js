@@ -10,10 +10,17 @@ define(['jquery', 'backbone', 'marionette', 'socketio', 'term' , 'text!templates
 				if(_this.terminal && id == _this.terminal_id) {
 					_this.terminal.focus();
 				}
-			})
+			});
 			this.bindTo(vent, 'terminal:unfocused', function() {
 				if(_this.terminal) {
 					_this.terminal.unfocus();
+				}
+			});
+			this.bindTo(vent, 'terminal:destroy', function() {
+				if(_this.terminal) {
+					_this.socket.emit('destroy_terminal', {id: _this.terminal_uuid});
+					_this.terminal.destroy();
+					_this.terminal = null;
 				}
 			})
 		},

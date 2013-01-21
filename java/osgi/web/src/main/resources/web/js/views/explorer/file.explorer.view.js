@@ -1,4 +1,4 @@
-define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/explorer/file.explorer.template.html', 'filetree', 'jquery_cookie'], function($, Backbone, Marionette, ace, FileExplorerTemplate) {
+define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/explorer/file.explorer.template.html', 'js/models/editor/file.model', 'js/views/editor/editor.view', 'filetree', 'jquery_cookie'], function($, Backbone, Marionette, ace, FileExplorerTemplate, FileModel, EditorView) {
 	var FileExplorerView = Marionette.ItemView.extend({
 		template : FileExplorerTemplate,
 		className : '',
@@ -11,9 +11,25 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/explorer/file
 				expandSpeed : 1000,
 				collapseSpeed : 1000,
 				multiFolder : false
-			}, function(file) {
+			}, function(filePath) {
 				alert('click');
-				alert(file);
+				alert(filePath);
+
+				file = new FileModel({
+					fileName : filePath
+				});
+				file.fetch();
+
+				$('#tabs').append('<li class><a href="#terminalRegion' + file.get('fileName') + '" data-toggle="tab">' + file.get('fileName') + '</a></li>');
+				$('#tab_content').append('<div class="tab-pane fade" id="terminalRegion' + file.get('fileName') + '"></div>');
+
+				var editorView = new Editorview({
+					vent : vent,
+					user : user,
+					model : file,
+				});
+				editorView.render();
+				$('#terminalRegion' + file.get('fileName')).append(editorView.el);
 			});
 
 		}
