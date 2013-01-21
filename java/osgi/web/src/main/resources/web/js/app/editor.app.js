@@ -51,9 +51,7 @@ define(['jquery', 'underscore', 'backbone', 'marionette', 'socketio', 'js/views/
 	vent.bindTo(vent, 'auth:loggedIn', function() {
 		//EditorApp.mainRegion.show(new EditorView());
 		socket = io.connect('http://localhost:8081/');
-
-		socket.on('connect', function() {
-			EditorApp.userPanelRegion.show(new UserPanelView({
+		EditorApp.userPanelRegion.show(new UserPanelView({
 				model : user,
 				vent : vent
 			}));
@@ -62,6 +60,7 @@ define(['jquery', 'underscore', 'backbone', 'marionette', 'socketio', 'js/views/
 				socket : socket,
 				vent : vent
 			}));
+		socket.on('connect', function() {
 		});
 		
 		//EditorApp.consoleRegion.show(new ConsoleView());

@@ -30,7 +30,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>web</artifactId>
-	<name>DEVCLOUD</name>
+	<name>DEVCLOUD Web</name>
 	<packaging>bundle</packaging>
 	<parent>
 		<groupId>com.tintin.devcloud</groupId>
