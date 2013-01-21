@@ -8,3 +8,4 @@ load
 .project
 devcloudUserDatabase
 .metadata
+node_modules
