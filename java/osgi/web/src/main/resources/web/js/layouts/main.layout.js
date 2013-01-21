@@ -13,13 +13,9 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 		events : {
 			'shown a[data-toggle="tab"]' : 'tabShown',
 			'click a[id="new_terminal_button"]' : 'addNewTerminal',
-<<<<<<< HEAD
 			'click a[id="run_button"]' : 'run',
-			'click .icon-remove' : 'removeTab'
-=======
 			'click .icon-remove' : 'removeTab',
 			'click .icon-check' : 'saveFile'
->>>>>>> 8c4fc1093d18d5e58ffb9bd50b00958536716b57
 		},
 
 		onRender : function() {
