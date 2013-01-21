@@ -45,6 +45,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.net.URLDecoder;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -68,23 +69,16 @@ public class FileResource {
 	private static final String APPLICATION_FORM_URLENCODED = null;
 
 	@POST
-	public String getStatus(@FormParam("filename") String fileName,
-			@FormParam("content") String content,
-			@FormParam("username") String username) {
+	@Consumes(MediaType.APPLICATION_JSON)
+	public String getStatus(FileModel fileModel) {
 		try {
-			System.out.println(username);
-			System.out.println(fileName);
-			System.out.println(content);
+			System.out.println(fileModel.getPath());
+			System.out.println(fileModel.getFileName());
+			System.out.println(fileModel.getContent());
 
-			File dir = new File(username);
-			if (!dir.exists()) {
-				dir.mkdirs();
-			}
-			BufferedWriter out = new BufferedWriter(new FileWriter(username
-					+ "/" + fileName));
-			out.write(content);
-			System.out.println(content);
-			System.out.println(username);
+			BufferedWriter out = new BufferedWriter(new FileWriter(
+					fileModel.getPath()));
+			out.write(fileModel.getContent());
 			out.close();
 		} catch (Exception e) {
 			return e.toString();
