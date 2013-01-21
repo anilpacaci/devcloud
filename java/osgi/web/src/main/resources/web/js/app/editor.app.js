@@ -49,7 +49,17 @@ define(['jquery', 'underscore', 'backbone', 'marionette', 'socketio', 'js/views/
 	});
 
 	vent.bindTo(vent, 'auth:loggedIn', function() {
-		if(!socket || !socket.socket.connected) {
+		EditorApp.userPanelRegion.show(new UserPanelView({
+			model : user,
+			vent : vent
+		}));
+		EditorApp.mainRegion.show(new MainLayout({
+			user : user,
+			socket : socket,
+			vent : vent
+		}));
+/*
+		if (!socket || !socket.socket.connected) {
 			socket = io.connect('http://localhost:8081/');
 
 			socket.on('connect', function() {
@@ -63,7 +73,7 @@ define(['jquery', 'underscore', 'backbone', 'marionette', 'socketio', 'js/views/
 					vent : vent
 				}));
 			});
-		} else if(socket.socket.connected) {
+		} else if (socket.socket.connected) {
 			EditorApp.userPanelRegion.show(new UserPanelView({
 				model : user,
 				vent : vent
@@ -73,15 +83,14 @@ define(['jquery', 'underscore', 'backbone', 'marionette', 'socketio', 'js/views/
 				socket : socket,
 				vent : vent
 			}));
-		}
-		
+		} */
+
 		//EditorApp.consoleRegion.show(new ConsoleView());
 	});
 
 	vent.bindTo(vent, 'auth:logout', function() {
-		if(socket)
+		if (socket)
 			socket.emit('logout');
-
 
 		vent.trigger('main:logout');
 
