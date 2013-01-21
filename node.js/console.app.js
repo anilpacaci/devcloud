@@ -54,6 +54,7 @@ io.sockets.on('connection', function(socket) {
   socket.on('data', function(data) {
     var terminal_id = data.id;
     var terminal_data = data.data;
+    debugger;
     for(var i=0; i<socket.terminals.length; i++) {
       if(terminal_id == socket.terminals[i].id) {
         socket.terminals[i].term.write(data.data);
@@ -62,10 +63,24 @@ io.sockets.on('connection', function(socket) {
     }
   });
 
-  socket.on('disconnect', function() {
+  // socket.on('force_disconnect', function() {
+  //   socket.disconnect();
+  // })
+
+  socket.on('logout', function() {
     for(var i=0; i<socket.terminals.length; i++) {
       socket.terminals[i].term.destroy();
     }
+
+    socket.terminals = [];
+  });
+  
+  socket.on('disconnect', function() {
+    // debugger;
+    for(var i=0; i<socket.terminals.length; i++) {
+      socket.terminals[i].term.destroy();
+    }
+    // socket.disconnect();
     var index = socketList.indexOf(socket);
     socketList.splice(index, 1);
   });

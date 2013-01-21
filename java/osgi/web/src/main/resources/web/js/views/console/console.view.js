@@ -11,8 +11,8 @@ define(['jquery', 'backbone', 'marionette', 'socketio', 'term' , 'text!templates
 					_this.terminal.focus();
 				}
 			})
-			this.bindTo(vent, 'terminal:unfocused', function(id) {
-				if(_this.terminal && id == _this.terminal_id) {
+			this.bindTo(vent, 'terminal:unfocused', function() {
+				if(_this.terminal) {
 					_this.terminal.unfocus();
 				}
 			})
