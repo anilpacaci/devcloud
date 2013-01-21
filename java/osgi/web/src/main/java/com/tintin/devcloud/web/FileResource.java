@@ -45,8 +45,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.net.URLDecoder;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.CookieParam;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -96,14 +94,16 @@ public class FileResource {
 	}
 
 	@GET
-	@Produces(MediaType.APPLICATION_FORM_URLENCODED)
-	public Response getFile(@QueryParam("filename") String fileName) {
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getFile(@QueryParam("path") String filePath) {
 		try {
-			fileName = URLDecoder.decode(fileName, "UTF-8");
+			String fileName = URLDecoder.decode(filePath, "UTF-8");
 			File file = new File(fileName);
 			String content = FileUtils.readFileToString(file);
 
-			return Response.ok(new FileModel(fileName, content)).build();
+			return Response
+					.ok(new FileModel(file.getName(), content, filePath))
+					.build();
 		} catch (Exception e) {
 			return Response.serverError().build();
 		}

@@ -12,24 +12,27 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/explorer/file
 				collapseSpeed : 1000,
 				multiFolder : false
 			}, function(filePath) {
-				alert('click');
-				alert(filePath);
 
 				file = new FileModel({
-					fileName : filePath
+					path : filePath
 				});
-				file.fetch();
-
-				$('#tabs').append('<li class><a href="#terminalRegion' + file.get('fileName') + '" data-toggle="tab">' + file.get('fileName') + '</a></li>');
-				$('#tab_content').append('<div class="tab-pane fade" id="terminalRegion' + file.get('fileName') + '"></div>');
-
-				var editorView = new Editorview({
-					vent : vent,
-					user : user,
-					model : file,
+				file.fetch({
+					async : false
 				});
-				editorView.render();
-				$('#terminalRegion' + file.get('fileName')).append(editorView.el);
+				fileName = file.get('fileName').split('.')[0];
+
+				if ($('#terminalRegion' + fileName).size() == 0) {
+					$('#tabs').append('<li class><a href="#terminalRegion' + fileName + '" data-toggle="tab">' + file.get('fileName') + '<i class="icon-remove"></i></a></li>');
+					$('#tab_content').append('<div class="tab-pane fade" id="terminalRegion' + fileName + '"></div>');
+
+					var editorView = new EditorView({
+						vent : vent,
+						user : user,
+						model : file,
+					});
+					editorView.render();
+					$('#terminalRegion' + fileName).append(editorView.el);
+				}
 			});
 
 		}

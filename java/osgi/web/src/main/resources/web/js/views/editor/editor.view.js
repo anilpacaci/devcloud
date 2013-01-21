@@ -12,16 +12,22 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 				this.model = file;
 			})
 		},
+		modelEvents : {
+			"change" : "modelChanged"
+		},
 		onRender : function() {
-		
-			if(!this.model) {
+
+			if (!this.model) {
 				this.model = new FileModel();
 			}
-		
+
 			vent = this.options.vent;
 			this.editor = ace.edit(this.$('#editor').get(0));
 			this.editor.setTheme("ace/theme/monokai");
 			this.editor.getSession().setMode("ace/mode/c_cpp");
+			this.editor.setValue(this.model.get('content'));
+		},
+		modelChanged : function() {
 			this.editor.setValue(this.model.get('content'));
 		},
 

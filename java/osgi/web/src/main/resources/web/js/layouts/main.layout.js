@@ -12,7 +12,8 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 
 		events : {
 			'shown a[data-toggle="tab"]' : 'tabShown',
-			'click a[id="new_terminal_button"]' : 'addNewTerminal'
+			'click a[id="new_terminal_button"]' : 'addNewTerminal',
+			'click .icon-remove' : 'removeTab'
 		},
 
 		onRender : function() {
@@ -40,15 +41,15 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 		},
 
 		tabShown : function(e) {
-			if(e.target.hash.slice(0,e.target.hash.length-1) == '#terminalRegion') {
-				this.options.vent.trigger('terminal:focused', e.target.hash[e.target.hash.length-1]);
+			if (e.target.hash.slice(0, e.target.hash.length - 1) == '#terminalRegion') {
+				this.options.vent.trigger('terminal:focused', e.target.hash[e.target.hash.length - 1]);
 			} else {
 				this.options.vent.trigger('terminal:unfocused');
 			}
 		},
 
 		addNewTerminal : function(e) {
-			if(this.terminal_count < 5) {
+			if (this.terminal_count < 5) {
 				$('#tabs').append('<li class><a href="#terminalRegion' + this.terminal_count + '" data-toggle="tab">Terminal ' + this.terminal_count + '</a></li>');
 				$('#tab_content').append('<div class="tab-pane fade" id="terminalRegion' + this.terminal_count + '"></div>');
 
@@ -59,11 +60,16 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 					id : this.terminal_count
 				});
 				consoleView.render();
-				$('#terminalRegion'+this.terminal_count).append(consoleView.el);
+				$('#terminalRegion' + this.terminal_count).append(consoleView.el);
 				this.terminal_count++;
 			} else {
 				alert("You can not create more than 5 terminals.")
 			}
+		},
+		removeTab : function(e) {
+			var id = $(e.currentTarget).parent().attr('href');
+			$(e.currentTarget).parent().remove();
+			$('#' + id).remove();
 		}
 	});
 
