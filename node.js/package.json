@@ -1,0 +1,14 @@
+{
+  "name": "console.app.js",
+  "description": "TinTin IDE",
+  "version": "0.1.1",
+  "author": {
+    "name": "TinTin"
+  },
+  "dependencies": {
+    "node-uuid": "1.4.0",
+    "socket.io": "0.9.11",
+    "pty.js": "0.1.2",
+    "tty.js": "0.2.8"
+  }
+}
