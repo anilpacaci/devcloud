@@ -51,6 +51,8 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 		},
 
 		addNewTerminal : function(e) {
+			if(!socket || !socket.socket.connected)
+				return;
 			if (this.terminal_count < 5) {
 				$('#tabs').append('<li class><a href="#terminalRegion' + this.terminal_count + '" data-toggle="tab">Terminal ' + this.terminal_count + '<i class="icon-remove"></i></a></li>');
 				$('#tab_content').append('<div class="tab-pane fade" id="terminalRegion' + this.terminal_count + '"></div>');
@@ -70,6 +72,11 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 		},
 		removeTab : function(e) {
 			var id = $(e.currentTarget).parent().attr('href');
+			if(id.substring(0, id.length-1) == '#terminalRegion') {
+				var terminal_id = id.substring(id.length-1, id.length);
+				this.options.vent.trigger('terminal:unfocused');
+				this.options.vent.trigger('terminal:destroy', terminal_id);
+			}
 			$(e.currentTarget).parent().remove();
 			$('#' + id).remove();
 		},
