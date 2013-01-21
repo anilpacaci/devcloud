@@ -13,6 +13,7 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 		events : {
 			'shown a[data-toggle="tab"]' : 'tabShown',
 			'click a[id="new_terminal_button"]' : 'addNewTerminal',
+			'click a[id="run_button"]' : 'run',
 			'click .icon-remove' : 'removeTab'
 		},
 
@@ -77,6 +78,9 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 
 			$(e.currentTarget).parent().remove();
 			$('#' + id).remove();
+		},
+		run : function(e) {
+			alert('run button is pressed.');
 		}
 	});
 
