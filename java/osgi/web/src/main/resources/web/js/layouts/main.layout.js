@@ -91,6 +91,7 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 		saveFile : function(e) {
 			var id = $(e.currentTarget).parent().attr('href');
 			$(id + " button").click();
+			this.fileTree.currentView.render();
 		}
 	});
 
