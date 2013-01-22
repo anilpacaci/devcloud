@@ -35,6 +35,8 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 
 			this.bindTo(vent, 'main:logout', function() {
 				vent.trigger('terminal:unfocused');
+				vent.trigger('process:unfocused');
+				vent.trigger('process:destroy');
 				vent.trigger('terminal:destroy');
 			})
 			// this.terminal.show(new ConsoleView({
@@ -78,6 +80,10 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 				var terminal_id = id.substring(id.length - 1, id.length);
 				this.options.vent.trigger('terminal:unfocused');
 				this.options.vent.trigger('terminal:destroy', terminal_id);
+			} else if(id.substring(0, 'processRegion'.length+1) == '#processRegion') {
+				var process_id = id.substring('processRegion'.length+1, id.length);
+				this.options.vent.trigger('process:unfocused');
+				this.options.vent.trigger('process:destroy', process_id);
 			}
 			$(e.currentTarget).parent().remove();
 			$(id).remove();

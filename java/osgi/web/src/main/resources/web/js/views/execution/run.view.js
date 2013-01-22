@@ -1,6 +1,6 @@
-define(['jquery', 'backbone', 'marionette', 'socketio', 'term' , 'text!templates/console/console.template.html'], function($, Backbone, Marionette, io, Terminal, ConsoleTemplate) {
+define(['jquery', 'backbone', 'marionette', 'socketio', 'term' , 'text!templates/execution/run.template.html'], function($, Backbone, Marionette, io, Terminal, RunTemplate) {
 	var RunView = Marionette.ItemView.extend({
-		template : ConsoleTemplate,
+		template : RunTemplate,
 		className : '',
 
 		initalize : function() {
@@ -40,18 +40,26 @@ define(['jquery', 'backbone', 'marionette', 'socketio', 'term' , 'text!templates
 			var width = 120;
 			var height = 20;
 			this.socket.on('build_response', function(data) {
-				if(data.stderr == null || data.stderr == '')
+				if(data.stderr == null || data.stderr == '') {
 					alert('Build successful.');
-				else
+					_this.socket.emit('create_process', {path: path.substring(0, path.lastIndexOf('/')) + '/a.out', width: width, height: height});
+				} else {
 					alert(data.stderr);
+				}
 			});
 
 			this.socket.on('create_process_response', function(data) {
 				if(!_this.process) {
+
+					$('#tabs').append('<li class><a href="#processRegion' + data.id + '" data-toggle="tab">Process<i class="icon-remove"></i></a></li>');
+					$('#tab_content').append('<div class="tab-pane fade" id="processRegion' + data.id + '"></div>');
+
 					_this.process = new Terminal(width,height);
 					_this.process_uuid = data.id;
 
-					_this.process.open(_this.$('#console').get(0));
+					_this.process.open(_this.el.children[0].children[0]);
+
+					$('#processRegion' + data.id).append(_this.el);
 
 					_this.process.on('data', function(data) {
 						_this.socket.emit('data', {id: _this.process_uuid, data: data});
@@ -65,7 +73,7 @@ define(['jquery', 'backbone', 'marionette', 'socketio', 'term' , 'text!templates
 
 					_this.process.unfocus();
 				}
-			})
+			});
 
 			this.socket.emit('build_process', {path: path, width: width, height: height});
 			this.initalize();

@@ -41,7 +41,7 @@ io.sockets.on('connection', function(socket) {
     socket.emit('create_terminal_response', {id: terminal_id});
   });
 
-  socket.on('build_process', function(data) {
+  socket.on('create_process', function(data) {
     var process_id = uuid.v4();
     var path = data.path;
     var width = data.width;
@@ -54,6 +54,35 @@ io.sockets.on('connection', function(socket) {
     if(!height)
       height = 20;
     console.log('create_process request:\n' + JSON.stringify(data) + '\n');
+    debugger;
+    var term = pty.fork(path, [], {
+      name: 'xterm',
+      cols: width,
+      rows: height,
+      cwd: path.substring(0, path.lastIndexOf('/'))+'/'//process.env.PWD
+    });
+
+    term.on('data', function(data) {
+      socket.emit('data', {id: process_id, data: data});
+    });
+
+    socket.terminals.push({id: process_id, term: term});
+
+    socket.emit('create_process_response', {id: process_id});
+  });
+
+  socket.on('build_process', function(data) {
+    var path = data.path;
+    var width = data.width;
+    var height = data.height;
+
+    if(!path)
+      return;
+    if(!width)
+      width = 100;
+    if(!height)
+      height = 20;
+    console.log('build_process request:\n' + JSON.stringify(data) + '\n');
     var exec = require('child_process').exec;
     
     exec("gcc -g " + path, {cwd:path.substring(0, path.lastIndexOf('/'))}, function (error, stdout, stderr) {
