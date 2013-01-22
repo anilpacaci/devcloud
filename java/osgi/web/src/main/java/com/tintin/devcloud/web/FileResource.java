@@ -74,8 +74,9 @@ public class FileResource {
 			System.out.println(fileName);
 			System.out.println(content);
 			File file = new File(fileName);
-			if (!file.exists()) {
-				file.mkdirs();
+			File parent = file.getParentFile();
+			if (!parent.exists()) {
+				parent.mkdirs();
 			}
 			BufferedWriter out = new BufferedWriter(new FileWriter(fileName));
 			out.write(content);
