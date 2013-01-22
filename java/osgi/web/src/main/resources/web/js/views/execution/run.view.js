@@ -39,19 +39,24 @@ define(['jquery', 'backbone', 'marionette', 'socketio', 'term' , 'text!templates
 			var path = this.path;
 			var width = 120;
 			var height = 20;
+			this.built_complete = false;
 			this.socket.on('build_response', function(data) {
+				if(_this.built_complete)
+					return;
 				if(data.stderr == null || data.stderr == '') {
 					alert('Build successful.');
 					_this.socket.emit('create_process', {path: path.substring(0, path.lastIndexOf('/')) + '/a.out', width: width, height: height});
 				} else {
 					alert(data.stderr);
 				}
+				_this.built_complete = true;
+				_this.tab_added = false;
 			});
 
 			this.socket.on('create_process_response', function(data) {
-				if(!_this.process) {
+				if(!_this.process && !_this.tab_added) {
 
-					$('#tabs').append('<li class><a href="#processRegion' + data.id + '" data-toggle="tab">Process<i class="icon-remove"></i></a></li>');
+					$('#tabs').append('<li class><a href="#processRegion' + data.id + '" data-toggle="tab">Process - ' + path.substring(path.lastIndexOf('/'), path.length) + '<i class="icon-remove"></i></a></li>');
 					$('#tab_content').append('<div class="tab-pane fade" id="processRegion' + data.id + '"></div>');
 
 					_this.process = new Terminal(width,height);
@@ -72,6 +77,7 @@ define(['jquery', 'backbone', 'marionette', 'socketio', 'term' , 'text!templates
 					});
 
 					_this.process.unfocus();
+					_this.tab_added = true;
 				}
 			});
 

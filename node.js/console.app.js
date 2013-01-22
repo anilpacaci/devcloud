@@ -54,7 +54,6 @@ io.sockets.on('connection', function(socket) {
     if(!height)
       height = 20;
     console.log('create_process request:\n' + JSON.stringify(data) + '\n');
-    debugger;
     var term = pty.fork(path, [], {
       name: 'xterm',
       cols: width,
@@ -107,6 +106,18 @@ io.sockets.on('connection', function(socket) {
   });
 
   socket.on('destroy_terminal', function(data) {
+    var terminal_id = data.id;
+    debugger;
+    for(var i=0; i<socket.terminals.length; i++) {
+      if(terminal_id == socket.terminals[i].id) {
+        socket.terminals[i].term.destroy();
+        socket.terminals.splice(i, 1);
+        break;
+      }
+    }
+  });
+
+  socket.on('destroy_process', function(data) {
     var terminal_id = data.id;
     debugger;
     for(var i=0; i<socket.terminals.length; i++) {
