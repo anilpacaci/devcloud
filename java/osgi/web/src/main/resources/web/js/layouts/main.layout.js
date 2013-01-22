@@ -28,7 +28,8 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			}));
 			this.editor.show(new EditorView({
 				vent : vent,
-				socket : socket
+				socket : socket,
+				user : user
 			}));
 			this.terminal_count = 0;
 
@@ -52,7 +53,7 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 		},
 
 		addNewTerminal : function(e) {
-			if(!socket || !socket.socket.connected)
+			if (!socket || !socket.socket.connected)
 				return;
 			if (this.terminal_count < 5) {
 				$('#tabs').append('<li class><a href="#terminalRegion' + this.terminal_count + '" data-toggle="tab">Terminal ' + this.terminal_count + '<i class="icon-remove"></i></a></li>');
@@ -73,13 +74,13 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 		},
 		removeTab : function(e) {
 			var id = $(e.currentTarget).parent().attr('href');
-			if(id.substring(0, id.length-1) == '#terminalRegion') {
-				var terminal_id = id.substring(id.length-1, id.length);
+			if (id.substring(0, id.length - 1) == '#terminalRegion') {
+				var terminal_id = id.substring(id.length - 1, id.length);
 				this.options.vent.trigger('terminal:unfocused');
 				this.options.vent.trigger('terminal:destroy', terminal_id);
 			}
 			$(e.currentTarget).parent().remove();
-			$('#' + id).remove();
+			$(id).remove();
 		},
 		saveFile : function(e) {
 			var id = $(e.currentTarget).parent().attr('href');
