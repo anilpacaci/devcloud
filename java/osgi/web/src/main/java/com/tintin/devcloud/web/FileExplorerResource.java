@@ -104,7 +104,13 @@ public class FileExplorerResource {
 			}
 			for (File file : fileList) {
 				String path = file.getAbsolutePath().replace("\\", "/");
-				response.append("<li class='file ext_txt'><a href='#' rel='")
+				String extension = "";
+
+				int i = path.lastIndexOf('.');
+				if (i > 0) {
+				    extension = path.substring(i+1);
+				}
+				response.append("<li class='file ext_" + extension + "'><a href='#' rel='")
 						.append(path).append("'>").append(file.getName())
 						.append("</a></li>");
 			}

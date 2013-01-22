@@ -2155,7 +2155,7 @@ table [class*=span],
 }
 
 /* White icons with optional class, or on hover/active states of certain elements */
-
+/*
 .icon-white,
 .nav-tabs > .active > a > [class^="icon-"],
 .nav-tabs > .active > a > [class*=" icon-"],
@@ -2170,7 +2170,7 @@ table [class*=span],
 .dropdown-menu > .active > a > [class^="icon-"],
 .dropdown-menu > .active > a > [class*=" icon-"] {
   background-image: url("../../img/bootstrap/glyphicons-halflings-white.png");
-}
+}*/
 
 .icon-glass {
   background-position: 0      0;
