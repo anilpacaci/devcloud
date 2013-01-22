@@ -20,7 +20,10 @@ import org.slf4j.LoggerFactory;
 import com.tintin.devcloud.web.auth.AuthenticationManager;
 import com.tintin.devcloud.web.auth.Session;
 import com.tintin.devcloud.web.auth.User;
+import com.tintin.devcloud.web.auth.UserManager;
+import com.tintin.devcloud.web.auth.UserManager.AccessLevel;
 import com.tintin.devcloud.web.util.LoginModel;
+import com.tintin.devcloud.web.util.RegisterModel;
 import com.tintin.devcloud.web.util.WebUtil;
 
 @Path("/auth")
@@ -83,4 +86,22 @@ public class AuthenticationResource {
 		return Response.ok(user).build();
 	}
 
+	@PUT
+	@Path("/register")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response registerUser(RegisterModel registerModel) {
+
+		UserManager userManager = UserManager.getInstance();
+		User user = null;
+		try {
+			user = userManager.createNewUser(registerModel.getEmail(),
+					registerModel.getPassword(), "Mr.",
+					registerModel.getFirstName(), registerModel.getLastName(),
+					AccessLevel.READWRITE);
+		} catch (IllegalAccessException e) {
+			return Response.serverError().build();
+		}
+		return Response.ok(user).build();
+	}
 }

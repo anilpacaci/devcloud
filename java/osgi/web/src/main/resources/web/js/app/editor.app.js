@@ -1,4 +1,4 @@
-define(['jquery', 'underscore', 'backbone', 'marionette', 'socketio', 'js/views/auth/login.view', 'js/views/auth/user.panel.view', 'js/layouts/main.layout', 'js/models/auth/login.model', 'js/models/auth/user.model', 'jquery_cookie', 'bootstrap'], function($, _, Backbone, Marionette, io, LoginView, UserPanelView, MainLayout, LoginModel, UserModel) {
+define(['jquery', 'underscore', 'backbone', 'marionette', 'socketio', 'js/views/auth/login.view', 'js/views/auth/register.view', 'js/views/auth/user.panel.view', 'js/layouts/main.layout', 'js/models/auth/login.model', 'js/models/auth/register.model', 'js/models/auth/user.model', 'jquery_cookie', 'bootstrap'], function($, _, Backbone, Marionette, io, LoginView, RegisterView, UserPanelView, MainLayout, LoginModel, RegisterModel, UserModel) {
 
 	/**
 	 * SOME GLOBAL FUNCTIONS THAT ARE OVERRIDED *
@@ -24,6 +24,7 @@ define(['jquery', 'underscore', 'backbone', 'marionette', 'socketio', 'js/views/
 	var EditorApp = new Marionette.Application();
 	var vent = EditorApp.vent;
 	var loginModel = new LoginModel();
+	var registerModel = new RegisterModel();
 	var user = new UserModel();
 	var socket = null;
 
@@ -99,6 +100,14 @@ define(['jquery', 'underscore', 'backbone', 'marionette', 'socketio', 'js/views/
 		EditorApp.userPanelRegion.close();
 		EditorApp.mainRegion.show(new LoginView({
 			model : loginModel,
+			vent : vent,
+			user : user
+		}));
+	});
+
+	vent.bindTo(vent, 'auth:register', function() {
+		EditorApp.mainRegion.show(new RegisterView({
+			model : registerModel,
 			vent : vent,
 			user : user
 		}));

@@ -11,7 +11,8 @@ require.config({
 		socketio : 'js/libs/socket.io/socket.io',
 		term : 'js/libs/term/term',
 		bootstrap : 'js/libs/bootstrap/bootstrap',
-		filetree : 'js/libs/jquery/jqueryFileTree'
+		filetree : 'js/libs/jquery/jqueryFileTree',
+		validate : 'js/libs/jquery/jqueryValidate'
 	},
 
 	shim : {
@@ -50,6 +51,10 @@ require.config({
 			deps : ['jquery']
 		},
 		'filetree' : {
+			deps : ['jquery'],
+			exports : '$'
+		},
+		'validate' : {
 			deps : ['jquery'],
 			exports : '$'
 		}
