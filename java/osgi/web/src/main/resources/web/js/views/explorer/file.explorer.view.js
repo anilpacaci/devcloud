@@ -29,6 +29,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/explorer/file
 						vent : vent,
 						user : user,
 						model : file,
+						socket : socket
 					});
 					editorView.render();
 					$('#editorRegion' + fileName).append(editorView.el);

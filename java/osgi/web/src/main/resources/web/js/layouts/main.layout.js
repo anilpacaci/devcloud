@@ -13,7 +13,6 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 		events : {
 			'shown a[data-toggle="tab"]' : 'tabShown',
 			'click a[id="new_terminal_button"]' : 'addNewTerminal',
-			'click a[id="run_button"]' : 'run',
 			'click .icon-remove' : 'removeTab',
 			'click .icon-check' : 'saveFile'
 		},
@@ -24,10 +23,12 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			socket = this.options.socket;
 			this.fileTree.show(new FileExplorerView({
 				vent : vent,
-				user : user
+				user : user,
+				socket : socket
 			}));
 			this.editor.show(new EditorView({
-				vent : vent
+				vent : vent,
+				socket : socket
 			}));
 			this.terminal_count = 0;
 
@@ -79,9 +80,6 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			}
 			$(e.currentTarget).parent().remove();
 			$('#' + id).remove();
-		},
-		run : function(e) {
-			alert('run button is pressed.');
 		},
 		saveFile : function(e) {
 			var id = $(e.currentTarget).parent().attr('href');

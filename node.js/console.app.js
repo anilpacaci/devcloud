@@ -1,6 +1,7 @@
 var io = require('socket.io').listen(8081),
     pty = require('pty.js'),
-    uuid = require('node-uuid');
+    uuid = require('node-uuid'),
+    sys = require('sys');
 
 process.title = 'tty.js test';
 
@@ -40,8 +41,45 @@ io.sockets.on('connection', function(socket) {
     socket.emit('create_terminal_response', {id: terminal_id});
   });
 
+  socket.on('build_process', function(data) {
+    var process_id = uuid.v4();
+    var path = data.path;
+    var width = data.width;
+    var height = data.height;
+
+    if(!path)
+      return;
+    if(!width)
+      width = 100;
+    if(!height)
+      height = 20;
+    console.log('create_process request:\n' + JSON.stringify(data) + '\n');
+    var exec = require('child_process').exec;
+    
+    exec("gcc -g " + path, {cwd:path.substring(0, path.lastIndexOf('/'))}, function (error, stdout, stderr) {
+      socket.emit('build_response', {output: stdout, error: error, stderr: stderr});
+      // sys.puts(stdout);
+    });
+
+    // var term = pty.fork(process.env.SHELL || 'sh', [], {
+    //   name: 'xterm',
+    //   cols: width,
+    //   rows: height,
+    //   cwd: path//process.env.PWD
+    // });
+
+    // term.on('data', function(data) {
+    //   socket.emit('data', {id: terminal_id, data: data});
+    // });
+
+    // socket.terminals.push({id: terminal_id, term: term});
+
+    // socket.emit('create_terminal_response', {id: terminal_id});
+  });
+
   socket.on('destroy_terminal', function(data) {
     var terminal_id = data.id;
+    debugger;
     for(var i=0; i<socket.terminals.length; i++) {
       if(terminal_id == socket.terminals[i].id) {
         socket.terminals[i].term.destroy();

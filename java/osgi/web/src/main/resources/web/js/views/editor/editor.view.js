@@ -1,9 +1,10 @@
-define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor.template.html', 'js/models/editor/file.model'], function($, Backbone, Marionette, ace, EditorTemplate, FileModel) {
+define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor.template.html', 'js/models/editor/file.model', 'js/views/execution/run.view'], function($, Backbone, Marionette, ace, EditorTemplate, FileModel, RunView) {
 	var EditorView = Marionette.ItemView.extend({
 		template : EditorTemplate,
 		className : '',
 		events : {
-			'click button' : 'saveButton'
+			'click button' : 'saveButton',
+			'click a[id="run_button"]' : 'run'
 		},
 		initalize : function() {
 			vent = this.options.vent;
@@ -49,6 +50,25 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 				success : function() {
 				}
 			});
+		},
+		run : function(e) {
+			var file = this.model;
+			if(!file)
+				return;
+			var path = file.get('path');
+			if(path == '' || path.substring(path.length-2, path.length) != '.c') {
+				alert('This file type is not supported currently.');
+				return;
+			}
+			if(!socket || !socket.socket.connected)
+				return;
+			var runView = new RunView({
+				vent : vent,
+				user : user,
+				socket : socket,
+				path : path
+			});
+			runView.render();
 		}
 	});
 	return EditorView;
