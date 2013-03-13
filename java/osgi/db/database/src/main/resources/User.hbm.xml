@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <hibernate-mapping>
-    <class name="com.tintin.devcloud.database.model.Honey" table="User">
+    <class name="com.tintin.devcloud.database.model.User" table="User">
         <id name="id" column="id" type="java.lang.Integer">
             <generator class="increment"/>
         </id>

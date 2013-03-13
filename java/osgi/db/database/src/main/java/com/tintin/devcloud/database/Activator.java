@@ -44,6 +44,12 @@ import java.util.logging.Logger;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import java.util.Iterator;
+import java.util.List;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import com.tintin.devcloud.database.model.User;
 
 public class Activator implements BundleActivator {
 
@@ -56,6 +62,8 @@ public class Activator implements BundleActivator {
 			BundleUtils.getInstance().setBundle(arg0.getBundle());
 		}
 
+		test();
+
 		logger.info("Activator start() END");
 	}
 
@@ -63,4 +71,25 @@ public class Activator implements BundleActivator {
 	public synchronized void stop(BundleContext arg0) throws Exception {
 		logger.info("Activator stop()");
 	}
+
+	public void test() throws Exception {
+        logger.info("Application test() START");
+        Session session = null;
+        try {
+            Configuration cfg = new Configuration();
+            cfg.configure(BundleUtils.getInstance().loadResourceURL("/hibernate.cfg.xml"));
+            cfg.addDocument(BundleUtils.getInstance().loadResourceXML("/User.hbm.xml"));
+            SessionFactory sessionFactory = cfg.buildSessionFactory();
+            session = sessionFactory.openSession();
+            List<User> list = session.createCriteria(User.class).list();
+            for (Iterator<User> iter = list.iterator(); iter.hasNext();) {
+                User element = iter.next();
+                logger.info(element.toString());
+            }
+            session.close();
+        } catch (Exception bhe) {
+            logger.info("Exception caught: "+bhe.getMessage());
+            throw bhe;
+        } 
+    }
 }
