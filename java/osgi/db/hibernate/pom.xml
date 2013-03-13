@@ -38,6 +38,9 @@
 						<_exportcontents>
 							org.hibernate*
 						</_exportcontents>
+						<Require-Bundle>
+							com.tintin.devcloud.database
+						</Require-Bundle>
 					</instructions>
 				</configuration>
 			</plugin>
