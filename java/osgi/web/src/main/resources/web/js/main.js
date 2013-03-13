@@ -61,6 +61,8 @@ require.config({
 	}
 });
 var URL = 'http://localhost:8080/devcloud/';
+var currentTab = null;
+
 require(['js/app/editor.app', 'jquery', 'underscore', 'backbone', 'marionette', 'bootstrap'], function(EditorApp) {
 	EditorApp.start();
 }); 

@@ -5,8 +5,9 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 		regions : {
 			editor : "#editorRegion",
 			// terminal : "#terminalRegion",
-			menu : "#menu",
+	//		menu : "#menu",
 			fileTree : '#fileTreeRegion',
+	//		topMenu : "#menu" 
 			// tabs : '#tabs'
 		},
 
@@ -14,7 +15,16 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			'shown a[data-toggle="tab"]' : 'tabShown',
 			'click a[id="new_terminal_button"]' : 'addNewTerminal',
 			'click .icon-remove' : 'removeTab',
-			'click .icon-check' : 'saveFile'
+			'click .icon-check' : 'saveFile2',
+		//	'click #menuNewFile' : 'testAlert',	
+			'click #menuSave' : 'saveFile2',
+			'click #menuSaveAll' : 'saveAllFiles',
+			'click #menuClose' : 'menuRemoveTab',
+			'click #menuOpenNewTerminal' : 'addNewTerminal',
+			'click #menuRun' : 'run'	
+				
+				
+				
 		},
 
 		onRender : function() {
@@ -31,6 +41,12 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 				socket : socket,
 				user : user
 			}));
+/*			this.menu.show(new TopMenuView({
+				vent : vent,
+				user : user,
+				socket : socket
+			}));
+*/
 			this.terminal_count = 0;
 
 			this.bindTo(vent, 'main:logout', function() {
@@ -88,10 +104,41 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			$(e.currentTarget).parent().remove();
 			$(id).remove();
 		},
+		menuRemoveTab : function(e) {
+			var id =  $("ul#tabs li.active a").attr('href');
+			if (id.substring(0, id.length - 1) == '#terminalRegion') {
+				var terminal_id = id.substring(id.length - 1, id.length);
+				this.options.vent.trigger('terminal:unfocused');
+				this.options.vent.trigger('terminal:destroy', terminal_id);
+			} else if(id.substring(0, 'processRegion'.length+1) == '#processRegion') {
+				var process_id = id.substring('processRegion'.length+1, id.length);
+				this.options.vent.trigger('process:unfocused');
+				this.options.vent.trigger('process:destroy', process_id);
+			}
+			$("ul#tabs li.active").remove();
+			$(id).remove();
+		},
 		saveFile : function(e) {
-			var id = $(e.currentTarget).parent().attr('href');
-			$(id + " button").click();
-			this.fileTree.currentView.render();
+//			alert(e.currentTarget);
+//			var id = $(e.currentTarget).parent().attr('href');
+//			alert(id.constructor);
+//			$(id + " button").click();
+//			this.fileTree.currentView.render();
+		},
+		saveFile2 : function(e) {
+			var activeTab = $("ul#tabs li.active").text();
+			alert($("ul#tabs li.active").parent());
+			var v = this.options.vent;
+			v.trigger('file:save', activeTab);
+		},
+		saveAllFiles : function(e) {
+			var v = this.options.vent;
+			v.trigger('file:saveAll');
+		},
+		run : function(e) {
+			var activeTab =  $("ul#tabs li.active").text();
+			var v = this.options.vent;
+			v.trigger('file:run', activeTab);
 		}
 	});
 
