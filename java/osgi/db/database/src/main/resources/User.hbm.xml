@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hibernate-mapping>
+    <class name="com.tintin.devcloud.database.model.Honey" table="User">
+        <id name="id" column="id" type="java.lang.Integer">
+            <generator class="increment"/>
+        </id>
+        <property name="email" column="email" type="java.lang.String"/>
+        <property name="password" column="password" type="java.lang.String"/>
+    </class>
+</hibernate-mapping>

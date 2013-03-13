@@ -96,6 +96,13 @@
 
 
 	<!-- level 20+ is for DEVCLOUD components -->
+	<startLevel level="27">
+		<bundle>
+			<groupId>com.tintin.devcloud</groupId>
+			<artifactId>hibernate</artifactId>
+			<version>0.1</version>
+		</bundle>
+	</startLevel>
 	<!-- level 29 is for web module after everything is loaded -->
 	<startLevel level="28">
 		<bundle>

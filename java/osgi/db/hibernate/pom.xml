@@ -1,0 +1,61 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.tintin.devcloud</groupId>
+		<artifactId>db</artifactId>
+		<version>0.1</version>
+		<relativePath>../</relativePath>
+	</parent>
+	<artifactId>hibernate</artifactId>
+	<packaging>bundle</packaging>
+	<name>osgi-hibernate-classes</name>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<version>1.4.3</version>
+				<configuration>
+					<instructions>
+						<manifestLocation>META-INF</manifestLocation>
+						<Import-Package>
+							org.apache.commons.logging,
+							javax.sql,
+							javax.naming*,
+							org.w3c.*,
+							org.xml.sax,
+							org.xml.sax.ext,
+							org.xml.sax.helpers,
+							!*
+						</Import-Package>
+						<Embed-Transitive>true</Embed-Transitive>
+						<Embed-Dependency>*</Embed-Dependency>
+						<DynamicImport-Package>
+							com.tintin.devcloud.database.model.*
+						</DynamicImport-Package>
+						<_exportcontents>
+							org.hibernate*
+						</_exportcontents>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate</artifactId>
+			<version>3.2.6.ga</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	
+	</dependencies>
+	
+</project>

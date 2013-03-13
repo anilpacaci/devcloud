@@ -40,45 +40,27 @@
 
 package com.tintin.devcloud.database;
 
-import java.util.Hashtable;
 import java.util.logging.Logger;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
-import org.osgi.util.tracker.ServiceTracker;
-
-import com.tintin.devcloud.database.interfaces.IDatabaseManager;
-import com.tintin.devcloud.database.manager.DatabaseManager;
 
 public class Activator implements BundleActivator {
 
-	private BundleContext bc;
-	private ServiceTracker tracker;
 	private Logger logger = Logger.getLogger(getClass().getName());
-	
-	private IDatabaseManager databaseManager;
-	private ServiceRegistration dbManagerServiceRegistration;
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	public synchronized void start(BundleContext bundleContext)
-			throws Exception {
-		this.bc = bundleContext;
+	public synchronized void start(BundleContext arg0) throws Exception {
+		logger.info("Activator start() START");
+		// because we need to access to the current bundle elsewhere
+		if (arg0 != null) {
+			BundleUtils.getInstance().setBundle(arg0.getBundle());
+		}
 
-		logger.info("STARTING DATABASE BUNDLE");
-
-		databaseManager = new DatabaseManager(this);
-		dbManagerServiceRegistration = bundleContext.registerService(IDatabaseManager.class.getName(), databaseManager, new Hashtable());
-		logger.info("DatabaseManager service registered...");	
-
-		logger.info("DATABASE BUNDLE STARTED");
+		logger.info("Activator start() END");
 	}
 
 	@Override
-	public synchronized void stop(BundleContext bundleContext) throws Exception {
-		databaseManager = null;
-		dbManagerServiceRegistration.unregister();
+	public synchronized void stop(BundleContext arg0) throws Exception {
+		logger.info("Activator stop()");
 	}
-
 }
