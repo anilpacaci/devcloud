@@ -1,26 +1,24 @@
 package com.tintin.devcloud.database.manager;
 
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
 
-import com.tintin.devcloud.database.Activator;
-import com.tintin.devcloud.database.interfaces.IDatabaseManager;
+import com.tintin.devcloud.database.BundleUtils;
 
-public class DatabaseManager implements IDatabaseManager {
+public class DatabaseManager {
 
-	private Activator activator = null;
+	private static SessionFactory hibernateSessionFactory = null;
 	
-	private EntityManagerFactory modelEMF = null;
-	
-	public DatabaseManager(Activator activator) {
-		this.activator = activator;
-		
-		modelEMF = Persistence.createEntityManagerFactory("model");
+	public static void initialize() {
+		Configuration cfg = new Configuration();
+        cfg.configure(BundleUtils.getInstance().loadResourceURL("/hibernate.cfg.xml"));
+        cfg.addDocument(BundleUtils.getInstance().loadResourceXML("/User.hbm.xml"));
+        cfg.addDocument(BundleUtils.getInstance().loadResourceXML("/Session.hbm.xml"));
+        hibernateSessionFactory = cfg.buildSessionFactory();
 	}
 	
-	@Override
-	public EntityManagerFactory getModelEMF() {
-		return modelEMF;
+	public static SessionFactory getHibernateSessionFactory() {
+		return hibernateSessionFactory;
 	}
 
 }

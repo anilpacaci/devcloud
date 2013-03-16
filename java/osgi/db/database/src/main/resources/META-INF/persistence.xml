@@ -1,9 +1,10 @@
 <persistence version="1.0"
 	xmlns="http://java.sun.com/xml/ns/persistence">
-	<persistence-unit name="model">
+	<persistence-unit name="model" transaction-type="RESOURCE_LOCAL">
 		<provider>org.hibernate.ejb.HibernatePersistence</provider>
 
 		<class>com.tintin.devcloud.database.model.User</class>
+		<class>com.tintin.devcloud.database.model.Session</class>
 
 		<properties>
 			<property name="hibernate.show_sql" value="false" />

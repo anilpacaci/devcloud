@@ -130,6 +130,7 @@
 							org.apache.log4j
 						</Import-Package>
 						<Export-Package>
+							com.tintin.devcloud.database.interfaces.*,
 							com.tintin.devcloud.database.model.*,
 							javax.persistence.*
 						</Export-Package>

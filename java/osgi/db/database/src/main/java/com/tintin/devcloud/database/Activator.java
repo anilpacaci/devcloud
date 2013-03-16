@@ -40,36 +40,45 @@
 
 package com.tintin.devcloud.database;
 
-import java.util.logging.Logger;
-
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
+
+import com.tintin.devcloud.database.interfaces.IAuthenticationService;
+import com.tintin.devcloud.database.manager.DatabaseManager;
 import com.tintin.devcloud.database.model.User;
+import com.tintin.devcloud.database.service.AuthenticationService;
 
 public class Activator implements BundleActivator {
 
 	private Logger logger = Logger.getLogger(getClass().getName());
 
-	public synchronized void start(BundleContext arg0) throws Exception {
+	private ServiceRegistration authenticationService;
+	
+	public synchronized void start(BundleContext context) throws Exception {
 		logger.info("Activator start() START");
 		// because we need to access to the current bundle elsewhere
-		if (arg0 != null) {
-			BundleUtils.getInstance().setBundle(arg0.getBundle());
+		if (context != null) {
+			BundleUtils.getInstance().setBundle(context.getBundle());
 		}
 
-		test();
+		DatabaseManager.initialize();
+		authenticationService = context.registerService(IAuthenticationService.class.getName(), new AuthenticationService(), null);
 
 		logger.info("Activator start() END");
 	}
 
 	@Override
-	public synchronized void stop(BundleContext arg0) throws Exception {
+	public synchronized void stop(BundleContext context) throws Exception {
 		logger.info("Activator stop()");
+		authenticationService.unregister();
 	}
 
 	public void test() throws Exception {
@@ -79,11 +88,18 @@ public class Activator implements BundleActivator {
             Configuration cfg = new Configuration();
             cfg.configure(BundleUtils.getInstance().loadResourceURL("/hibernate.cfg.xml"));
             cfg.addDocument(BundleUtils.getInstance().loadResourceXML("/User.hbm.xml"));
+            cfg.addDocument(BundleUtils.getInstance().loadResourceXML("/Session.hbm.xml"));
             SessionFactory sessionFactory = cfg.buildSessionFactory();
             session = sessionFactory.openSession();
             List<User> list = session.createCriteria(User.class).list();
             for (Iterator<User> iter = list.iterator(); iter.hasNext();) {
                 User element = iter.next();
+                logger.info(element.toString());
+            }
+
+            List<Session> list2 = session.createCriteria(Session.class).list();
+            for (Iterator<Session> iter = list2.iterator(); iter.hasNext();) {
+                Session element = iter.next();
                 logger.info(element.toString());
             }
             session.close();

@@ -1,14 +1,9 @@
 package com.tintin.devcloud.database.model;
 
 import java.util.Date;
+import java.util.List;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-
-@Entity
 public class User {
-	@Id @GeneratedValue
 	private int id;
 	private String email;
 	private String password;
@@ -17,6 +12,8 @@ public class User {
 	private String surname;
 	private int accessLevel;
 	private Date registrationTime;
+	
+	private List<Session> sessions;
 	
 	public int getId() {
 		return id;
@@ -65,5 +62,11 @@ public class User {
 	}
 	public void setRegistrationTime(Date registrationTime) {
 		this.registrationTime = registrationTime;
+	}
+	public List<Session> getSessions() {
+		return sessions;
+	}
+	public void setSessions(List<Session> sessions) {
+		this.sessions = sessions;
 	}
 }
