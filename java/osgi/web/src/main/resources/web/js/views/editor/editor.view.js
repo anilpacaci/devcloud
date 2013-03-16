@@ -3,15 +3,35 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 		template : EditorTemplate,
 		className : '',
 		events : {
-			'click button' : 'saveButton',
-			'click a[id="run_button"]' : 'run'
+			'click a[id="save_button"]' : 'saveButton',
+			'click a[id="run_button"]' : 'runButton'
 		},
-		initalize : function() {
+		initialize : function() {
 			vent = this.options.vent;
+			
 			this.bindTo(vent, 'editor:open', function(file) {
 				alert(file);
 				this.model = file;
-			})
+			//	currentTab = this;
+			});
+			
+			var self = this;
+			
+			this.bindTo(vent, 'file:save', function(tabName){
+				if(tabName.trim() == self.model.get('fileName')) {
+					self.save(self.model);
+				}
+			});
+			
+			this.bindTo(vent, 'file:saveAll', function(){
+				self.save(self.model);
+			});
+			
+			this.bindTo(vent, 'file:run', function(tabName){
+				if(tabName.trim() == self.model.get('fileName')) {
+					self.run(self.model);
+				}
+			});
 		},
 		modelEvents : {
 			"change" : "modelChanged"
@@ -21,19 +41,24 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 			if (!this.model) {
 				this.model = new FileModel();
 			}
-
+			
 			vent = this.options.vent;
 			this.editor = ace.edit(this.$('#editor').get(0));
 			this.editor.setTheme("ace/theme/monokai");
 			this.editor.getSession().setMode("ace/mode/c_cpp");
 			this.editor.setValue(this.model.get('content'));
+			
+			
+			//currentTab = this;//.model;
+			
 		},
 		modelChanged : function() {
 			this.editor.setValue(this.model.get('content'));
 		},
-
-		saveButton : function() {
-			var file = this.model;
+		saveButton : function(e) {
+			this.save(this.model);
+		},
+		save : function(file) {
 			if (!file.get('fileName')) {
 				var path = prompt('Enter path to save file:', 'path to save');
 				path = this.options.user.get('email') + '/' + path;
@@ -53,8 +78,10 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 				}
 			});
 		},
-		run : function(e) {
-			var file = this.model;
+		runButton : function(e) {
+			this.run(this.model);
+		},
+		run : function(file) {
 			if(!file)
 				return;
 			var path = file.get('path');
