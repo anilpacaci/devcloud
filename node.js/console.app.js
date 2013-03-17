@@ -11,20 +11,19 @@ var pool = mysql.createPool({
   database: 'devcloud'
 });
 
-function checkSession(sessionID) {
-  var sessionExists = false;
+function checkSession(socket) {
   pool.getConnection(function(err,connection) {
-    connection.query("SELECT * FROM Session s WHERE s.sessionID = ?", [sessionID], function(err, results) {
+    connection.query("SELECT * FROM Session s WHERE s.sessionID = ?", [socket.handshake.query.sessionID], function(err, results) {
       if(!err && results && results.length > 0) {
-        sessionExists = true;
+        socket.sessionExists = true;
         console.log(results.length + ": " + JSON.stringify(results));
       } else {
-        sessionExists = false;
+        socket.sessionExists = false;
+        console.log(err);
       }
     })
   });
 
-  return sessionExists;
 }
 
 process.title = 'tty.js test';
@@ -34,12 +33,14 @@ var buff = [],
     socket;
 
 io.sockets.on('connection', function(socket) {
-  if(!checkSession(socket.handshake.query.sessionID)) {
-    socket.disconnect();
-  }
+  socket.sessionExists = false;
+  checkSession(socket);
   socket.terminals = [];
 
   socket.on('create_terminal', function(data) {
+    if(!socket.sessionExists) {
+        return;
+    }
     var terminal_id = uuid.v4();
     var path = data.path;
     var width = data.width;
@@ -69,6 +70,9 @@ io.sockets.on('connection', function(socket) {
   });
 
   socket.on('create_process', function(data) {
+    if(!socket.sessionExists) {
+        return;
+    }
     var process_id = uuid.v4();
     var path = data.path;
     var width = data.width;
@@ -98,6 +102,9 @@ io.sockets.on('connection', function(socket) {
   });
 
   socket.on('build_process', function(data) {
+    if(!socket.sessionExists) {
+        return;
+    }
     var path = data.path;
     var width = data.width;
     var height = data.height;
@@ -133,6 +140,9 @@ io.sockets.on('connection', function(socket) {
   });
 
   socket.on('destroy_terminal', function(data) {
+    if(!socket.sessionExists) {
+        return;
+    }
     var terminal_id = data.id;
     debugger;
     for(var i=0; i<socket.terminals.length; i++) {
@@ -145,6 +155,9 @@ io.sockets.on('connection', function(socket) {
   });
 
   socket.on('destroy_process', function(data) {
+    if(!socket.sessionExists) {
+        return;
+    }
     var terminal_id = data.id;
     debugger;
     for(var i=0; i<socket.terminals.length; i++) {
@@ -157,6 +170,9 @@ io.sockets.on('connection', function(socket) {
   });
 
   socket.on('data', function(data) {
+    if(!socket.sessionExists) {
+        return;
+    }
     var terminal_id = data.id;
     var terminal_data = data.data;
     debugger;
