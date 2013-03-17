@@ -1,7 +1,31 @@
 var io = require('socket.io').listen(8081),
     pty = require('pty.js'),
     uuid = require('node-uuid'),
-    sys = require('sys');
+    sys = require('sys'),
+    mysql = require('mysql');
+
+var pool = mysql.createPool({
+  host: 'localhost',
+  user: 'root',
+  password: 'root',
+  database: 'devcloud'
+});
+
+function checkSession(sessionID) {
+  var sessionExists = false;
+  pool.getConnection(function(err,connection) {
+    connection.query("SELECT * FROM Session s WHERE s.sessionID = ?", [sessionID], function(err, results) {
+      if(!err && results && results.length > 0) {
+        sessionExists = true;
+        console.log(results.length + ": " + JSON.stringify(results));
+      } else {
+        sessionExists = false;
+      }
+    })
+  });
+
+  return sessionExists;
+}
 
 process.title = 'tty.js test';
 
@@ -10,6 +34,9 @@ var buff = [],
     socket;
 
 io.sockets.on('connection', function(socket) {
+  if(!checkSession(socket.handshake.query.sessionID)) {
+    socket.disconnect();
+  }
   socket.terminals = [];
 
   socket.on('create_terminal', function(data) {

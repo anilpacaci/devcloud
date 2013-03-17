@@ -51,7 +51,7 @@ define(['jquery', 'underscore', 'backbone', 'marionette', 'socketio', 'js/views/
 
 	vent.bindTo(vent, 'auth:loggedIn', function() {
 		if (!socket || !socket.socket.connected) {
-			socket = io.connect('http://localhost:8081/');
+			socket = io.connect('http://localhost:8081/?sessionID='+$.cookie('SID'));
 
 			socket.on('connect', function() {
 				EditorApp.userPanelRegion.show(new UserPanelView({
