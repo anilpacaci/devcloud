@@ -1,39 +1,46 @@
 <div>
 	<div id="menu" class="row-fluid">
-		<ul class='dd_menu'>
-		<li><a href='#'>File</a>
-			<ul>
-			<li id='menuNewFile'><a href='#'>New File</a></li>
-			<li id='menuSave'><a href='#'>Save</a></li>
-			<li id='menuSaveAll'><a href='#'>Save All</a></li>
-			<li id='menuClose'><a href='#'>Close</a></li>
-			<li id='menuCloseAll'><a href='#'>Close All</a></li>
- 			</ul>
-		</li>
-		<li><a href='#'>Edit</a>
- 			<ul>
-			<li id='menuUndo'><a href='#'>Undo</a></li>
-			<li id='menuRedo'><a href='#'>Redo</a></li>
-			<li id='menuCut'><a href='#'>Cut</a></li>
-			<li id='menuCopy'><a href='#'>Copy</a></li>
-			<li id='menuPaste'><a href='#'>Paste</a></li>
-		 	</ul>
-		</li>
-		<li id='menuRun'><a href='#'>Run</a>
- 			
-		</li>
-		</li>
-		<li id='menuTerminal'><a href='#'>Terminal</a>
- 			<ul>
-			<li id='menuOpenNewTerminal'><a href='#'>Open New Terminal</a></li>
+		<ul class='nav nav-pills'>
+			<li class="dropdown">
+			    <a class="dropdown-toggle" data-toggle="dropdown" href='#'>File</a>
+				<ul class="dropdown-menu">
+				<li id='menuNewFile'><a href='#'>New File</a></li>
+				<li class="divider"></li>
+				<li id='menuSave'><a href='#'>Save</a></li>
+				<li id='menuSaveAll'><a href='#'>Save All</a></li>
+				<li class="divider"></li>
+				<li id='menuClose'><a href='#'>Close</a></li>
+				<li id='menuCloseAll'><a href='#'>Close All</a></li>
+	 			</ul>
+			</li>
 			
-		 	</ul>
-		</li>
+			<li class="dropdown">
+			    <a class="dropdown-toggle" data-toggle="dropdown" href='#'>Edit</a>
+	 			<ul class="dropdown-menu">
+				<li id='menuUndo'><a href='#'>Undo</a></li>
+				<li id='menuRedo'><a href='#'>Redo</a></li>
+				<li class="divider"></li>
+				<li id='menuCut'><a href='#'>Cut</a></li>
+				<li id='menuCopy'><a href='#'>Copy</a></li>
+				<li id='menuPaste'><a href='#'>Paste</a></li>
+			 	</ul>
+			</li>
+			
+			<li id='menuRun'>
+			    <a href='#'>Run</a>
+			</li>
+			
+			<li class="dropdown" id='menuTerminal'>
+			    <a class="dropdown-toggle" data-toggle="dropdown" href='#'>Terminal</a>
+	 			<ul class="dropdown-menu">
+				<li id='menuOpenNewTerminal'><a href='#'>Open New Terminal</a></li>
+			 	</ul>
+			</li>
 		</ul>
 	</div>
 
 	<div class="row-fluid">
-		<div id='fileTreeRegion' class="span2 tabbable tabs-left">
+		<div id='fileTreeRegion' style="background-color:#EEE" class="span2 tabbable tabs-left">
 
 		</div>
 		<div class="span10" id="content">
