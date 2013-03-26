@@ -23,6 +23,7 @@
 				<li id='menuCut'><a href='#'>Cut</a></li>
 				<li id='menuCopy'><a href='#'>Copy</a></li>
 				<li id='menuPaste'><a href='#'>Paste</a></li>
+				<li id='menuOptions'><a href='#optionsModal' data-toggle='modal'>Options</a></li>
 			 	</ul>
 			</li>
 			
@@ -57,5 +58,28 @@
 				<!-- <div class="tab-pane fade" id="terminalRegion"></div> -->
 			</div>
 		</div>
+	</div>
+
+	<!-- Modal -->
+	<div id="optionsModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="optionsModalLabel" aria-hidden="true">
+	  	<div class="modal-header">
+	    	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	    	<h3 id="optionsModalLabel">Options</h3>
+	  	</div>
+	  	<div class="modal-body">
+	    	<p>
+	    		<b>Editor theme:</b>
+	    		<select id="themeSelector">
+	    			<option value="ace/theme/monokai" selected>Monokai</option>
+	    			<option value="ace/theme/ambiance">Ambiance</option>
+	    			<option value="ace/theme/chaos">Chaos</option>
+	    			<option value="ace/theme/chrome">Chrome</option>
+	    		</select>
+	    	</p>
+	  	</div>
+	  	<div class="modal-footer">
+	    	<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+	    	<button id="saveOptionsButton" class="btn btn-primary">Save changes</button>
+	  	</div>
 	</div>
 </div>

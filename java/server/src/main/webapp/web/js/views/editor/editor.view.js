@@ -43,8 +43,13 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 			}
 			
 			vent = this.options.vent;
+			configuration = this.options.configuration;
 			this.editor = ace.edit(this.$('#editor').get(0));
-			this.editor.setTheme("ace/theme/monokai");
+			if(configuration) {
+				this.editor.setTheme(configuration.get("themeName"));
+			} else {
+				this.editor.setTheme("ace/theme/monokai");
+			}
 			this.editor.getSession().setMode("ace/mode/c_cpp");
 			this.editor.setValue(this.model.get('content'));
 			

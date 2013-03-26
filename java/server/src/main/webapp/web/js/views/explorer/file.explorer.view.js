@@ -5,6 +5,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/explorer/file
 		onRender : function() {
 			vent = this.options.vent;
 			user = this.options.user;
+			configuration = this.options.configuration;
 			this.$('#fileTree').fileTree({
 				root : user.get('email'),
 				script : URL + 'fileExplorer',
@@ -28,6 +29,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/explorer/file
 					var editorView = new EditorView({
 						vent : vent,
 						user : user,
+						configuration : configuration,
 						model : file,
 						socket : socket
 					});

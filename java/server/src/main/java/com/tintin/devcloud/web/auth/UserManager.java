@@ -9,6 +9,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.tintin.devcloud.database.model.Configuration;
 import com.tintin.devcloud.database.model.User;
 import com.tintin.devcloud.database.persistence.GenericPersistanceManager;
 
@@ -37,6 +38,9 @@ public class UserManager {
 	public User createNewUser(String email, String password, String title,
 			String name, String surname, AccessLevel accessLevel) throws IllegalAccessException {
 		User user = new User(email, password, title, name, surname, accessLevel.ordinal(), new Date());
+		Configuration configuration = new Configuration();
+		configuration.setThemeName(Configuration.DEFAULT_THEME);
+		user.setConfiguration(configuration);
 		GenericPersistanceManager.saveEntity(user);
 //		User user = new User(email, password, title, name, surname,
 //				accessLevel.ordinal());

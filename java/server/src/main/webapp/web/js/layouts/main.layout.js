@@ -21,8 +21,10 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			'click #menuSaveAll' : 'saveAllFiles',
 			'click #menuClose' : 'menuRemoveTab',
 			'click #menuOpenNewTerminal' : 'addNewTerminal',
-			'click #menuRun' : 'run'	
-				
+			'click #menuRun' : 'run',
+			'click #saveOptionsButton' : 'saveOptions',
+			'change #themeSelector' : 'themeSelected'
+			
 				
 				
 		},
@@ -30,14 +32,17 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 		onRender : function() {
 			vent = this.options.vent;
 			user = this.options.user;
+			configuration = this.options.configuration;
 			socket = this.options.socket;
 			this.fileTree.show(new FileExplorerView({
 				vent : vent,
+				configuration : configuration,
 				user : user,
 				socket : socket
 			}));
 			this.editor.show(new EditorView({
 				vent : vent,
+				configuration : configuration,
 				socket : socket,
 				user : user
 			}));
@@ -139,6 +144,27 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			var activeTab =  $("ul#tabs li.active").text();
 			var v = this.options.vent;
 			v.trigger('file:run', activeTab);
+		},
+		themeSelected : function(e) {
+			this.selectedTheme = e.currentTarget.value;
+		},
+		saveOptions: function(e) {
+			this.options.configuration.set("themeName", this.selectedTheme);
+			var self = this;
+				$.ajax({
+					type : 'PUT',
+					url : URL + 'configuration/',
+					headers : {
+						"Content-Type" : "application/json"
+					},
+					data : JSON.stringify(self.options.configuration.toJSON()),
+					success : function(response) {
+						$("#optionsModal").modal("hide");
+					},
+					error : function(error) {
+						
+					}
+				});
 		}
 	});
 

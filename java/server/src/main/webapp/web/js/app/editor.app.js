@@ -1,4 +1,4 @@
-define(['jquery', 'underscore', 'backbone', 'marionette', 'socketio', 'js/views/auth/login.view', 'js/views/auth/register.view', 'js/views/auth/user.panel.view', 'js/layouts/main.layout', 'js/models/auth/login.model', 'js/models/auth/register.model', 'js/models/auth/user.model', 'jquery_cookie', 'bootstrap'], function($, _, Backbone, Marionette, io, LoginView, RegisterView, UserPanelView, MainLayout, LoginModel, RegisterModel, UserModel) {
+define(['jquery', 'underscore', 'backbone', 'marionette', 'socketio', 'js/views/auth/login.view', 'js/views/auth/register.view', 'js/views/auth/user.panel.view', 'js/layouts/main.layout', 'js/models/auth/login.model', 'js/models/auth/register.model', 'js/models/auth/user.model', 'js/models/auth/configuration.model','jquery_cookie', 'bootstrap'], function($, _, Backbone, Marionette, io, LoginView, RegisterView, UserPanelView, MainLayout, LoginModel, RegisterModel, UserModel, ConfigurationModel) {
 
 	/**
 	 * SOME GLOBAL FUNCTIONS THAT ARE OVERRIDED *
@@ -26,6 +26,7 @@ define(['jquery', 'underscore', 'backbone', 'marionette', 'socketio', 'js/views/
 	var loginModel = new LoginModel();
 	var registerModel = new RegisterModel();
 	var user = new UserModel();
+	var configuration = new ConfigurationModel();
 	var socket = null;
 
 	EditorApp.addInitializer(function(options) {
@@ -45,6 +46,15 @@ define(['jquery', 'underscore', 'backbone', 'marionette', 'socketio', 'js/views/
 					vent.trigger('auth:logout');
 				}
 			});
+
+			configuration.fetch({
+				//SID verified, user returned, directing home page
+				success : function(response) {
+				},
+				//SID unverified, direct to login page
+				error : function(response) {
+				}
+			})
 		}
 
 	});
@@ -60,6 +70,7 @@ define(['jquery', 'underscore', 'backbone', 'marionette', 'socketio', 'js/views/
 				}));
 				EditorApp.mainRegion.show(new MainLayout({
 					user : user,
+					configuration : configuration,
 					socket : socket,
 					vent : vent
 				}));
@@ -72,6 +83,7 @@ define(['jquery', 'underscore', 'backbone', 'marionette', 'socketio', 'js/views/
 				}));
 				EditorApp.mainRegion.show(new MainLayout({
 					user : user,
+					configuration : configuration,
 					socket : socket,
 					vent : vent
 				}));
@@ -83,6 +95,7 @@ define(['jquery', 'underscore', 'backbone', 'marionette', 'socketio', 'js/views/
 			}));
 			EditorApp.mainRegion.show(new MainLayout({
 				user : user,
+				configuration : configuration,
 				socket : socket,
 				vent : vent
 			}));

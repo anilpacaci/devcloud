@@ -1,21 +1,15 @@
 package com.tintin.devcloud.database.model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-
-import org.codehaus.jackson.annotate.JsonIgnore;
 
 @Entity @XmlRootElement
 public class User implements Serializable{
@@ -32,6 +26,9 @@ public class User implements Serializable{
 	
 	@OneToOne(fetch=FetchType.EAGER, cascade=CascadeType.ALL, targetEntity=Session.class)
 	private Session session;
+
+	@OneToOne(fetch=FetchType.EAGER, cascade=CascadeType.ALL, targetEntity=Configuration.class)
+	private Configuration configuration;
 	
 	public User() {
 	}
@@ -109,5 +106,13 @@ public class User implements Serializable{
 
 	public void setSession(Session session) {
 		this.session = session;
+	}
+
+	public Configuration getConfiguration() {
+		return configuration;
+	}
+
+	public void setConfiguration(Configuration configuration) {
+		this.configuration = configuration;
 	}
 }
