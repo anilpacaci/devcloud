@@ -20,6 +20,13 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			'click #menuSave' : 'saveFile2',
 			'click #menuSaveAll' : 'saveAllFiles',
 			'click #menuClose' : 'menuRemoveTab',
+			'click #menuUndo' : 'menuUndo',
+			'click #menuRedo' : 'menuRedo',
+			'click #menuCut' : 'menuCut',
+			'click #menuCopy' : 'menuCopy',
+			'click #menuPaste' : 'menuPaste',
+			'click #menuFindReplace' : 'menuFindReplace',
+			'click #menuFindReplaceAll' : 'menuFindReplaceAll',
 			'click #menuOpenNewTerminal' : 'addNewTerminal',
 			'click #menuRun' : 'run',
 			'click #saveOptionsButton' : 'saveOptions',
@@ -165,6 +172,34 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 						
 					}
 				});
+		},
+		menuUndo: function(e) {
+			var v = this.options.vent;
+			v.trigger('menu:undo');
+		},
+		menuRedo: function(e) {
+			var v = this.options.vent;
+			v.trigger('menu:redo');
+		},
+		menuCut: function(e) {
+			var v = this.options.vent;
+			v.trigger('menu:cut');
+		},
+		menuCopy: function(e) {
+			var v = this.options.vent;
+			v.trigger('menu:copy');
+		},
+		menuPaste: function(e) {
+			var v = this.options.vent;
+			v.trigger('menu:paste');
+		},
+		menuFindReplace: function(e) {
+			var v = this.options.vent;
+			v.trigger('menu:findReplace');
+		},
+		menuFindReplaceAll: function(e) {
+			var v = this.options.vent;
+			v.trigger('menu:findReplaceAll');
 		}
 	});
 

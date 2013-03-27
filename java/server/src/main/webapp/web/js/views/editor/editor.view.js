@@ -32,6 +32,27 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 					self.run(self.model);
 				}
 			});
+			this.bindTo(vent, 'menu:undo', function(){
+				self.undo(self.editor);
+			});
+			this.bindTo(vent, 'menu:redo', function(){
+				self.redo(self.editor);
+			});
+			this.bindTo(vent, 'menu:cut', function(){
+				self.cut(self.editor);
+			});
+			this.bindTo(vent, 'menu:copy', function(){
+				self.copy(self.editor);
+			});
+			this.bindTo(vent, 'menu:paste', function(){
+				self.paste(self.editor);
+			});
+			this.bindTo(vent, 'menu:findReplace', function(){
+				self.findReplace(self.editor);
+			});
+			this.bindTo(vent, 'menu:findReplaceAll', function(){
+				self.findReplaceAll(self.editor);
+			});
 		},
 		modelEvents : {
 			"change" : "modelChanged"
@@ -103,6 +124,45 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 				path : path
 			});
 			runView.render();
+		},
+		undo: function(editor){
+			editor.undo();
+		},
+		redo: function(editor){
+			editor.redo();
+		},
+		cut: function(editor){
+//	        var range = editor.getSelectionRange();
+//	        editor._emit("cut", range);
+//
+//	        if (!editor.selection.isEmpty()) {
+//	            editor.session.remove(range);
+//	            editor.clearSelection();
+//	        }
+		},
+		copy: function(editor){
+			//editor.onCopy();
+		},
+		paste: function(editor){
+			//editor.onPaste(editor.text.value);
+		},
+		findReplace: function(editor){
+	        var needle = prompt("Find:", editor.getCopyText());
+	        if (!needle)
+	            return;
+	        var replacement = prompt("Replacement:");
+	        if (!replacement)
+	            return;
+	        editor.replace(replacement, {needle: needle});
+		},
+		findReplaceAll: function(editor){
+	        var needle = prompt("Find:");
+	        if (!needle)
+	            return;
+	        var replacement = prompt("Replacement:");
+	        if (!replacement)
+	            return;
+	        editor.replaceAll(replacement, {needle: needle});
 		}
 	});
 	return EditorView;
