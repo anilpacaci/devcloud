@@ -29,7 +29,7 @@ for server project download tomcat 7 from the website
 extract it somewhere in your home folder (do not install it by using apt-get install)
 edit the tomcat-users.xml in conf directory and add:
 
-<user password="admin" roles="admin-gui,manager-gui,admin-script,manager-script" username="admin"/>
+&lt;user password="admin" roles="admin-gui,manager-gui,admin-script,manager-script" username="admin" /&gt;
 
 create a database named devcloud (database username, password, name can be set in persistence.xml)
 
