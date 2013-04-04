@@ -1,4 +1,4 @@
-define(['jquery', 'underscore', 'backbone', 'marionette', 'socketio', 'js/views/auth/login.view', 'js/views/auth/register.view', 'js/views/auth/user.panel.view', 'js/layouts/main.layout', 'js/models/auth/login.model', 'js/models/auth/register.model', 'js/models/auth/user.model', 'js/models/auth/configuration.model','jquery_cookie', 'bootstrap'], function($, _, Backbone, Marionette, io, LoginView, RegisterView, UserPanelView, MainLayout, LoginModel, RegisterModel, UserModel, ConfigurationModel) {
+define(['jquery', 'underscore', 'backbone', 'marionette', 'socketio', 'js/views/auth/login.view', 'js/views/auth/register.view', 'js/views/auth/user.panel.view', 'js/layouts/main.layout', 'js/models/auth/login.model', 'js/models/auth/register.model', 'js/models/auth/user.model', 'js/models/auth/configuration.model','jquery_cookie', 'jquery_ui', 'bootstrap'], function($, _, Backbone, Marionette, io, LoginView, RegisterView, UserPanelView, MainLayout, LoginModel, RegisterModel, UserModel, ConfigurationModel) {
 
 	/**
 	 * SOME GLOBAL FUNCTIONS THAT ARE OVERRIDED *

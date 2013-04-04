@@ -1,8 +1,9 @@
 require.config({
 	baseUrl : '',
 	paths : {
-		jquery : 'js/libs/jquery/jquery-1.8.2.min',
+		jquery : 'js/libs/jquery/jquery-1.9.1',
 		jquery_cookie : 'js/libs/jquery/jquery.cookie',
+		jquery_ui  : 'js/libs/jquery/jquery-ui-1.10.2.custom',
 		underscore : 'js/libs/underscore/underscore',
 		backbone : 'js/libs/backbone/backbone',
 		marionette : 'js/libs/backbone/backbone.marionette',
@@ -20,6 +21,10 @@ require.config({
 			exports : '$'
 		},
 		'jquery_cookie' : {
+			deps : ['jquery'],
+			exports : '$'
+		},
+		'jquery_ui' : {
 			deps : ['jquery'],
 			exports : '$'
 		},
