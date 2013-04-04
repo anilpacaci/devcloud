@@ -97,8 +97,16 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 					$('#fakeAutoComplete').autocomplete({
 						autoFocus : true,
 						source : suggestionList,
+						focus : function() {
+							$('#fakeAutoComplete').text('');
+						},
 						open : function() {
 							$('.ui-menu').focus();
+							$('.ui-menu').keydown(function(e){
+								if(e.keyCode == 27) {
+									$('#fakeAutoComplete').autocomplete('close');
+								}
+							});
 						},
 						select : function(event, ui) {
 							editor.session.replace(range, ui.item.value);
@@ -113,6 +121,8 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 				},
 				readOnly : true // false if this command should not apply in readOnly mode
 			});
+			
+			
 			//currentTab = this;//.model;
 
 		},
