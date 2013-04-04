@@ -16,11 +16,12 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 			});
 
 			var self = this;
-
-			this.bindTo(vent, 'file:save', function(tabName) {
-				//if(tabName.trim() == self.model.get('fileName')) {
-				self.save(self.model);
-				//}
+			
+			this.bindTo(vent, 'file:save', function(tabName){
+				var tabNameSplitted = tabName.split(' ');
+				if(tabName.trim() == self.model.get('fileName') || self.el.parentElement.id == 'editorRegion'+tabNameSplitted[tabNameSplitted.length-1]) {
+					self.save(self.model);
+				}
 			});
 
 			this.bindTo(vent, 'file:saveAll', function() {
@@ -143,6 +144,8 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 						var pathElements = file.get('path').split("/");
 						var fileName = pathElements[pathElements.length-1].split('.')[0];
 						var v = self.options.vent;
+
+						self.model = file;
 
 						var editorRegionId = $("ul#tabs li.active")[0].children[0].href.split('#')[1];
 						$("ul#tabs li.active")[0].children[0].href = '#editorRegion' + fileName;

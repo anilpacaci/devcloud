@@ -70,6 +70,7 @@ public class FileResource {
 	@POST
 	public String getStatus(@FormParam("path") String fileName,
 			@FormParam("content") String content) {
+		String path = null;
 		try {
 			System.out.println(fileName);
 			System.out.println(content);
@@ -78,6 +79,7 @@ public class FileResource {
 			if (!parent.exists()) {
 				parent.mkdirs();
 			}
+			path = file.getAbsolutePath();
 			BufferedWriter out = new BufferedWriter(new FileWriter(fileName));
 			out.write(content);
 			System.out.println(content);
@@ -86,7 +88,7 @@ public class FileResource {
 			return e.toString();
 		}
 
-		return "successfull";
+		return path;
 	}
 
 	@GET
