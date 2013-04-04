@@ -8,13 +8,13 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 		},
 		initialize : function() {
 			vent = this.options.vent;
-			
+
 			this.bindTo(vent, 'editor:open', function(file) {
 				//alert(file);
 				this.model = file;
-			//	currentTab = this;
+				//	currentTab = this;
 			});
-			
+
 			var self = this;
 			
 			this.bindTo(vent, 'file:save', function(tabName){
@@ -23,35 +23,35 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 					self.save(self.model);
 				}
 			});
-			
-			this.bindTo(vent, 'file:saveAll', function(){
+
+			this.bindTo(vent, 'file:saveAll', function() {
 				self.save(self.model);
 			});
-			
-			this.bindTo(vent, 'file:run', function(tabName){
-				if(tabName.trim() == self.model.get('fileName')) {
+
+			this.bindTo(vent, 'file:run', function(tabName) {
+				if (tabName.trim() == self.model.get('fileName')) {
 					self.run(self.model);
 				}
 			});
-			this.bindTo(vent, 'menu:undo', function(){
+			this.bindTo(vent, 'menu:undo', function() {
 				self.undo(self.editor);
 			});
-			this.bindTo(vent, 'menu:redo', function(){
+			this.bindTo(vent, 'menu:redo', function() {
 				self.redo(self.editor);
 			});
-			this.bindTo(vent, 'menu:cut', function(){
+			this.bindTo(vent, 'menu:cut', function() {
 				self.cut(self.editor);
 			});
-			this.bindTo(vent, 'menu:copy', function(){
+			this.bindTo(vent, 'menu:copy', function() {
 				self.copy(self.editor);
 			});
-			this.bindTo(vent, 'menu:paste', function(){
+			this.bindTo(vent, 'menu:paste', function() {
 				self.paste(self.editor);
 			});
-			this.bindTo(vent, 'menu:findReplace', function(){
+			this.bindTo(vent, 'menu:findReplace', function() {
 				self.findReplace(self.editor);
 			});
-			this.bindTo(vent, 'menu:findReplaceAll', function(){
+			this.bindTo(vent, 'menu:findReplaceAll', function() {
 				self.findReplaceAll(self.editor);
 			});
 		},
@@ -63,21 +63,52 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 			if (!this.model) {
 				this.model = new FileModel();
 			}
-			
+
 			vent = this.options.vent;
 			configuration = this.options.configuration;
 			this.editor = ace.edit(this.$('#editor').get(0));
-			if(configuration) {
+			if (configuration) {
 				this.editor.setTheme(configuration.get("themeName"));
 			} else {
 				this.editor.setTheme("ace/theme/monokai");
 			}
 			this.editor.getSession().setMode("ace/mode/c_cpp");
 			this.editor.setValue(this.model.get('content'));
-			
-			
+
+			// keybinding for auto completion
+			var self = this;
+			self.editor.commands.addCommand({
+				name : 'myCommand',
+				bindKey : {
+					win : 'Ctrl-Space',
+					mac : 'Command-Space'
+				},
+				exec : function(editor) {
+					var cursorPosition = editor.getCursorPosition();
+					var range = editor.selection.getWordRange(editor.selection.getSelectionLead());
+					range.end = cursorPosition;
+
+					var suggestionList = editor.getValue().split(/[\s\W]+/);
+
+					var toComplete = editor.session.getTextRange(range);
+					$('#fakeAutoComplete').autocomplete({
+						appendTo : '.active .ace_cursor',
+						source : suggestionList,
+						open : function() {
+							$('.active .ace_cursor ul').removeAttr('style');
+							$('.active .ace_cursor ul').css('z-index', -10);
+						},
+						select : function() {
+							editor.session.replace(range, toComplete);
+						}
+					});
+					$('#fakeAutoComplete').autocomplete('search', toComplete);
+					
+				},
+				readOnly : true // false if this command should not apply in readOnly mode
+			});
 			//currentTab = this;//.model;
-			
+
 		},
 		modelChanged : function() {
 			this.editor.setValue(this.model.get('content'));
@@ -126,14 +157,14 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 			this.run(this.model);
 		},
 		run : function(file) {
-			if(!file)
+			if (!file)
 				return;
 			var path = file.get('path');
-			if(path == '' || path.substring(path.length-2, path.length) != '.c') {
+			if (path == '' || path.substring(path.length - 2, path.length) != '.c') {
 				alert('This file type is not supported currently.');
 				return;
 			}
-			if(!socket || !socket.socket.connected)
+			if (!socket || !socket.socket.connected)
 				return;
 			var runView = new RunView({
 				vent : vent,
@@ -143,44 +174,48 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 			});
 			runView.render();
 		},
-		undo: function(editor){
+		undo : function(editor) {
 			editor.undo();
 		},
-		redo: function(editor){
+		redo : function(editor) {
 			editor.redo();
 		},
-		cut: function(editor){
-//	        var range = editor.getSelectionRange();
-//	        editor._emit("cut", range);
-//
-//	        if (!editor.selection.isEmpty()) {
-//	            editor.session.remove(range);
-//	            editor.clearSelection();
-//	        }
+		cut : function(editor) {
+			//	        var range = editor.getSelectionRange();
+			//	        editor._emit("cut", range);
+			//
+			//	        if (!editor.selection.isEmpty()) {
+			//	            editor.session.remove(range);
+			//	            editor.clearSelection();
+			//	        }
 		},
-		copy: function(editor){
+		copy : function(editor) {
 			//editor.onCopy();
 		},
-		paste: function(editor){
+		paste : function(editor) {
 			//editor.onPaste(editor.text.value);
 		},
-		findReplace: function(editor){
-	        var needle = prompt("Find:", editor.getCopyText());
-	        if (!needle)
-	            return;
-	        var replacement = prompt("Replacement:");
-	        if (!replacement)
-	            return;
-	        editor.replace(replacement, {needle: needle});
+		findReplace : function(editor) {
+			var needle = prompt("Find:", editor.getCopyText());
+			if (!needle)
+				return;
+			var replacement = prompt("Replacement:");
+			if (!replacement)
+				return;
+			editor.replace(replacement, {
+				needle : needle
+			});
 		},
-		findReplaceAll: function(editor){
-	        var needle = prompt("Find:");
-	        if (!needle)
-	            return;
-	        var replacement = prompt("Replacement:");
-	        if (!replacement)
-	            return;
-	        editor.replaceAll(replacement, {needle: needle});
+		findReplaceAll : function(editor) {
+			var needle = prompt("Find:");
+			if (!needle)
+				return;
+			var replacement = prompt("Replacement:");
+			if (!replacement)
+				return;
+			editor.replaceAll(replacement, {
+				needle : needle
+			});
 		}
 	});
 	return EditorView;
