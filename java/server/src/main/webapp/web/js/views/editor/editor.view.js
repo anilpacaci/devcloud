@@ -16,10 +16,10 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 			});
 
 			var self = this;
-			
-			this.bindTo(vent, 'file:save', function(tabName){
+
+			this.bindTo(vent, 'file:save', function(tabName) {
 				var tabNameSplitted = tabName.split(' ');
-				if(tabName.trim() == self.model.get('fileName') || self.el.parentElement.id == 'editorRegion'+tabNameSplitted[tabNameSplitted.length-1]) {
+				if (tabName.trim() == self.model.get('fileName') || self.el.parentElement.id == 'editorRegion' + tabNameSplitted[tabNameSplitted.length - 1]) {
 					self.save(self.model);
 				}
 			});
@@ -98,15 +98,17 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 						autoFocus : true,
 						source : suggestionList,
 						open : function() {
-							$('.active .ace_cursor ul').removeAttr('style');
-							$('.active .ace_cursor ul').css('z-index', -10);
+							$('.ui-menu').focus();
 						},
 						select : function(event, ui) {
 							editor.session.replace(range, ui.item.value);
+						},
+						close : function() {
+							$('#fakeAutoComplete').text('');
+							$('.ace_text-input').focus();
 						}
 					});
 					$('#fakeAutoComplete').autocomplete('search', toComplete);
-					$('#fakeAutoComplete').offset($('.active .ace_cursor').offset());
 					$('.ui-menu').css('width', '');
 				},
 				readOnly : true // false if this command should not apply in readOnly mode
