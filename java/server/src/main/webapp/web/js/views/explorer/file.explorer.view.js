@@ -2,6 +2,12 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/explorer/file
 	var FileExplorerView = Marionette.ItemView.extend({
 		template : FileExplorerTemplate,
 		className : '',
+		initialize : function() {
+			var self = this;
+			this.bindTo(this.options.vent, 'explorer:open', function(filePath) {
+				//self.openFile(filePath);
+			});
+		},
 		onRender : function() {
 			vent = this.options.vent;
 			user = this.options.user;
@@ -9,10 +15,13 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/explorer/file
 			this.$('#fileTree').fileTree({
 				root : user.get('email'),
 				script : URL + 'fileExplorer',
-				expandSpeed : 1000,
+				expandSpeed : 500,
 				collapseSpeed : 1000,
 				multiFolder : false
-			}, function(filePath) {
+			}, this.openFile);
+
+		},
+		openFile : function(filePath) {
 
 				file = new FileModel({
 					path : filePath
@@ -35,10 +44,9 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/explorer/file
 					});
 					editorView.render();
 					$('#editorRegion' + fileName).append(editorView.el);
+					$('#tabs a:last').tab('show');
 				}
-			});
-
-		}
+			}
 	});
 	return FileExplorerView;
 });
