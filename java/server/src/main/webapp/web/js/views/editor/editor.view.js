@@ -18,9 +18,10 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 			var self = this;
 			
 			this.bindTo(vent, 'file:save', function(tabName){
-				//if(tabName.trim() == self.model.get('fileName')) {
+				var tabNameSplitted = tabName.split(' ');
+				if(tabName.trim() == self.model.get('fileName') || self.el.parentElement.id == 'editorRegion'+tabNameSplitted[tabNameSplitted.length-1]) {
 					self.save(self.model);
-				//}
+				}
 			});
 			
 			this.bindTo(vent, 'file:saveAll', function(){
