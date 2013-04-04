@@ -84,26 +84,30 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 					mac : 'Command-Space'
 				},
 				exec : function(editor) {
+					$('#fakeAutoComplete').offset($('.active .ace_cursor').offset());
 					var cursorPosition = editor.getCursorPosition();
 					var range = editor.selection.getWordRange(editor.selection.getSelectionLead());
 					range.end = cursorPosition;
 
 					var suggestionList = editor.getValue().split(/[\s\W]+/);
-
+					suggestionList = suggestionList.filter(function(elem, pos, self) {
+						return self.indexOf(elem) == pos;
+					})
 					var toComplete = editor.session.getTextRange(range);
 					$('#fakeAutoComplete').autocomplete({
-						appendTo : '.active .ace_cursor',
+						autoFocus : true,
 						source : suggestionList,
 						open : function() {
 							$('.active .ace_cursor ul').removeAttr('style');
 							$('.active .ace_cursor ul').css('z-index', -10);
 						},
-						select : function() {
-							editor.session.replace(range, toComplete);
+						select : function(event, ui) {
+							editor.session.replace(range, ui.item.value);
 						}
 					});
 					$('#fakeAutoComplete').autocomplete('search', toComplete);
-					
+					$('#fakeAutoComplete').offset($('.active .ace_cursor').offset());
+					$('.ui-menu').css('width', '');
 				},
 				readOnly : true // false if this command should not apply in readOnly mode
 			});
@@ -138,6 +142,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 				success : function(absPath) {
 					if(newFile) {
 						file.set('path',absPath);
+
 						var pathElements = file.get('path').split("/");
 						var fileName = pathElements[pathElements.length-1].split('.')[0];
 						var v = self.options.vent;
@@ -147,7 +152,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 						var editorRegionId = $("ul#tabs li.active")[0].children[0].href.split('#')[1];
 						$("ul#tabs li.active")[0].children[0].href = '#editorRegion' + fileName;
 						$('#' + editorRegionId)[0].id = 'editorRegion' + fileName;
-						$("ul#tabs li.active")[0].children[0].innerHTML = pathElements[pathElements.length-1]+ " <i class='icon-remove'></i>"
+						$("ul#tabs li.active")[0].children[0].innerHTML = pathElements[pathElements.length - 1] + " <i class='icon-remove'></i>"
 						v.trigger('explorer:refresh', file.get('path'));
 					}
 				},
