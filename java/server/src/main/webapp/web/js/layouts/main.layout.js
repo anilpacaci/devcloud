@@ -15,9 +15,10 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			'shown a[data-toggle="tab"]' : 'tabShown',
 			'click a[id="new_terminal_button"]' : 'addNewTerminal',
 			'click .icon-remove' : 'removeTab',
-			'click .icon-check' : 'saveFile2',
+			'click .icon-check' : 'saveFile',
+			'click #menuNewFile' : 'newFile',
 		//	'click #menuNewFile' : 'testAlert',	
-			'click #menuSave' : 'saveFile2',
+			'click #menuSave' : 'saveFile',
 			'click #menuSaveAll' : 'saveAllFiles',
 			'click #menuClose' : 'menuRemoveTab',
 			'click #menuUndo' : 'menuUndo',
@@ -47,12 +48,12 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 				user : user,
 				socket : socket
 			}));
-			this.editor.show(new EditorView({
+			/*this.editor.show(new EditorView({
 				vent : vent,
 				configuration : configuration,
 				socket : socket,
 				user : user
-			}));
+			}));*/
 /*			this.menu.show(new TopMenuView({
 				vent : vent,
 				user : user,
@@ -60,13 +61,25 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			}));
 */
 			this.terminal_count = 0;
+			this.editor_count = 0;
 
 			this.bindTo(vent, 'main:logout', function() {
 				vent.trigger('terminal:unfocused');
 				vent.trigger('process:unfocused');
 				vent.trigger('process:destroy');
 				vent.trigger('terminal:destroy');
-			})
+			});
+
+			var self = this;
+			this.bindTo(this.options.vent, 'explorer:refresh', function(filePath) {
+				self.fileTree.show(new FileExplorerView({
+					vent : vent,
+					configuration : configuration,
+					user : user,
+					socket : socket
+				}));
+				self.options.vent.trigger('explorer:open', filePath);
+			});
 			// this.terminal.show(new ConsoleView({
 			// 	vent : vent,
 			// 	user : user,
@@ -97,10 +110,26 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 				});
 				consoleView.render();
 				$('#terminalRegion' + this.terminal_count).append(consoleView.el);
+				$('#tabs a:last').tab('show');
 				this.terminal_count++;
 			} else {
 				alert("You can not create more than 5 terminals.")
 			}
+		},
+		newFile : function(e) {
+			$('#tabs').append('<li class><a href="#editorRegion' + this.editor_count + '" data-toggle="tab">Untitled File ' + this.editor_count + '<i class="icon-remove"></i></a></li>');
+			$('#tab_content').append('<div class="tab-pane fade" id="editorRegion' + this.editor_count + '"></div>');
+
+			var newEditor = new EditorView({
+				vent : vent,
+				configuration : configuration,
+				socket : socket,
+				user : user
+			});
+			newEditor.render();
+			$('#editorRegion' + this.editor_count).append(newEditor.el);
+			$('#tabs a:last').tab('show');
+			this.editor_count++;
 		},
 		removeTab : function(e) {
 			var id = $(e.currentTarget).parent().attr('href');
@@ -108,6 +137,7 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 				var terminal_id = id.substring(id.length - 1, id.length);
 				this.options.vent.trigger('terminal:unfocused');
 				this.options.vent.trigger('terminal:destroy', terminal_id);
+				this.terminal_count--;
 			} else if(id.substring(0, 'processRegion'.length+1) == '#processRegion') {
 				var process_id = id.substring('processRegion'.length+1, id.length);
 				this.options.vent.trigger('process:unfocused');
@@ -115,6 +145,7 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			}
 			$(e.currentTarget).parent().remove();
 			$(id).remove();
+			$('#tabs a:last').tab('show');
 		},
 		menuRemoveTab : function(e) {
 			var id =  $("ul#tabs li.active a").attr('href');
@@ -131,15 +162,8 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			$(id).remove();
 		},
 		saveFile : function(e) {
-//			alert(e.currentTarget);
-//			var id = $(e.currentTarget).parent().attr('href');
-//			alert(id.constructor);
-//			$(id + " button").click();
-//			this.fileTree.currentView.render();
-		},
-		saveFile2 : function(e) {
 			var activeTab = $("ul#tabs li.active").text();
-			alert($("ul#tabs li.active").parent());
+			//alert($("ul#tabs li.active").parent());
 			var v = this.options.vent;
 			v.trigger('file:save', activeTab);
 		},

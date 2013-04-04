@@ -10,17 +10,17 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 			vent = this.options.vent;
 
 			this.bindTo(vent, 'editor:open', function(file) {
-				alert(file);
+				//alert(file);
 				this.model = file;
 				//	currentTab = this;
 			});
 
 			var self = this;
-
-			this.bindTo(vent, 'file:save', function(tabName) {
-				if (tabName.trim() == self.model.get('fileName')) {
+			
+			this.bindTo(vent, 'file:save', function(tabName){
+				//if(tabName.trim() == self.model.get('fileName')) {
 					self.save(self.model);
-				}
+				//}
 			});
 
 			this.bindTo(vent, 'file:saveAll', function() {
@@ -116,14 +116,17 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 			this.save(this.model);
 		},
 		save : function(file) {
+			var self = this;
+			var newFile = false;
 			if (!file.get('fileName')) {
 				var path = prompt('Enter path to save file:', 'path to save');
 				path = this.options.user.get('email') + '/' + path;
 				file = new FileModel({
 					path : path
 				});
+				newFile = true;
 			}
-			file.set('content', this.editor.getValue());
+			file.set('content', self.editor.getValue());
 			$.ajax({
 				type : "POST",
 				url : URL + 'fileResource',
@@ -132,6 +135,20 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 					content : file.get('content')
 				},
 				success : function() {
+					if(newFile) {
+						var pathElements = file.get('path').split("/");
+						var fileName = pathElements[pathElements.length-1].split('.')[0];
+						var v = self.options.vent;
+
+						var editorRegionId = $("ul#tabs li.active")[0].children[0].href.split('#')[1];
+						$("ul#tabs li.active")[0].children[0].href = '#editorRegion' + fileName;
+						$('#' + editorRegionId)[0].id = 'editorRegion' + fileName;
+						$("ul#tabs li.active")[0].children[0].innerHTML = pathElements[pathElements.length-1]+ " <i class='icon-remove'></i>"
+						v.trigger('explorer:refresh', file.get('path'));
+					}
+				},
+				error : function() {
+					alert("An error occured");
 				}
 			});
 		},
