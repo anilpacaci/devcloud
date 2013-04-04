@@ -141,6 +141,8 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 						var fileName = pathElements[pathElements.length-1].split('.')[0];
 						var v = self.options.vent;
 
+						self.model = file;
+
 						var editorRegionId = $("ul#tabs li.active")[0].children[0].href.split('#')[1];
 						$("ul#tabs li.active")[0].children[0].href = '#editorRegion' + fileName;
 						$('#' + editorRegionId)[0].id = 'editorRegion' + fileName;
