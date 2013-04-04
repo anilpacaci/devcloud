@@ -135,8 +135,9 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 					path : file.get('path'),
 					content : file.get('content')
 				},
-				success : function() {
+				success : function(absPath) {
 					if(newFile) {
+						file.set('path',absPath);
 						var pathElements = file.get('path').split("/");
 						var fileName = pathElements[pathElements.length-1].split('.')[0];
 						var v = self.options.vent;
