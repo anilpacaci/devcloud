@@ -89,10 +89,11 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 					var range = editor.selection.getWordRange(editor.selection.getSelectionLead());
 					range.end = cursorPosition;
 
-					var suggestionList = editor.getValue().split(/[\s\W]+/);
+					var suggestionList = editor.getValue().split(/[^\w]+/);
 					suggestionList = suggestionList.filter(function(elem, pos, self) {
 						return self.indexOf(elem) == pos;
-					})
+					});
+					suggestionList = suggestionList.filter(function(e){return e});
 					var toComplete = editor.session.getTextRange(range);
 					$('#fakeAutoComplete').autocomplete({
 						autoFocus : true,
