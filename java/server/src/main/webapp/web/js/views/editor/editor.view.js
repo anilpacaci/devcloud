@@ -4,10 +4,12 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 		className : '',
 		events : {
 			'click a[id="save_button"]' : 'saveButton',
-			'click a[id="run_button"]' : 'runButton'
+			'click a[id="run_button"]' : 'runButton',
+			'dblclick .ace_gutter-cell' : 'setBreakpoint'
 		},
 		initialize : function() {
 			vent = this.options.vent;
+			this.breakpoints = [];
 
 			this.bindTo(vent, 'editor:open', function(file) {
 				//alert(file);
@@ -57,6 +59,19 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 		},
 		modelEvents : {
 			"change" : "modelChanged"
+		},
+		setBreakpoint : function(e) {
+			bpList = this.breakpoints;
+			e.stopPropagation();
+			e.preventDefault();
+			var id = $(e.target).text();
+			if($(e.target).hasClass('ace_breakpoint')) {
+				bpList.splice($.inArray(id, bpList),1);
+				$(e.target).removeClass('ace_breakpoint');
+			} else {
+				bpList.push(id);
+				$(e.target).addClass('ace_breakpoint');
+			}
 		},
 		onRender : function() {
 
