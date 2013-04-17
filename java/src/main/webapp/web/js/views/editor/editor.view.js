@@ -35,6 +35,12 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 					self.run(self.model);
 				}
 			});
+
+			this.bindTo(vent, 'file:debug', function(tabName) {
+				if (tabName.trim() == self.model.get('fileName')) {
+					self.debug(self.model);
+				}
+			});
 			this.bindTo(vent, 'menu:undo', function() {
 				self.undo(self.editor);
 			});
@@ -61,16 +67,31 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 			"change" : "modelChanged"
 		},
 		setBreakpoint : function(e) {
+			var self = this;
 			bpList = this.breakpoints;
 			e.stopPropagation();
 			e.preventDefault();
 			var id = $(e.target).text();
-			if($(e.target).hasClass('ace_breakpoint')) {
-				bpList.splice($.inArray(id, bpList),1);
+			if ($(e.target).hasClass('ace_breakpoint')) {
+				bpList.splice($.inArray(id, bpList), 1);
 				$(e.target).removeClass('ace_breakpoint');
+				if (!this.inDebug) {
+					socket.emit('debugger:remove_breakpoint', {
+						'file' : self.model.get('fileName'),
+						'line' : id,
+						'id' : self.debugID
+					});
+				}
 			} else {
 				bpList.push(id);
 				$(e.target).addClass('ace_breakpoint');
+				if (this.inDebug) {
+					socket.emit('debugger:set_breakpoint', {
+						'file' : self.model.get('fileName'),
+						'line' : id,
+						'id' : self.debugID
+					});
+				}
 			}
 		},
 		onRender : function() {
@@ -108,7 +129,9 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 					suggestionList = suggestionList.filter(function(elem, pos, self) {
 						return self.indexOf(elem) == pos;
 					});
-					suggestionList = suggestionList.filter(function(e){return e});
+					suggestionList = suggestionList.filter(function(e) {
+						return e
+					});
 					var toComplete = editor.session.getTextRange(range);
 					$('#fakeAutoComplete').autocomplete({
 						autoFocus : true,
@@ -118,8 +141,8 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 						},
 						open : function() {
 							$('.ui-menu').focus();
-							$('.ui-menu').keydown(function(e){
-								if(e.keyCode == 27) {
+							$('.ui-menu').keydown(function(e) {
+								if (e.keyCode == 27) {
 									$('#fakeAutoComplete').autocomplete('close');
 								}
 							});
@@ -137,8 +160,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 				},
 				readOnly : true // false if this command should not apply in readOnly mode
 			});
-			
-			
+
 			//currentTab = this;//.model;
 
 		},
@@ -168,8 +190,8 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 					content : file.get('content')
 				},
 				success : function(absPath) {
-					if(newFile) {
-						file.set('path',absPath);
+					if (newFile) {
+						file.set('path', absPath);
 
 						var pathElements = file.get('path').split("/");
 						var fileName = pathElements[pathElements.length-1].split('.')[0];
@@ -209,6 +231,62 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 				path : path
 			});
 			runView.render();
+
+		},
+		debug : function(file) {
+			var self = this;
+			if (!file)
+				return;
+			var path = file.get('path');
+			if (path == '' || path.substring(path.length - 2, path.length) != '.c') {
+				alert('This file type is not supported currently.');
+				return;
+			}
+			if (!socket || !socket.socket.connected)
+				return;
+			socket.emit('debugger:create', {
+				'executable' : path
+			});
+			socket.on('debugger:create_response', function(data) {
+				self.debugID = data.id;
+				this.inDebug = true;
+			});
+
+			var breakpoints = this.breakpoints;
+			for ( i = 0; i < breakpoints.length; i++) {
+				socket.emit('debugger:set_breakpoint', {
+					'file' : self.model.get('fileName'),
+					'line' : breakpoints[i],
+					'id' : self.debugID
+				});
+			}
+
+			socket.emit('debugger:run', {
+				id : self.debugID
+			});
+
+			$('#mainMenu').append('<li id="nextButton"><a href="#" class="btn btn-primary"><i class="icon-play"></i></a></li>').append('<li id="continueButton"><a href="#" class="btn btn-primary"><i class="icon-step-forward"></i></a></li>').append('<li id="closeDebugButton"><a href="#" class="btn btn-primary"><i class="icon-remove"></i></a></li>');
+
+			$('#nextButton').click(function(e) {
+				socket.emit('debugger:next', {
+					id : self.debugID
+				});
+			});
+			$('#continueButton').click(function(e) {
+				socket.emit('debugger:continue', {
+					id : self.debugID
+				});
+			});
+			$('#closeDebugButton').click(function(e) {
+				$('#nextButton').remove();
+				$('#continueButton').remove();
+				$('#closeDebugButton').remove();
+				this.inDebug = false;
+			});
+
+		},
+		highlight : function(row) {
+			this.editor.gotoLine(row, 0, true);
 		},
 		undo : function(editor) {
 			editor.undo();

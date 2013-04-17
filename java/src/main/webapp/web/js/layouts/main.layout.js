@@ -31,7 +31,8 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			'click #menuOpenNewTerminal' : 'addNewTerminal',
 			'click #menuRun' : 'run',
 			'click #saveOptionsButton' : 'saveOptions',
-			'change #themeSelector' : 'themeSelected'
+			'change #themeSelector' : 'themeSelected',
+			'click #menuDebug' : 'debug'
 			
 				
 				
@@ -175,6 +176,11 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			var activeTab =  $("ul#tabs li.active").text();
 			var v = this.options.vent;
 			v.trigger('file:run', activeTab);
+		},
+		debug : function(e) {
+			var activeTab =  $("ul#tabs li.active").text();
+			var v = this.options.vent;
+			v.trigger('file:debug', activeTab);
 		},
 		themeSelected : function(e) {
 			this.selectedTheme = e.currentTarget.value;
