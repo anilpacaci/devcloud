@@ -75,13 +75,6 @@ define(['jquery', 'underscore', 'backbone', 'marionette', 'socketio', 'js/views/
 					vent : vent
 				}));
 
-				socket.emit('debugger:create', {
-					executable : '/home/serbay/Codes/graduation_project/apache-tomcat-7.0.37/serbay.arslanhan@gmail.com/a.out'
-				});
-
-				socket.on('debugger:create_response', function(data) {
-					alert('debugger created id: ' + data.id);
-				});
 
 				/*
 				* other available commands for the debugger

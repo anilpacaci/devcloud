@@ -75,7 +75,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 			if ($(e.target).hasClass('ace_breakpoint')) {
 				bpList.splice($.inArray(id, bpList), 1);
 				$(e.target).removeClass('ace_breakpoint');
-				if (!this.inDebug) {
+				if (!self.inDebug) {
 					socket.emit('debugger:remove_breakpoint', {
 						'file' : self.model.get('fileName'),
 						'line' : id,
@@ -85,7 +85,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 			} else {
 				bpList.push(id);
 				$(e.target).addClass('ace_breakpoint');
-				if (this.inDebug) {
+				if (self.inDebug) {
 					socket.emit('debugger:set_breakpoint', {
 						'file' : self.model.get('fileName'),
 						'line' : id,
@@ -234,6 +234,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 
 		},
 		debug : function(file) {
+			if (this.inDebug) {return;};
 			var executableName = prompt("Enter executable name:");
 			if(!executableName) return;
 			var self = this;
@@ -256,7 +257,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 			});
 			socket.on('debugger:create_response', function(data) {
 				self.debugID = data.id;
-				this.inDebug = true;
+				self.inDebug = true;
 			});
 
 			var breakpoints = this.breakpoints;
@@ -288,7 +289,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 				$('#nextButton').remove();
 				$('#continueButton').remove();
 				$('#closeDebugButton').remove();
-				this.inDebug = false;
+				self.inDebug = false;
 			});
 
 		},
