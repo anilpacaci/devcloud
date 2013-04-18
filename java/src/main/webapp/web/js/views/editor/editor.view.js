@@ -234,6 +234,8 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 
 		},
 		debug : function(file) {
+			var executableName = prompt("Enter executable name:");
+			if(!executableName) return;
 			var self = this;
 			if (!file)
 				return;
@@ -244,6 +246,11 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 			}
 			if (!socket || !socket.socket.connected)
 				return;
+
+			var pathArray = path.split('/');
+			pathArray.pop();
+			pathArray.push(executableName);
+			path = pathArray.join('/');
 			socket.emit('debugger:create', {
 				'executable' : path
 			});
