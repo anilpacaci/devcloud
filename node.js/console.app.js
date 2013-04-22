@@ -201,6 +201,7 @@ io.sockets.on('connection', function(socket) {
 	});
 
 	socket.on('debugger:remove_breakpoint', function(data) {
+		debugger;
 		if(!socket.sessionExists) {
 			return;
 		}

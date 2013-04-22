@@ -255,22 +255,26 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 			socket.emit('debugger:create', {
 				'executable' : path
 			});
+
+
+			var breakpoints = this.breakpoints;
 			socket.on('debugger:create_response', function(data) {
 				self.debugID = data.id;
 				self.inDebug = true;
-			});
 
-			var breakpoints = this.breakpoints;
-			for ( i = 0; i < breakpoints.length; i++) {
-				socket.emit('debugger:set_breakpoint', {
-					'file' : self.model.get('fileName'),
-					'line' : breakpoints[i],
-					'id' : self.debugID
+				for ( i = 0; i < breakpoints.length; i++) {
+					socket.emit('debugger:set_breakpoint', {
+						'file' : self.model.get('fileName'),
+						'line' : breakpoints[i],
+						'id' : self.debugID
+					});
+				}
+
+				
+
+				socket.emit('debugger:run', {
+					id : self.debugID
 				});
-			}
-
-			socket.emit('debugger:run', {
-				id : self.debugID
 			});
 
 			$('#mainMenu').append('<li id="nextButton"><a href="#" class="btn btn-primary"><i class="icon-play"></i></a></li>').append('<li id="continueButton"><a href="#" class="btn btn-primary"><i class="icon-step-forward"></i></a></li>').append('<li id="closeDebugButton"><a href="#" class="btn btn-primary"><i class="icon-remove"></i></a></li>');
