@@ -75,7 +75,34 @@ define(['jquery', 'underscore', 'backbone', 'marionette', 'socketio', 'js/views/
 					vent : vent
 				}));
 
-
+				socket.on('debugger:create_response', function(data) {
+					socket.debugger_id = data.id;
+				});
+				
+				socket.on('debugger:set_current_state', function(data) {
+					//alert(JSON.stringify(data));
+					expressions = data['expressions'];
+					$('#debugExpressions').html('<tr><th>Expression</th><th>Value</th><th><a href="#" id="addExpression">+</a></th></tr>');
+					for(var expr in expressions){
+						$('#debugExpressions').append("<tr><td>"+ expr +"</td><td>" + expressions[expr] + "</td><td><a href=\"#\" id=\"removeExpression\" name=\""+expr+"\">-</a></td></tr>")
+					}
+					$('#addExpression').click(function(e) {
+						var expr = prompt('Enter an expression:', 'expression');
+						socket.emit('debugger:add_expression', {
+							id : socket.debugger_id,
+							expression : expr
+						});
+					});
+					
+					$('#removeExpression').click(function(e) {
+						var expr = $('#removeExpression').attr('name');
+						socket.emit('debugger:remove_expression', {
+							id : socket.debugger_id,
+							expression : expr
+						});
+					});
+				});
+				
 				/*
 				* other available commands for the debugger
 				* debugger:run 						-------- parameters : id

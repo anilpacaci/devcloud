@@ -293,7 +293,18 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 				$('#nextButton').remove();
 				$('#continueButton').remove();
 				$('#closeDebugButton').remove();
+				$('#debugExpressions').remove();
 				self.inDebug = false;
+			});
+			
+			$('#debug_div').append('<table id="debugExpressions" class="table table-striped table-bordered table-condensed"><tr><th>Expression</th><th>Value</th><th><a href="#" id="addExpression">+</a></th></tr></table>');
+			
+			$('#addExpression').click(function(e) {
+				var expr = prompt('Enter an expression:', 'expression');
+				socket.emit('debugger:add_expression', {
+					id : self.debugID,
+					expression : expr
+				});
 			});
 
 		},
