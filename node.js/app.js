@@ -142,19 +142,116 @@ io.sockets.on('connection', function(socket) {
 
 		var spawn = require('child_process').spawn;
 		// (run_params) ? run_params.split(' ') : []
-		var child = spawn("gdb", [executable] , {cwd: executable.substring(0, executable.lastIndexOf('/'))});
+		var child = spawn("gdb", [executable, '--interpreter=mi'] , {cwd: executable.substring(0, executable.lastIndexOf('/'))});
 
 		socket.debuggers.push({id: debugger_id, process: child, params: params, is_running: false, breakpoints: [], expressions: []});
 
-		child.stdin.setEncoding = 'utf-8';
+		child.stdin.setEncoding('utf-8');
+		child.stdout.setEncoding('utf-8');
 
-		child.stdout.on('data', function(data) {
-			console.log('Child process: ' + child.pid + ' ' + data + '\n');
+		child.stdout.on('data', function(output_lines) {
+			console.log('Child process: ' + child.pid + ' ' + output_lines + '\n');
 
 			for(var i=0; i<socket.debuggers.length; i++) {
 				var _debugger = socket.debuggers[i];
-				if(_debugger.process.pid == child.pid && _debugger.is_running) {
+				if(_debugger.process.pid == child.pid) {
+					var output_lines_splitted = output_lines.split('\n');
+					for(var k=0; k<output_lines_splitted.length; k++) {
+						var output = output_lines_splitted[k];
+						var bkpt_string = output.match('bkpt={.*}');
+						if(bkpt_string && bkpt_string.length == 1) {
+							var temp_string = bkpt_string[0].substring(6, bkpt_string[0].length-1);
+							var attribute_list = temp_string.split(',').map(function(el){return el.split('=')});
+							var attributes = {};
+							for(var j=0; j<attribute_list.length; j++) {
+								var attribute = attribute_list[j];
+								attributes[attribute[0]] = JSON.parse(attribute[1]);
+							}
 
+							var breakpoint_added_before = false;
+							for(var j=0; j<_debugger.breakpoints.length; j++) {
+								if(_debugger.breakpoints[j].number == attributes.number) {
+									breakpoint_added_before = true;
+									break;
+								}
+							}
+
+							if(!breakpoint_added_before) {
+								_debugger.breakpoints.push(attributes);
+							}
+						}
+
+						if(output.indexOf('*stopped,reason="exited') != -1) {
+							socket.emit('debugger:closed',{id: _debugger.id});
+							socket.debuggers.splice(i, 1);
+							child.kill();
+							return;
+						}
+
+						if(output.indexOf('*stopped,reason="breakpoint-hit"') != -1 || output.indexOf('*stopped, reason="end-stepping-range"') != -1) {
+							// breakpoint hit
+
+							var frame_string = output.match('frame={.*}');
+							if(frame_string && frame_string.length == 1) {
+								var frame = {};
+								var temp_string = frame_string[0].substring(7, frame_string[0].length-1);
+								var attribute_list = temp_string.split(',').map(function(el){return el.split('=')});
+
+								for(var j=0; j<attribute_list.length; j++) {
+									var attribute = attribute_list[j];
+									frame[attribute[0]] = JSON.parse(attribute[1]);
+								}
+
+								_debugger.frame = frame;
+								_debugger.frame.pending_expression_evaluations = [];
+								_debugger.frame.evaluated_expressions = {};
+								for(var j=0; j<_debugger.expressions.length; j++) {
+									_debugger.frame.pending_expression_evaluations.push(j);
+
+									_debugger.process.stdin.write(j+'-data-evaluate-expression ' + _debugger.expressions[j] + '\n');
+								}
+							}
+						}
+
+						if(_debugger.frame) {
+							if(_debugger.frame.pending_expression_evaluations.length > 0) {
+								for(var j=0; j<_debugger.frame.pending_expression_evaluations.length; j++) {
+									var done_string = _debugger.frame.pending_expression_evaluations[j]+'^done';
+									var error_string = _debugger.frame.pending_expression_evaluations[j]+'^error';
+									debugger;
+									if(output.indexOf(done_string) != -1) {
+										//expression is successfully evaluated.
+
+										var value = output.substring(done_string.length + 8, output.length-1);
+										_debugger.frame.evaluated_expressions[_debugger.expressions[_debugger.frame.pending_expression_evaluations[j]]] = value;
+
+										_debugger.frame.pending_expression_evaluations.splice(j,1);
+									} else if(output.indexOf(error_string) != -1) {
+										//expression evaluation is resulted in an error.
+
+										var value = output.substring(done_string.length + 6, output.length-1);
+										_debugger.frame.evaluated_expressions[_debugger.expressions[_debugger.frame.pending_expression_evaluations[j]]] = value;
+
+										_debugger.frame.pending_expression_evaluations.splice(j,1);
+									}
+									//output = output.substring(output.indexOf('\n'), output.length);
+								}
+							}
+
+							if(_debugger.frame.pending_expression_evaluations.length == 0) {
+								debugger;
+								// send data to the client
+								socket.emit('debugger:set_current_state', {
+									file: _debugger.frame.fullname,
+									line: _debugger.frame.line,
+									id: _debugger.id,
+									expressions: _debugger.frame.evaluated_expressions
+								});
+
+								_debugger.frame = null;
+							}
+						}
+					}
 					break;
 				}
 			}
@@ -195,13 +292,12 @@ io.sockets.on('connection', function(socket) {
 			}
 		}
 
-		_debugger.process.stdin.write('break ' + data.file  + ':' + data.line + '\n');
+		_debugger.process.stdin.write('-break-insert ' + data.file  + ':' + data.line + '\n');
 
-		_debugger.breakpoints.push({file: data.file, line: data.line});
+		//_debugger.breakpoints.push({file: data.file, line: data.line});
 	});
 
 	socket.on('debugger:remove_breakpoint', function(data) {
-		debugger;
 		if(!socket.sessionExists) {
 			return;
 		}
@@ -221,10 +317,13 @@ io.sockets.on('connection', function(socket) {
 		}
 
 		for(var i=0; i<_debugger.breakpoints.length; i++) {
-			if(_debugger.breakpoints[i].file == data.file && _debugger.breakpoints[i].line == data.line) {
+			if((_debugger.breakpoints[i].file == data.file || _debugger.breakpoints[i].fullname == data.file) && _debugger.breakpoints[i].line == data.line) {
+
+				_debugger.process.stdin.write('-break-delete ' + _debugger.breakpoints[i].number);
+
 				_debugger.breakpoints.splice(i, 1);
 
-				_debugger.process.stdin.write('clear ' + data.file  + ':' + data.line + '\n');
+				//_debugger.process.stdin.write('clear ' + data.file  + ':' + data.line + '\n');
 
 				break;
 			}
@@ -233,7 +332,6 @@ io.sockets.on('connection', function(socket) {
 	});
 
 	socket.on('debugger:run', function(data) {
-		debugger;
 		if(!socket.sessionExists) {
 			return;
 		}
@@ -248,9 +346,9 @@ io.sockets.on('connection', function(socket) {
 				_debugger.is_running = true;
 
 				if(_debugger.params) {
-					_debugger.process.stdin.write('run ' + _debugger.params + '\n');
+					_debugger.process.stdin.write('-exec-run ' + _debugger.params + '\n');
 				} else {
-					_debugger.process.stdin.write('run\n');
+					_debugger.process.stdin.write('-exec-run\n');
 				}
 
 				return;
@@ -258,8 +356,47 @@ io.sockets.on('connection', function(socket) {
 		}
 	});
 
+	socket.on('debugger:add_expression', function(data) {
+		if(!socket.sessionExists) {
+			return;
+		}
+
+		if(!data.id || !data.expression) {
+			return;
+		}
+
+		for(var i=0; i<socket.debuggers.length; i++) {
+			var _debugger = socket.debuggers[i];
+			if(_debugger.id == data.id) {
+				_debugger.expressions.push(data.expression);
+
+				return;
+			}
+		}
+	});
+
+	socket.on('debugger:remove_expression', function(data) {
+		if(!socket.sessionExists) {
+			return;
+		}
+
+		if(!data.id || !data.expression) {
+			return;
+		}
+
+		for(var i=0; i<socket.debuggers.length; i++) {
+			var _debugger = socket.debuggers[i];
+			if(_debugger.id == data.id) {
+				var index =_debugger.expressions.indexOf(data.expression);
+
+				_debugger.expressions.splice(index, 1);
+
+				return;
+			}
+		}
+	});
+
 	socket.on('debugger:next', function(data) {
-		debugger;
 		if(!socket.sessionExists) {
 			return;
 		}
@@ -272,7 +409,9 @@ io.sockets.on('connection', function(socket) {
 			var _debugger = socket.debuggers[i];
 			if(_debugger.id == data.id) {
 
-				_debugger.process.stdin.write('next\n');
+				_debugger.frame = null;
+
+				_debugger.process.stdin.write('-exec-next\n');
 
 				return;
 			}
@@ -280,7 +419,6 @@ io.sockets.on('connection', function(socket) {
 	});
 
 	socket.on('debugger:continue', function(data) {
-		debugger;
 		if(!socket.sessionExists) {
 			return;
 		}
@@ -293,7 +431,9 @@ io.sockets.on('connection', function(socket) {
 			var _debugger = socket.debuggers[i];
 			if(_debugger.id == data.id) {
 
-				_debugger.process.stdin.write('continue\n');
+				_debugger.frame = null;
+
+				_debugger.process.stdin.write('-exec-continue\n');
 
 				return;
 			}
