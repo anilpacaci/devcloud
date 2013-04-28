@@ -182,6 +182,7 @@ io.sockets.on('connection', function(socket) {
 						}
 
 						if(output.indexOf('*stopped,reason="exited') != -1) {
+							debugger;
 							socket.emit('debugger:closed',{id: _debugger.id});
 							socket.debuggers.splice(i, 1);
 							child.kill();
@@ -292,7 +293,9 @@ io.sockets.on('connection', function(socket) {
 			}
 		}
 
-		_debugger.process.stdin.write('-break-insert ' + data.file  + ':' + data.line + '\n');
+		if(_debugger) {
+			_debugger.process.stdin.write('-break-insert ' + data.file  + ':' + data.line + '\n');
+		}
 
 		//_debugger.breakpoints.push({file: data.file, line: data.line});
 	});
@@ -316,16 +319,18 @@ io.sockets.on('connection', function(socket) {
 			}
 		}
 
-		for(var i=0; i<_debugger.breakpoints.length; i++) {
-			if((_debugger.breakpoints[i].file == data.file || _debugger.breakpoints[i].fullname == data.file) && _debugger.breakpoints[i].line == data.line) {
+		if(_debugger) {
+			for(var i=0; i<_debugger.breakpoints.length; i++) {
+				if((_debugger.breakpoints[i].file == data.file || _debugger.breakpoints[i].fullname == data.file) && _debugger.breakpoints[i].line == data.line) {
 
-				_debugger.process.stdin.write('-break-delete ' + _debugger.breakpoints[i].number);
+					_debugger.process.stdin.write('-break-delete ' + _debugger.breakpoints[i].number);
 
-				_debugger.breakpoints.splice(i, 1);
+					_debugger.breakpoints.splice(i, 1);
 
-				//_debugger.process.stdin.write('clear ' + data.file  + ':' + data.line + '\n');
+					//_debugger.process.stdin.write('clear ' + data.file  + ':' + data.line + '\n');
 
-				break;
+					break;
+				}
 			}
 		}
 
