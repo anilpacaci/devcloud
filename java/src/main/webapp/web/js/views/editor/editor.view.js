@@ -315,6 +315,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 		},
 		addExpression : function() {
 			var expr = prompt('Enter an expression:', 'expression');
+			$('#debugExpressions').append("<tr><td>"+ expr +"</td><td>...</td><td><a href=\"#\" class=\"removeExpression\" name=\""+expr+"\">-</a></td></tr>")
 			socket.emit('debugger:add_expression', {
 				id : socket.debugger_id,
 				expression : expr
@@ -322,6 +323,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 		},
 		removeExpression : function(e) {
 			var expr = e.target.name;
+			$(e.target).parent().parent().remove();
 			socket.emit('debugger:remove_expression', {
 				id : socket.debugger_id,
 				expression : expr
