@@ -5,6 +5,8 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 		events : {
 			'click a[id="save_button"]' : 'saveButton',
 			'click a[id="run_button"]' : 'runButton',
+			'click a[id="addExpression"]' : 'addExpression',
+			'click a[class="removeExpression"]' : 'removeExpression',
 			'dblclick .ace_gutter-cell' : 'setBreakpoint'
 		},
 		initialize : function() {
@@ -259,6 +261,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 
 			var breakpoints = this.breakpoints;
 			socket.on('debugger:create_response', function(data) {
+				socket.debugger_id = data.id;
 				self.debugID = data.id;
 				self.inDebug = true;
 
@@ -277,6 +280,16 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 				});
 			});
 
+			socket.on('debugger:set_current_state', function(data) {
+				//alert(JSON.stringify(data));
+				expressions = data['expressions'];
+				$('#debugExpressions').html('<tr><th>Expression</th><th>Value</th><th><a href="#" id="addExpression">+</a></th></tr>');
+				for(var expr in expressions){
+					$('#debugExpressions').append("<tr><td>"+ expr +"</td><td>" + expressions[expr] + "</td><td><a href=\"#\" class=\"removeExpression\" name=\""+expr+"\">-</a></td></tr>")
+				}
+				
+			});
+			
 			$('#mainMenu').append('<li id="nextButton"><a href="#" class="btn btn-primary"><i class="icon-play"></i></a></li>').append('<li id="continueButton"><a href="#" class="btn btn-primary"><i class="icon-step-forward"></i></a></li>').append('<li id="closeDebugButton"><a href="#" class="btn btn-primary"><i class="icon-remove"></i></a></li>');
 
 			$('#nextButton').click(function(e) {
@@ -298,15 +311,21 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 			});
 			
 			$('#debug_div').append('<table id="debugExpressions" class="table table-striped table-bordered table-condensed"><tr><th>Expression</th><th>Value</th><th><a href="#" id="addExpression">+</a></th></tr></table>');
-			
-			$('#addExpression').click(function(e) {
-				var expr = prompt('Enter an expression:', 'expression');
-				socket.emit('debugger:add_expression', {
-					id : self.debugID,
-					expression : expr
-				});
-			});
 
+		},
+		addExpression : function() {
+			var expr = prompt('Enter an expression:', 'expression');
+			socket.emit('debugger:add_expression', {
+				id : socket.debugger_id,
+				expression : expr
+			});
+		},
+		removeExpression : function(e) {
+			var expr = e.target.name;
+			socket.emit('debugger:remove_expression', {
+				id : socket.debugger_id,
+				expression : expr
+			});
 		},
 		highlight : function(row) {
 			this.editor.gotoLine(row, 0, true);
@@ -316,21 +335,6 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 		},
 		redo : function(editor) {
 			editor.redo();
-		},
-		cut : function(editor) {
-			//	        var range = editor.getSelectionRange();
-			//	        editor._emit("cut", range);
-			//
-			//	        if (!editor.selection.isEmpty()) {
-			//	            editor.session.remove(range);
-			//	            editor.clearSelection();
-			//	        }
-		},
-		copy : function(editor) {
-			//editor.onCopy();
-		},
-		paste : function(editor) {
-			//editor.onPaste(editor.text.value);
 		},
 		findReplace : function(editor) {
 			var needle = prompt("Find:", editor.getCopyText());
