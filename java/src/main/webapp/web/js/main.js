@@ -12,6 +12,7 @@ require.config({
 		socketio : 'js/libs/socket.io/socket.io',
 		term : 'js/libs/term/term',
 		bootstrap : 'js/libs/bootstrap/bootstrap',
+		bootbox : 'js/libs/bootstrap/bootbox',
 		filetree : 'js/libs/jquery/jqueryFileTree',
 		validate : 'js/libs/jquery/jqueryValidate'
 	},
@@ -54,6 +55,10 @@ require.config({
 		},
 		'bootstrap' : {
 			deps : ['jquery']
+		},
+		'bootbox' : {
+			deps : ['jquery', 'bootstrap'],
+			exports : 'bootbox'
 		},
 		'filetree' : {
 			deps : ['jquery'],

@@ -1,4 +1,4 @@
-define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor.template.html', 'js/models/editor/file.model', 'js/views/execution/run.view'], function($, Backbone, Marionette, ace, EditorTemplate, FileModel, RunView) {
+define(['jquery', 'backbone', 'marionette', 'ace', 'bootbox', 'text!templates/editor/editor.template.html', 'js/models/editor/file.model', 'js/views/execution/run.view'], function($, Backbone, Marionette, ace, bootbox, EditorTemplate, FileModel, RunView) {
 	var EditorView = Marionette.ItemView.extend({
 		template : EditorTemplate,
 		className : '',
@@ -175,43 +175,53 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 		save : function(file) {
 			var self = this;
 			var newFile = false;
-			if (!file.get('fileName')) {
-				var path = prompt('Enter path to save file:', 'path to save');
-				path = this.options.user.get('email') + '/' + path;
-				file = new FileModel({
-					path : path
-				});
-				newFile = true;
-			}
-			file.set('content', self.editor.getValue());
-			$.ajax({
-				type : "POST",
-				url : URL + 'fileResource',
-				data : {
-					path : file.get('path'),
-					content : file.get('content')
-				},
-				success : function(absPath) {
-					if (newFile) {
-						file.set('path', absPath);
 
-						var pathElements = file.get('path').split("/");
-						var fileName = pathElements[pathElements.length-1].split('.')[0];
-						var v = self.options.vent;
+			var tempFunction = function(self, file, newFile) {
+				file.set('content', self.editor.getValue());
+				$.ajax({
+					type : "POST",
+					url : URL + 'fileResource',
+					data : {
+						path : file.get('path'),
+						content : file.get('content')
+					},
+					success : function(absPath) {
+						if (newFile) {
+							file.set('path', absPath);
 
-						self.model = file;
+							var pathElements = file.get('path').split("/");
+							var fileName = pathElements[pathElements.length-1].split('.')[0];
+							var v = self.options.vent;
 
-						var editorRegionId = $("ul#tabs li.active")[0].children[0].href.split('#')[1];
-						$("ul#tabs li.active")[0].children[0].href = '#editorRegion' + fileName;
-						$('#' + editorRegionId)[0].id = 'editorRegion' + fileName;
-						$("ul#tabs li.active")[0].children[0].innerHTML = pathElements[pathElements.length - 1] + " <i class='icon-remove'></i>"
-						v.trigger('explorer:refresh', file.get('path'));
+							self.model = file;
+
+							var editorRegionId = $("ul#tabs li.active")[0].children[0].href.split('#')[1];
+							$("ul#tabs li.active")[0].children[0].href = '#editorRegion' + fileName;
+							$('#' + editorRegionId)[0].id = 'editorRegion' + fileName;
+							$("ul#tabs li.active")[0].children[0].innerHTML = pathElements[pathElements.length - 1] + " <i class='icon-remove'></i>"
+							v.trigger('explorer:refresh', file.get('path'));
+						}
+					},
+					error : function() {
+						bootbox.alert("An error occured");
 					}
-				},
-				error : function() {
-					alert("An error occured");
-				}
-			});
+				});
+			};
+
+			if (!file.get('fileName')) {
+				bootbox.prompt('Enter path to save file:', function(path) {
+					path = self.options.user.get('email') + '/' + path;
+					file = new FileModel({
+						path : path
+					});
+					newFile = true;
+					tempFunction(self, file, newFile);
+				});
+
+			} else {
+				tempFunction(self, file, newFile);
+			}
+
 		},
 		runButton : function(e) {
 			this.run(this.model);
@@ -221,7 +231,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 				return;
 			var path = file.get('path');
 			if (path == '' || path.substring(path.length - 2, path.length) != '.c') {
-				alert('This file type is not supported currently.');
+				bootbox.alert('This file type is not supported currently.');
 				return;
 			}
 			if (!socket || !socket.socket.connected)
@@ -236,89 +246,95 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 
 		},
 		debug : function(file) {
-			if (this.inDebug) {return;};
-			var executableName = prompt("Enter executable name:");
-			if(!executableName) return;
-			var self = this;
-			if (!file)
+			if (this.inDebug) {
 				return;
-			var path = file.get('path');
-			if (path == '' || path.substring(path.length - 2, path.length) != '.c') {
-				alert('This file type is not supported currently.');
-				return;
-			}
-			if (!socket || !socket.socket.connected)
-				return;
+			};
+			var executableName = bootbox.prompt("Enter executable name:", function(executableName) {
+				if (!executableName)
+					return;
+				var self = this;
+				if (!file)
+					return;
+				var path = file.get('path');
+				if (path == '' || path.substring(path.length - 2, path.length) != '.c') {
+					bootbox.alert('This file type is not supported currently.');
+					return;
+				}
+				if (!socket || !socket.socket.connected)
+					return;
 
-			var pathArray = path.split('/');
-			pathArray.pop();
-			pathArray.push(executableName);
-			path = pathArray.join('/');
-			socket.emit('debugger:create', {
-				'executable' : path
-			});
+				var pathArray = path.split('/');
+				pathArray.pop();
+				pathArray.push(executableName);
+				path = pathArray.join('/');
+				socket.emit('debugger:create', {
+					'executable' : path
+				});
 
+				var breakpoints = this.breakpoints;
+				socket.on('debugger:create_response', function(data) {
+					socket.debugger_id = data.id;
+					self.debugID = data.id;
+					self.inDebug = true;
 
-			var breakpoints = this.breakpoints;
-			socket.on('debugger:create_response', function(data) {
-				socket.debugger_id = data.id;
-				self.debugID = data.id;
-				self.inDebug = true;
+					for ( i = 0; i < breakpoints.length; i++) {
+						socket.emit('debugger:set_breakpoint', {
+							'file' : self.model.get('fileName'),
+							'line' : breakpoints[i],
+							'id' : self.debugID
+						});
+					}
 
-				for ( i = 0; i < breakpoints.length; i++) {
-					socket.emit('debugger:set_breakpoint', {
-						'file' : self.model.get('fileName'),
-						'line' : breakpoints[i],
-						'id' : self.debugID
+					socket.emit('debugger:run', {
+						id : self.debugID
 					});
-				}
-
-				
-
-				socket.emit('debugger:run', {
-					id : self.debugID
 				});
-			});
 
-			socket.on('debugger:set_current_state', function(data) {
-				//alert(JSON.stringify(data));
-				expressions = data['expressions'];
-				$('#debugExpressions').html('<tr><th>Expression</th><th>Value</th><th><a href="#" id="addExpression">+</a></th></tr>');
-				for(var expr in expressions){
-					$('#debugExpressions').append("<tr><td>"+ expr +"</td><td>" + expressions[expr] + "</td><td><a href=\"#\" class=\"removeExpression\" name=\""+expr+"\">-</a></td></tr>")
-				}
-				
-			});
-			
-			$('#mainMenu').append('<li id="nextButton"><a href="#" class="btn btn-primary"><i class="icon-play"></i></a></li>').append('<li id="continueButton"><a href="#" class="btn btn-primary"><i class="icon-step-forward"></i></a></li>').append('<li id="closeDebugButton"><a href="#" class="btn btn-primary"><i class="icon-remove"></i></a></li>');
+				socket.on('debugger:set_current_state', function(data) {
+					//alert(JSON.stringify(data));
+					expressions = data['expressions'];
+					$('#debugExpressions').html('<tr><th>Expression</th><th>Value</th><th><a href="#" id="addExpression">+</a></th></tr>');
+					for (var expr in expressions) {
+						$('#debugExpressions').append("<tr><td>" + expr + "</td><td>" + expressions[expr] + "</td><td><a href=\"#\" class=\"removeExpression\" name=\"" + expr + "\">-</a></td></tr>")
+					}
 
-			$('#nextButton').click(function(e) {
-				socket.emit('debugger:next', {
-					id : self.debugID
 				});
-			});
-			$('#continueButton').click(function(e) {
-				socket.emit('debugger:continue', {
-					id : self.debugID
-				});
-			});
-			$('#closeDebugButton').click(function(e) {
-				$('#nextButton').remove();
-				$('#continueButton').remove();
-				$('#closeDebugButton').remove();
-				$('#debugExpressions').remove();
-				self.inDebug = false;
-			});
-			
-			$('#debug_div').append('<table id="debugExpressions" class="table table-striped table-bordered table-condensed"><tr><th>Expression</th><th>Value</th><th><a href="#" id="addExpression">+</a></th></tr></table>');
 
+				$('#mainMenu').append('<li id="nextButton"><a href="#" class="btn btn-primary"><i class="icon-play"></i></a></li>').append('<li id="continueButton"><a href="#" class="btn btn-primary"><i class="icon-step-forward"></i></a></li>').append('<li id="closeDebugButton"><a href="#" class="btn btn-primary"><i class="icon-remove"></i></a></li>');
+
+				$('#nextButton').click(function(e) {
+					socket.emit('debugger:next', {
+						id : self.debugID
+					});
+				});
+				$('#continueButton').click(function(e) {
+					socket.emit('debugger:continue', {
+						id : self.debugID
+					});
+				});
+				$('#closeDebugButton').click(function(e) {
+					$('#nextButton').remove();
+					$('#continueButton').remove();
+					$('#closeDebugButton').remove();
+					$('#debugExpressions').remove();
+					self.inDebug = false;
+				});
+
+				$('#debug_div').append('<table id="debugExpressions" class="table table-striped table-bordered table-condensed"><tr><th>Expression</th><th>Value</th><th><a href="#" id="addExpression">+</a></th></tr></table>');
+
+			});
 		},
 		addExpression : function() {
-			var expr = prompt('Enter an expression:', 'expression');
-			$('#debugExpressions').append("<tr><td>"+ expr +"</td><td>...</td><td><a href=\"#\" class=\"removeExpression\" name=\""+expr+"\">-</a></td></tr>")
-			socket.emit('debugger:add_expression', {
-				id : socket.debugger_id,
-				expression : expr
+			bootbox.prompt('Enter an expression', function(expression) {
+				if (expression) {
+					$('#debugExpressions').append("<tr><td>" + expression + "</td><td>...</td><td><a href=\"#\" class=\"removeExpression\" name=\"" + expression + "\">-</a></td></tr>")
+					socket.emit('debugger:add_expression', {
+						id : socket.debugger_id,
+						expression : expression
+					});
+				} else {
+					bootbox.alert('Not a valid expression');
+				}
 			});
 		},
 		removeExpression : function(e) {
@@ -339,25 +355,37 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/editor/editor
 			editor.redo();
 		},
 		findReplace : function(editor) {
-			var needle = prompt("Find:", editor.getCopyText());
-			if (!needle)
-				return;
-			var replacement = prompt("Replacement:");
-			if (!replacement)
-				return;
-			editor.replace(replacement, {
-				needle : needle
+			bootbox.prompt('Find', function(needle) {
+				if (needle) {
+					bootbox.prompt('Replacement', function(replacement) {
+						if (replacement) {
+							editor.replace(replacement, {
+								needle : needle
+							});
+						} else {
+							return;
+						}
+					})
+				} else {
+					bootbox.alert('Not a valid search string!');
+				}
 			});
 		},
 		findReplaceAll : function(editor) {
-			var needle = prompt("Find:");
-			if (!needle)
-				return;
-			var replacement = prompt("Replacement:");
-			if (!replacement)
-				return;
-			editor.replaceAll(replacement, {
-				needle : needle
+			bootbox.prompt('Find', function(needle) {
+				if (needle) {
+					bootbox.prompt('Replacement', function(replacement) {
+						if (replacement) {
+							editor.replaceAll(replacement, {
+								needle : needle
+							});
+						} else {
+							return;
+						}
+					})
+				} else {
+					bootbox.alert('Not a valid search string!');
+				}
 			});
 		}
 	});
