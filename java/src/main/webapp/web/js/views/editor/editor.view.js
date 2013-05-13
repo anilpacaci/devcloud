@@ -249,10 +249,10 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'bootbox', 'text!templates/ed
 			if (this.inDebug) {
 				return;
 			};
+			var self = this;
 			var executableName = bootbox.prompt("Enter executable name:", function(executableName) {
 				if (!executableName)
 					return;
-				var self = this;
 				if (!file)
 					return;
 				var path = file.get('path');
@@ -271,7 +271,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'bootbox', 'text!templates/ed
 					'executable' : path
 				});
 
-				var breakpoints = this.breakpoints;
+				var breakpoints = self.breakpoints;
 				socket.on('debugger:create_response', function(data) {
 					socket.debugger_id = data.id;
 					self.debugID = data.id;
