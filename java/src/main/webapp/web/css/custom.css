@@ -2,3 +2,17 @@
 	background-image : url("../img/icon/brkp_obj.png");
 	background-position : 4px center;
 }
+
+.waiting {
+	position: absolute;
+	top:0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: rgba(27, 60, 102, 0.15);
+	width: 350px;
+	height: 70px;
+	text-align: center;
+	padding: 50px;
+	margin: 200px auto 0px;
+}
