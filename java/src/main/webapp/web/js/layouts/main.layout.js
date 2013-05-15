@@ -1,4 +1,4 @@
-define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.html', 'js/views/editor/editor.view', 'js/views/console/console.view', 'js/views/explorer/file.explorer.view'], function($, Backbone, Marionette, MainTemplate, EditorView, ConsoleView, FileExplorerView) {
+define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.html', 'js/views/editor/editor.view', 'js/views/console/console.view', 'js/views/explorer/file.explorer.view', 'js/views/explorer/fuelux.tree.view'], function($, Backbone, Marionette, MainTemplate, EditorView, ConsoleView, FileExplorerView, FueluxTreeView) {
 	MainLayout = Backbone.Marionette.Layout.extend({
 		template : MainTemplate,
 
@@ -48,7 +48,7 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			user = this.options.user;
 			configuration = this.options.configuration;
 			socket = this.options.socket;
-			this.fileTree.show(new FileExplorerView({
+			this.fileTree.show(new FueluxTreeView({
 				vent : vent,
 				configuration : configuration,
 				user : user,

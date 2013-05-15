@@ -14,7 +14,8 @@ require.config({
 		bootstrap : 'js/libs/bootstrap/bootstrap',
 		bootbox : 'js/libs/bootstrap/bootbox',
 		filetree : 'js/libs/jquery/jqueryFileTree',
-		validate : 'js/libs/jquery/jqueryValidate'
+		validate : 'js/libs/jquery/jqueryValidate',
+		fuelux_tree : 'fuelux/tree'
 	},
 
 	shim : {
@@ -67,12 +68,15 @@ require.config({
 		'validate' : {
 			deps : ['jquery'],
 			exports : '$'
+		},
+		'fuelux_tree' : {
+			deps : ['jquery'],
+			exports : 'fuelux_tree'
 		}
 	}
 });
 var URL = '../devcloud/';
 var currentTab = null;
-var selectedFile = null;
 
 require(['js/app/editor.app', 'jquery', 'underscore', 'backbone', 'marionette', 'bootstrap'], function(EditorApp) {
 	EditorApp.start();

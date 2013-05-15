@@ -40,28 +40,25 @@
 
 package com.tintin.devcloud.web;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.CookieParam;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
+import org.codehaus.jettison.json.JSONObject;
 
-import com.tintin.devcloud.web.util.FileModel;
+import com.tintin.devcloud.web.util.AdditionalParameterModel;
+import com.tintin.devcloud.web.util.TreeEntryModel;
 
 /**
  * 
@@ -73,6 +70,7 @@ public class FileExplorerResource {
 	private static final String APPLICATION_FORM_URLENCODED = null;
 
 	@POST
+	@Path("/old")
 	@Produces(MediaType.TEXT_HTML)
 	public Response getDirectory(@FormParam("dir") String dir) {
 		StringBuilder response = new StringBuilder();
@@ -108,10 +106,12 @@ public class FileExplorerResource {
 
 				int i = path.lastIndexOf('.');
 				if (i > 0) {
-				    extension = path.substring(i+1);
+					extension = path.substring(i + 1);
 				}
-				response.append("<li class='file ext_" + extension + "'><a href='#' rel='")
-						.append(path).append("'>").append(file.getName())
+				response.append(
+						"<li class='file ext_" + extension
+								+ "'><a href='#' rel='").append(path)
+						.append("'>").append(file.getName())
 						.append("</a></li>");
 			}
 			response.append("</ul>");
@@ -120,6 +120,37 @@ public class FileExplorerResource {
 		}
 
 		return Response.ok(response.toString()).build();
+	}
+
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getDirectoryContent(
+			@FormParam("path") @DefaultValue(".") String directoryPath) {
+		List<TreeEntryModel> response = new ArrayList<TreeEntryModel>();
+		try {
+			directoryPath = URLDecoder.decode(directoryPath, "UTF-8");
+			File folder = new File(directoryPath);
+			File[] listOfFiles = folder.listFiles();
+
+			for (int i = 0; i < listOfFiles.length; i++) {
+				File file = listOfFiles[i];
+				TreeEntryModel fileObject = new TreeEntryModel();
+				AdditionalParameterModel parameters = new AdditionalParameterModel();
+				parameters.setFilePath(file.getAbsolutePath());
+				fileObject.setAdditionalParameters(parameters);
+				fileObject.setName(file.getName());
+				if (file.isFile()) {
+					fileObject.setType("item");
+				} else {
+					fileObject.setType("folder");
+				}
+				response.add(fileObject);
+			}
+
+		} catch (Exception e) {
+			return Response.serverError().build();
+		}
+		return Response.ok(response).build();
 	}
 
 }
