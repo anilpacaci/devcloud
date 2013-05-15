@@ -129,7 +129,6 @@ public class FileExplorerResource {
 		List<TreeEntryModel> response = new ArrayList<TreeEntryModel>();
 		try {
 			directoryPath = URLDecoder.decode(directoryPath, "UTF-8");
-			System.out.println(directoryPath);
 			File folder = new File(directoryPath);
 			File[] listOfFiles = folder.listFiles();
 
@@ -140,7 +139,6 @@ public class FileExplorerResource {
 				parameters.setFilePath(file.getAbsolutePath());
 				fileObject.setAdditionalParameters(parameters);
 				fileObject.setName(file.getName());
-				System.out.println(file.getAbsolutePath());
 				if (file.isFile()) {
 					fileObject.setType("item");
 				} else {

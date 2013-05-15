@@ -102,6 +102,8 @@ define(['require','jquery'],function(require) {
 			var $el = $(el);
 			var $par = $el.parent();
 
+			this.selectItem(el);
+
 			if($el.find('.icon-folder-close').length) {
 				if ($par.find('.tree-folder-content').children().length) {
 					$par.find('.tree-folder-content:eq(0)').show();

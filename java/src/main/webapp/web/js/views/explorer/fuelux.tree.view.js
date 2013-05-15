@@ -1,5 +1,6 @@
 define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/explorer/fuelux.tree.template.html', 'js/models/editor/file.model', 'js/views/editor/editor.view', 'fuelux_tree', 'jquery_cookie'], function($, Backbone, Marionette, ace, FueluxTreeTemplate, FileModel, EditorView) {
 	var user;
+	var selectedFile;
 	var DataSource = function(options) {
 		this._formatter = options.formatter;
 		this._columns = options.columns;
@@ -52,6 +53,9 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/explorer/fuel
 				//self.openFile(filePath);
 			});
 		},
+		events : {
+			'click #uploadFile' : 'uploadFile'
+		},
 		onRender : function() {
 			var self = this;
 			vent = this.options.vent;
@@ -97,7 +101,9 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/explorer/fuel
 
 			this.$('#MyTree').on('selected', function(evt, data) {
 				var path = data.info[0].additionalParameters.filePath;
-				self.openFile(path);
+				if (data.info[0].type == 'item') {
+					self.openFile(path);
+				}
 			});
 
 		},
@@ -126,6 +132,47 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/explorer/fuel
 				$('#editorRegion' + fileName).append(editorView.el);
 				$('#tabs a:last').tab('show');
 			}
+		},
+		uploadFile : function(e) {
+			var self = this;
+			selectedItems = this.$('#MyTree').tree('selectedItems');
+			selectedFile = user.get('email');
+			if (selectedItems[0] && selectedItems[0].additionalParameters) {
+				selectedFile = selectedItems[0].additionalParameters.filePath;
+			}
+
+			// Check for the various File API support.
+			if (window.File && window.FileReader && window.FileList && window.Blob) {
+				// handler when file selected
+				$('#files').change(function(e) {
+					var f = e.target.files[0];
+					if (f) {
+						var data = new FormData();
+						data.append('file', f);
+						data.append('path', selectedFile);
+						$.ajax({
+							url : URL + "file/upload",
+							type : "POST",
+							data : data,
+							processData : false,
+							contentType : false,
+							complete : function() {
+								self.render();
+							}
+						});
+					} else {
+						alert("Failed to load file");
+					}
+					self.$('#files').remove();
+					self.$('.fuelux').append('<input type="file" id="files" name="file" style="visibility: hidden"/>');
+					return true;
+				});
+				// trigger file browser window on button click
+				$('#files').click();
+			} else {
+				alert('The File APIs are not fully supported in this browser.');
+			}
+
 		}
 	});
 	return FueluxTreeView;
