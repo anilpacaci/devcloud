@@ -444,7 +444,102 @@ io.sockets.on('connection', function(socket) {
 			}
 		}
 	});
+	
+	/*
+	 *  GIT FUNCTIONS
+	 */
+	socket.on('git:clone', function(data) {
+		if(!socket.sessionExists) {
+			return;
+		}
+		if(!data.path && !data.url) {
+			return;
+		}
+		
+		var exec = require('child_process').exec;
+		exec("cd "+ data.path + ";git clone " + data.url, function (error, stdout, stderr) {
+			console.log('gitClone: ' + stdout);
+			socket.emit('git_finished', {
+				'error': error,
+				'stdout': stdout,
+				'stderr': stderr});
+		});
+	});
+	
+	socket.on('git:pull', function(data) {
+		if(!socket.sessionExists) {
+			return;
+		}
+		if(!data.path) {
+			return;
+		}
+		
+		var exec = require('child_process').exec;
+		exec("cd "+ data.path + ";git pull", function (error, stdout, stderr) {
+			console.log('gitPull: ' + stdout);
+			socket.emit('git_finished', {
+				'error': error,
+				'stdout': stdout,
+				'stderr': stderr});
+		});
+	});
+	
+	socket.on('git:push', function(data) {
+		if(!socket.sessionExists) {
+			return;
+		}
+		if(!data.path && !data.username && !data.password) {
+			return;
+		}
+		
+		var spawn = require('child_process').spawn;
+		var gitPush = spawn('git', ['push'], {cwd: data.path});
+		
+		gitPush.stdin.setEncoding('utf-8');
+		gitPush.stdout.setEncoding('utf-8');
+		gitPush.stdin.write(data.username+"\n");
+		gitPush.stdin.write(data.password+"\n");
 
+	});
+	
+	socket.on('git:commit', function(data) {
+		if(!socket.sessionExists) {
+			return;
+		}
+		if(!data.path && !data.message) {
+			return;
+		}
+		
+		var exec = require('child_process').exec;
+		exec('git add .;git commit -m "'+data.message+'"', {cwd: data.path}, function (error, stdout, stderr) {
+			socket.emit('git_finished', {
+				'error': error,
+				'stdout': stdout,
+				'stderr': stderr});
+		});
+	});
+	
+	socket.on('git:checkout', function(data) {
+		if(!socket.sessionExists) {
+			return;
+		}
+		if(!data.path) {
+			return;
+		}
+		
+		var exec = require('child_process').exec;
+		exec("git checkout --theirs .", {cwd: data.path}, function (error, stdout, stderr) {
+			console.log('gitPull: ' + stdout);
+			socket.emit('git_finished', {
+				'error': error,
+				'stdout': stdout,
+				'stderr': stderr});
+		});
+	});
+	/*
+	 **********************************************************************************************
+	 */
+	
 	socket.on('destroy_terminal', function(data) {
 		if(!socket.sessionExists) {
 			return;

@@ -8,7 +8,7 @@
   "dependencies": {
     "node-uuid": "1.4.0",
     "socket.io": "0.9.11",
-    "pty.js": "0.1.2",
+    "pty.js": "~0.2.2",
     "tty.js": "0.2.8",
     "mysql" : "2.0.0-alpha7"
   }

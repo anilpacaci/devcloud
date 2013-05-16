@@ -32,7 +32,12 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			'click #menuRun' : 'run',
 			'click #saveOptionsButton' : 'saveOptions',
 			'change #themeSelector' : 'themeSelected',
-			'click #menuDebug' : 'debug'
+			'click #menuDebug' : 'debug',
+			'click #menuClone' : 'menuClone',
+			'click #menuPull' : 'menuPull',
+			'click #menuPush' : 'menuPush',
+			'click #menuCommit' : 'menuCommit',
+			'click #menuCheckout' : 'menuCheckout'
 			
 				
 				
@@ -116,6 +121,143 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			} else {
 				alert("You can not create more than 5 terminals.")
 			}
+		},
+		menuClone : function() {
+			if(!selectedFile){
+				bootbox.alert("You need to select a directory to clone");
+				return;
+			}
+				
+			if (!socket || !socket.socket.connected)
+				return;
+			
+			bootbox.prompt('Give the url to be cloned', function(url){
+				socket.emit('git:clone', {
+					'path' : selectedFile,
+					'url' : url
+				});
+				$('body').append('<div id="loading-image" class="waiting">Project is cloning to your workspace<img src="img/custom/loading.gif"></div>');
+			});
+			
+			socket.on('git_finished', function(data) {
+				vent.trigger('explorer:refresh', selectedFile);
+				$('#loading-image').html(data.stdout + data.stderr);
+				$('#loading-image').click(function() {
+					$('#loading-image').fadeOut('slow', function(){
+						$('#loading-image').remove();
+					});
+				});
+			});
+		},
+		menuPull : function() {
+			if(!selectedFile){
+				bootbox.alert("You need to select a directory to pull");
+				return;
+			}
+				
+			if (!socket || !socket.socket.connected)
+				return;
+			
+			socket.emit('git:pull', {
+				'path' : selectedFile
+			});
+			$('body').append('<div id="loading-image" class="waiting">Project is pulling to your workspace<img src="img/custom/loading.gif"></div>');
+			
+			socket.on('git_finished', function(data) {
+				vent.trigger('explorer:refresh', selectedFile);
+				$('#loading-image').html(data.stdout + data.stderr);
+				$('#loading-image').click(function() {
+					$('#loading-image').fadeOut('slow', function(){
+						$('#loading-image').remove();
+					});
+				});
+			});
+		},
+		menuPush : function() {
+			if(!selectedFile){
+				bootbox.alert("You need to select a directory to push");
+				return;
+			}
+				
+			if (!socket || !socket.socket.connected)
+				return;
+
+			bootbox.prompt('Git-Hub Username: ', function(username){
+				bootbox.prompt('Git-Hub Password: ', function(password){
+					socket.emit('git:push', {
+						'path' : selectedFile,
+						'username' : username,
+						'password' : password
+					});
+					$('body').append('<div id="loading-image" class="waiting">Changes are pushing to the server<img src="img/custom/loading.gif"></div>');
+				});				
+			});
+						
+			socket.on('git_finished', function(data) {
+				vent.trigger('explorer:refresh', selectedFile);
+				$('#loading-image').html(data.stdout + data.stderr);
+				$('#loading-image').click(function() {
+					$('#loading-image').fadeOut('slow', function(){
+						$('#loading-image').remove();
+					});
+				});
+			});
+		},
+		menuCommit : function() {
+			if(!selectedFile){
+				bootbox.alert("You need to select a directory to commit");
+				return;
+			}
+				
+			if (!socket || !socket.socket.connected)
+				return;
+
+			bootbox.prompt('Message for commit: ', function(message){
+				socket.emit('git:commit', {
+					'path' : selectedFile,
+					'message': message
+				});
+				$('body').append('<div id="loading-image" class="waiting">Changes are commiting...<img src="img/custom/loading.gif"></div>');
+			});
+						
+			socket.on('git_finished', function(data) {
+				vent.trigger('explorer:refresh', selectedFile);
+				$('#loading-image').html(data.stdout + data.stderr);
+				$('#loading-image').click(function() {
+					$('#loading-image').fadeOut('slow', function(){
+						$('#loading-image').remove();
+					});
+				});
+			});
+		},
+		menuCheckout : function() {
+			if(!selectedFile){
+				bootbox.alert("You need to select a directory to checkout");
+				return;
+			}
+				
+			if (!socket || !socket.socket.connected)
+				return;
+
+			bootbox.confirm('Your local changes will be lost. Do you want to continue?', function(){
+				socket.emit('git:checkout', {
+					'path' : selectedFile
+				});
+				$('body').append('<div id="loading-image" class="waiting">Wait for checkout...<img src="img/custom/loading.gif"></div>');
+			});
+						
+			socket.on('git_finished', function(data) {
+				vent.trigger('explorer:refresh', selectedFile);
+				$('#loading-image').html(data.stdout + data.stderr);
+				if($('#loading-image').html() == ""){
+					$('#loading-image').html("Project is checked out successfully");
+				}
+				$('#loading-image').click(function() {
+					$('#loading-image').fadeOut('slow', function(){
+						$('#loading-image').remove();
+					});
+				});
+			});
 		},
 		newFile : function(e) {
 			$('#tabs').append('<li class><a href="#editorRegion' + this.editor_count + '" data-toggle="tab">Untitled File ' + this.editor_count + '<i class="icon-remove"></i></a></li>');
