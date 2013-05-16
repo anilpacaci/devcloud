@@ -1,4 +1,4 @@
-define(['jquery', 'underscore', 'backbone', 'marionette', 'socketio', 'js/views/auth/login.view', 'js/views/auth/register.view', 'js/views/auth/user.panel.view', 'js/layouts/main.layout', 'js/models/auth/login.model', 'js/models/auth/register.model', 'js/models/auth/user.model', 'js/models/auth/configuration.model','jquery_cookie', 'jquery_ui', 'bootstrap'], function($, _, Backbone, Marionette, io, LoginView, RegisterView, UserPanelView, MainLayout, LoginModel, RegisterModel, UserModel, ConfigurationModel) {
+define(['jquery', 'underscore', 'backbone', 'marionette', 'socketio', 'js/views/auth/login.view', 'js/views/auth/register.view', 'js/views/auth/user.panel.view', 'js/layouts/main.layout', 'js/models/auth/login.model', 'js/models/auth/register.model', 'js/models/auth/user.model', 'js/models/auth/configuration.model', 'jquery_cookie', 'jquery_ui', 'bootstrap'], function($, _, Backbone, Marionette, io, LoginView, RegisterView, UserPanelView, MainLayout, LoginModel, RegisterModel, UserModel, ConfigurationModel) {
 
 	/**
 	 * SOME GLOBAL FUNCTIONS THAT ARE OVERRIDED *
@@ -61,8 +61,7 @@ define(['jquery', 'underscore', 'backbone', 'marionette', 'socketio', 'js/views/
 
 	vent.bindTo(vent, 'auth:loggedIn', function() {
 		if (!socket || !socket.socket.connected) {
-			socket = io.connect('http://localhost:8081/?sessionID='+$.cookie('SID'));
-
+			socket = io.connect('http://localhost:8081/?sessionID=' + $.cookie('SID'));
 			socket.on('connect', function() {
 				EditorApp.userPanelRegion.show(new UserPanelView({
 					model : user,
@@ -75,48 +74,47 @@ define(['jquery', 'underscore', 'backbone', 'marionette', 'socketio', 'js/views/
 					vent : vent
 				}));
 
-				
 				/*
-				* other available commands for the debugger
-				* debugger:run 						-------- parameters : id
-				* debugger:set_breakpoint			-------- parameters : file, line, id
-				* debugger:remove_breakpoint		-------- parameters : file, line, id
-				* debugger:next						-------- parameters : id
-				* debugger:continue					-------- parameters : id
-				* debugger:add_expression			-------- parameters : id, expression
-				* debugger:remove_expression		-------- parameters : id, expression
-				*
-				*
-				*
-				* debugger events to listen
-				* debugger:set_current_state		-------- parameters : file, line, id, expressions		
-				*									-------- expresssions is a json object, for example if we are watching a variable 'a'
-				*									-------- expressions.a will contain the result of the evaluation or the error message.
-				*
-				* debugger:closed					-------- parameters : id
-				*									-------- indicates that the debugger is no longer exists.
-				*/
+				 * other available commands for the debugger
+				 * debugger:run 						-------- parameters : id
+				 * debugger:set_breakpoint			-------- parameters : file, line, id
+				 * debugger:remove_breakpoint		-------- parameters : file, line, id
+				 * debugger:next						-------- parameters : id
+				 * debugger:continue					-------- parameters : id
+				 * debugger:add_expression			-------- parameters : id, expression
+				 * debugger:remove_expression		-------- parameters : id, expression
+				 *
+				 *
+				 *
+				 * debugger events to listen
+				 * debugger:set_current_state		-------- parameters : file, line, id, expressions
+				 *									-------- expresssions is a json object, for example if we are watching a variable 'a'
+				 *									-------- expressions.a will contain the result of the evaluation or the error message.
+				 *
+				 * debugger:closed					-------- parameters : id
+				 *									-------- indicates that the debugger is no longer exists.
+				 */
 
 				/* SAMPLE EXECUTION
-				socket.on('debugger:set_current_state', function(data) {
-					alert(JSON.stringify(data));
-				});
-				socket.on('debugger:closed', function(data) {
-					alert('Debugger with id ' + data.id + ' is closed.');
-				});
-				socket.on('debugger:create_response', function(data) {
-					socket.debugger_id = data.id;
+				 socket.on('debugger:set_current_state', function(data) {
+				 alert(JSON.stringify(data));
+				 });
+				 socket.on('debugger:closed', function(data) {
+				 alert('Debugger with id ' + data.id + ' is closed.');
+				 });
+				 socket.on('debugger:create_response', function(data) {
+				 socket.debugger_id = data.id;
 
-					socket.emit('debugger:set_breakpoint', {id: socket.debugger_id, file:'sum.c', line: 8});
-					socket.emit('debugger:add_expression', {id: socket.debugger_id, expression: 'a'});
-					socket.emit('debugger:add_expression', {id: socket.debugger_id, expression: 'b'});
-					socket.emit('debugger:add_expression', {id: socket.debugger_id, expression: 'c'});
-					socket.emit('debugger:run', {id: socket.debugger_id});
-				});
+				 socket.emit('debugger:set_breakpoint', {id: socket.debugger_id, file:'sum.c', line: 8});
+				 socket.emit('debugger:add_expression', {id: socket.debugger_id, expression: 'a'});
+				 socket.emit('debugger:add_expression', {id: socket.debugger_id, expression: 'b'});
+				 socket.emit('debugger:add_expression', {id: socket.debugger_id, expression: 'c'});
+				 socket.emit('debugger:run', {id: socket.debugger_id});
+				 });
 
-				socket.emit('debugger:create', {executable: '/home/serbay/Codes/apache-tomcat-7.0.39/bin/serbay.arslanhan@gmail.com/a.out'});
+				 socket.emit('debugger:create', {executable: '/home/serbay/Codes/apache-tomcat-7.0.39/bin/serbay.arslanhan@gmail.com/a.out'});
 
-				*/
+				 */
 			});
 
 			socket.on('error', function() {

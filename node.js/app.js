@@ -31,7 +31,6 @@ process.title = 'tty.js test';
 var buff = [],
 socketList = [],
 socket;
-
 io.sockets.on('connection', function(socket) {
 	socket.sessionExists = false;
 	checkSession(socket);

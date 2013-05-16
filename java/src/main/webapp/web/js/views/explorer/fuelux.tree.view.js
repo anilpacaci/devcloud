@@ -1,6 +1,5 @@
 define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/explorer/fuelux.tree.template.html', 'js/models/editor/file.model', 'js/views/editor/editor.view', 'fuelux_tree', 'jquery_cookie'], function($, Backbone, Marionette, ace, FueluxTreeTemplate, FileModel, EditorView) {
 	var user;
-	var selectedFile;
 	var DataSource = function(options) {
 		this._formatter = options.formatter;
 		this._columns = options.columns;
