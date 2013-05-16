@@ -21,10 +21,16 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'bootbox', 'text!templates/ed
 
 			var self = this;
 
+			this.bindTo(vent, 'editor:gotoLine', function(lineNumber) {
+				self.editor.gotoLine(lineNumber);
+			});
+
 			this.bindTo(vent, 'file:save', function(tabName) {
 				var tabNameSplitted = tabName.split(' ');
 				if (tabName.trim() == self.model.get('fileName') || self.el.parentElement.id == 'editorRegion' + tabNameSplitted[tabNameSplitted.length - 1]) {
 					self.save(self.model);
+					//this event is triggered when type navigator needs to be upated
+					vent.trigger('global:update', self.model.get('path'));
 				}
 			});
 
@@ -97,9 +103,14 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'bootbox', 'text!templates/ed
 			}
 		},
 		onRender : function() {
+			var self = this;
+			var vent = this.options.vent;
 
 			if (!this.model) {
 				this.model = new FileModel();
+			} else {
+				//this event is triggered when type navigator needs to be upated
+				vent.trigger('global:update', self.model.get('path'));
 			}
 
 			vent = this.options.vent;
@@ -114,7 +125,6 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'bootbox', 'text!templates/ed
 			this.editor.setValue(this.model.get('content'));
 
 			// keybinding for auto completion
-			var self = this;
 
 			self.editor.commands.addCommand({
 				name : 'saveFile',

@@ -103,6 +103,11 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/explorer/fuel
 				if (data.info[0].type == 'item') {
 					self.openFile(path);
 				}
+				selectedItems = self.$('#MyTree').tree('selectedItems');
+				selectedFile = user.get('email');
+				if (selectedItems[0] && selectedItems[0].additionalParameters) {
+					selectedFile = selectedItems[0].additionalParameters.filePath;
+				}
 			});
 
 		},
@@ -117,8 +122,8 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/explorer/fuel
 			fileName = file.get('fileName').split('.')[0];
 
 			if ($('#editorRegion' + fileName).size() == 0) {
-				$('#tabs').append('<li class><a href="#editorRegion' + fileName + '" data-toggle="tab">' + file.get('fileName') + ' <i class="icon-remove"></i></a></li>');
-				$('#tab_content').append('<div class="tab-pane fade" id="editorRegion' + fileName + '"></div>');
+				$('#tabs').append('<li class><a href="#editorRegion' + fileName + '" data-toggle="tab" path="' + filePath + '"">' + file.get('fileName') + ' <i class="icon-remove"></i></a></li>');
+				$('#tab_content').append('<div class="tab-pane fade" id="editorRegion' + fileName + '" path="'+ filePath + '"></div>');
 
 				var editorView = new EditorView({
 					vent : vent,

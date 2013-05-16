@@ -1,13 +1,13 @@
-define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.html', 'js/views/editor/editor.view', 'js/views/console/console.view', 'js/views/explorer/file.explorer.view', 'js/views/explorer/fuelux.tree.view'], function($, Backbone, Marionette, MainTemplate, EditorView, ConsoleView, FileExplorerView, FueluxTreeView) {
+define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.html', 'js/views/editor/editor.view', 'js/views/console/console.view', 'js/views/explorer/fuelux.tree.view', 'js/views/global/global.view'], function($, Backbone, Marionette, MainTemplate, EditorView, ConsoleView, FueluxTreeView, GlobalView) {
 	MainLayout = Backbone.Marionette.Layout.extend({
 		template : MainTemplate,
 
 		regions : {
 			editor : "#editorRegion",
 			// terminal : "#terminalRegion",
-	//		menu : "#menu",
+			//		menu : "#menu",
 			fileTree : '#fileTreeRegion',
-	//		topMenu : "#menu" 
+			//		topMenu : "#menu"
 			// tabs : '#tabs'
 		},
 
@@ -17,10 +17,11 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			'click .icon-remove' : 'removeTab',
 			'click .icon-check' : 'saveFile',
 			'click #menuNewFile' : 'newFile',
-		//	'click #menuNewFile' : 'testAlert',	
+			//	'click #menuNewFile' : 'testAlert',
 			'click #menuSave' : 'saveFile',
 			'click #menuSaveAll' : 'saveAllFiles',
 			'click #menuClose' : 'menuRemoveTab',
+			'click #sidebarChange a' : 'sidebarChange',
 			'click #menuUndo' : 'menuUndo',
 			'click #menuRedo' : 'menuRedo',
 			'click #menuCut' : 'menuCut',
@@ -38,9 +39,7 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			'click #menuPush' : 'menuPush',
 			'click #menuCommit' : 'menuCommit',
 			'click #menuCheckout' : 'menuCheckout'
-			
-				
-				
+
 		},
 
 		onRender : function() {
@@ -55,17 +54,17 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 				socket : socket
 			}));
 			/*this.editor.show(new EditorView({
-				vent : vent,
-				configuration : configuration,
-				socket : socket,
-				user : user
-			}));*/
-/*			this.menu.show(new TopMenuView({
-				vent : vent,
-				user : user,
-				socket : socket
-			}));
-*/
+			 vent : vent,
+			 configuration : configuration,
+			 socket : socket,
+			 user : user
+			 }));*/
+			/*			this.menu.show(new TopMenuView({
+			 vent : vent,
+			 user : user,
+			 socket : socket
+			 }));
+			 */
 			this.terminal_count = 0;
 			this.editor_count = 0;
 
@@ -94,8 +93,19 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 		},
 
 		tabShown : function(e) {
+			var path = $(e.target).attr('path');
+			if (path) {
+				// when path is changed, global update shoud be called
+				this.options.vent.trigger('global:update', path);
+			}
 			if (e.target.hash.slice(0, e.target.hash.length - 1) == '#terminalRegion') {
 				this.options.vent.trigger('terminal:focused', e.target.hash[e.target.hash.length - 1]);
+				//type navigator should change to file explorer
+				var mode = $('#sidebarChange a').text();
+				if (mode == "Show Workspace Explorer") {
+					//simulate trigger so that workspace explorer is shown
+					$('#sidebarChange a').click();
+				}
 			} else {
 				this.options.vent.trigger('terminal:unfocused');
 			}
@@ -123,137 +133,137 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			}
 		},
 		menuClone : function() {
-			if(!selectedFile){
+			if (!selectedFile) {
 				bootbox.alert("You need to select a directory to clone");
 				return;
 			}
-				
+
 			if (!socket || !socket.socket.connected)
 				return;
-			
-			bootbox.prompt('Give the url to be cloned', function(url){
+
+			bootbox.prompt('Give the url to be cloned', function(url) {
 				socket.emit('git:clone', {
 					'path' : selectedFile,
 					'url' : url
 				});
 				$('body').append('<div id="loading-image" class="waiting">Project is cloning to your workspace<img src="img/custom/loading.gif"></div>');
 			});
-			
+
 			socket.on('git_finished', function(data) {
 				vent.trigger('explorer:refresh', selectedFile);
 				$('#loading-image').html(data.stdout + data.stderr);
 				$('#loading-image').click(function() {
-					$('#loading-image').fadeOut('slow', function(){
+					$('#loading-image').fadeOut('slow', function() {
 						$('#loading-image').remove();
 					});
 				});
 			});
 		},
 		menuPull : function() {
-			if(!selectedFile){
+			if (!selectedFile) {
 				bootbox.alert("You need to select a directory to pull");
 				return;
 			}
-				
+
 			if (!socket || !socket.socket.connected)
 				return;
-			
+
 			socket.emit('git:pull', {
 				'path' : selectedFile
 			});
 			$('body').append('<div id="loading-image" class="waiting">Project is pulling to your workspace<img src="img/custom/loading.gif"></div>');
-			
+
 			socket.on('git_finished', function(data) {
 				vent.trigger('explorer:refresh', selectedFile);
 				$('#loading-image').html(data.stdout + data.stderr);
 				$('#loading-image').click(function() {
-					$('#loading-image').fadeOut('slow', function(){
+					$('#loading-image').fadeOut('slow', function() {
 						$('#loading-image').remove();
 					});
 				});
 			});
 		},
 		menuPush : function() {
-			if(!selectedFile){
+			if (!selectedFile) {
 				bootbox.alert("You need to select a directory to push");
 				return;
 			}
-				
+
 			if (!socket || !socket.socket.connected)
 				return;
 
-			bootbox.prompt('Git-Hub Username: ', function(username){
-				bootbox.prompt('Git-Hub Password: ', function(password){
+			bootbox.prompt('Git-Hub Username: ', function(username) {
+				bootbox.prompt('Git-Hub Password: ', function(password) {
 					socket.emit('git:push', {
 						'path' : selectedFile,
 						'username' : username,
 						'password' : password
 					});
 					$('body').append('<div id="loading-image" class="waiting">Changes are pushing to the server<img src="img/custom/loading.gif"></div>');
-				});				
+				});
 			});
-						
+
 			socket.on('git_finished', function(data) {
 				vent.trigger('explorer:refresh', selectedFile);
 				$('#loading-image').html(data.stdout + data.stderr);
 				$('#loading-image').click(function() {
-					$('#loading-image').fadeOut('slow', function(){
+					$('#loading-image').fadeOut('slow', function() {
 						$('#loading-image').remove();
 					});
 				});
 			});
 		},
 		menuCommit : function() {
-			if(!selectedFile){
+			if (!selectedFile) {
 				bootbox.alert("You need to select a directory to commit");
 				return;
 			}
-				
+
 			if (!socket || !socket.socket.connected)
 				return;
 
-			bootbox.prompt('Message for commit: ', function(message){
+			bootbox.prompt('Message for commit: ', function(message) {
 				socket.emit('git:commit', {
 					'path' : selectedFile,
-					'message': message
+					'message' : message
 				});
 				$('body').append('<div id="loading-image" class="waiting">Changes are commiting...<img src="img/custom/loading.gif"></div>');
 			});
-						
+
 			socket.on('git_finished', function(data) {
 				vent.trigger('explorer:refresh', selectedFile);
 				$('#loading-image').html(data.stdout + data.stderr);
 				$('#loading-image').click(function() {
-					$('#loading-image').fadeOut('slow', function(){
+					$('#loading-image').fadeOut('slow', function() {
 						$('#loading-image').remove();
 					});
 				});
 			});
 		},
 		menuCheckout : function() {
-			if(!selectedFile){
+			if (!selectedFile) {
 				bootbox.alert("You need to select a directory to checkout");
 				return;
 			}
-				
+
 			if (!socket || !socket.socket.connected)
 				return;
 
-			bootbox.confirm('Your local changes will be lost. Do you want to continue?', function(){
+			bootbox.confirm('Your local changes will be lost. Do you want to continue?', function() {
 				socket.emit('git:checkout', {
 					'path' : selectedFile
 				});
 				$('body').append('<div id="loading-image" class="waiting">Wait for checkout...<img src="img/custom/loading.gif"></div>');
 			});
-						
+
 			socket.on('git_finished', function(data) {
 				vent.trigger('explorer:refresh', selectedFile);
 				$('#loading-image').html(data.stdout + data.stderr);
-				if($('#loading-image').html() == ""){
+				if ($('#loading-image').html() == "") {
 					$('#loading-image').html("Project is checked out successfully");
 				}
 				$('#loading-image').click(function() {
-					$('#loading-image').fadeOut('slow', function(){
+					$('#loading-image').fadeOut('slow', function() {
 						$('#loading-image').remove();
 					});
 				});
@@ -281,8 +291,8 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 				this.options.vent.trigger('terminal:unfocused');
 				this.options.vent.trigger('terminal:destroy', terminal_id);
 				this.terminal_count--;
-			} else if(id.substring(0, 'processRegion'.length+1) == '#processRegion') {
-				var process_id = id.substring('processRegion'.length+1, id.length);
+			} else if (id.substring(0, 'processRegion'.length + 1) == '#processRegion') {
+				var process_id = id.substring('processRegion'.length + 1, id.length);
 				this.options.vent.trigger('process:unfocused');
 				this.options.vent.trigger('process:destroy', process_id);
 			}
@@ -291,13 +301,13 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			$('#tabs a:last').tab('show');
 		},
 		menuRemoveTab : function(e) {
-			var id =  $("ul#tabs li.active a").attr('href');
+			var id = $("ul#tabs li.active a").attr('href');
 			if (id.substring(0, id.length - 1) == '#terminalRegion') {
 				var terminal_id = id.substring(id.length - 1, id.length);
 				this.options.vent.trigger('terminal:unfocused');
 				this.options.vent.trigger('terminal:destroy', terminal_id);
-			} else if(id.substring(0, 'processRegion'.length+1) == '#processRegion') {
-				var process_id = id.substring('processRegion'.length+1, id.length);
+			} else if (id.substring(0, 'processRegion'.length + 1) == '#processRegion') {
+				var process_id = id.substring('processRegion'.length + 1, id.length);
 				this.options.vent.trigger('process:unfocused');
 				this.options.vent.trigger('process:destroy', process_id);
 			}
@@ -315,61 +325,83 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			v.trigger('file:saveAll');
 		},
 		run : function(e) {
-			var activeTab =  $("ul#tabs li.active").text();
+			var activeTab = $("ul#tabs li.active").text();
 			var v = this.options.vent;
 			v.trigger('file:run', activeTab);
 		},
 		debug : function(e) {
-			var activeTab =  $("ul#tabs li.active").text();
+			var activeTab = $("ul#tabs li.active").text();
 			var v = this.options.vent;
 			v.trigger('file:debug', activeTab);
 		},
 		themeSelected : function(e) {
 			this.selectedTheme = e.currentTarget.value;
 		},
-		saveOptions: function(e) {
+		saveOptions : function(e) {
 			this.options.configuration.set("themeName", this.selectedTheme);
 			var self = this;
-				$.ajax({
-					type : 'PUT',
-					url : URL + 'configuration/',
-					headers : {
-						"Content-Type" : "application/json"
-					},
-					data : JSON.stringify(self.options.configuration.toJSON()),
-					success : function(response) {
-						$("#optionsModal").modal("hide");
-					},
-					error : function(error) {
-						
-					}
-				});
+			$.ajax({
+				type : 'PUT',
+				url : URL + 'configuration/',
+				headers : {
+					"Content-Type" : "application/json"
+				},
+				data : JSON.stringify(self.options.configuration.toJSON()),
+				success : function(response) {
+					$("#optionsModal").modal("hide");
+				},
+				error : function(error) {
+
+				}
+			});
 		},
-		menuUndo: function(e) {
+		sidebarChange : function(e) {
+			var self = this;
+			var mode = $(e.target).text();
+			var configuration = this.options.configuration;
+			if (mode == "Show Type Navigator") {
+				$(e.target).text('Show Workspace Explorer');
+				self.fileTree.show(new GlobalView({
+					vent : vent,
+					configuration : configuration,
+					user : user,
+					socket : socket
+				}));
+			} else {
+				$(e.target).text('Show Type Navigator');
+				self.fileTree.show(new FueluxTreeView({
+					vent : vent,
+					configuration : configuration,
+					user : user,
+					socket : socket
+				}));
+			}
+		},
+		menuUndo : function(e) {
 			var v = this.options.vent;
 			v.trigger('menu:undo');
 		},
-		menuRedo: function(e) {
+		menuRedo : function(e) {
 			var v = this.options.vent;
 			v.trigger('menu:redo');
 		},
-		menuCut: function(e) {
+		menuCut : function(e) {
 			var v = this.options.vent;
 			v.trigger('menu:cut');
 		},
-		menuCopy: function(e) {
+		menuCopy : function(e) {
 			var v = this.options.vent;
 			v.trigger('menu:copy');
 		},
-		menuPaste: function(e) {
+		menuPaste : function(e) {
 			var v = this.options.vent;
 			v.trigger('menu:paste');
 		},
-		menuFindReplace: function(e) {
+		menuFindReplace : function(e) {
 			var v = this.options.vent;
 			v.trigger('menu:findReplace');
 		},
-		menuFindReplaceAll: function(e) {
+		menuFindReplaceAll : function(e) {
 			var v = this.options.vent;
 			v.trigger('menu:findReplaceAll');
 		}

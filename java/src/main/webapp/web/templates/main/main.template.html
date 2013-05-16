@@ -2,57 +2,93 @@
 	<div id="menu" class="row-fluid">
 		<ul class='nav nav-pills' id="mainMenu">
 			<li class="dropdown">
-			    <a class="dropdown-toggle" data-toggle="dropdown" href='#'>File</a>
+				<a class="dropdown-toggle" data-toggle="dropdown" href='#'>File</a>
 				<ul class="dropdown-menu">
-				<li id='menuNewFile'><a href='#'>New File</a></li>
-				<li class="divider"></li>
-				<li id='menuSave'><a href='#'>Save</a></li>
-				<li id='menuSaveAll'><a href='#'>Save All</a></li>
-				<li class="divider"></li>
-				<li id='menuClose'><a href='#'>Close</a></li>
-				<li id='menuCloseAll'><a href='#'>Close All</a></li>
-	 			</ul>
+					<li id='menuNewFile'>
+						<a href='#'>New File</a>
+					</li>
+					<li class="divider"></li>
+					<li id='menuSave'>
+						<a href='#'>Save</a>
+					</li>
+					<li id='menuSaveAll'>
+						<a href='#'>Save All</a>
+					</li>
+					<li class="divider"></li>
+					<li id='menuClose'>
+						<a href='#'>Close</a>
+					</li>
+					<li id='menuCloseAll'>
+						<a href='#'>Close All</a>
+					</li>
+				</ul>
 			</li>
-			
+
 			<li class="dropdown">
-			    <a class="dropdown-toggle" data-toggle="dropdown" href='#'>Edit</a>
-	 			<ul class="dropdown-menu">
-				<li id='menuUndo'><a href='#'>Undo</a></li>
-				<li id='menuRedo'><a href='#'>Redo</a></li>
-				<li class="divider"></li>
-				<li id='menuFindReplace'><a href='#'>Find/Replace</a></li>
-				<li id='menuFindReplaceAll'><a href='#'>Find/Replace All</a></li>
-				<li class="divider"></li>
-				<li id='menuOptions'><a href='#optionsModal' data-toggle='modal'>Options</a></li>
-			 	</ul>
+				<a class="dropdown-toggle" data-toggle="dropdown" href='#'>Edit</a>
+				<ul class="dropdown-menu">
+					<li id='sidebarChange'>
+						<a href='#'>Show Type Navigator</a>
+					</li>
+					<li class="divider"></li>
+					<li id='menuUndo'>
+						<a href='#'>Undo</a>
+					</li>
+					<li id='menuRedo'>
+						<a href='#'>Redo</a>
+					</li>
+					<li class="divider"></li>
+					<li id='menuFindReplace'>
+						<a href='#'>Find/Replace</a>
+					</li>
+					<li id='menuFindReplaceAll'>
+						<a href='#'>Find/Replace All</a>
+					</li>
+					<li class="divider"></li>
+					<li id='menuOptions'>
+						<a href='#optionsModal' data-toggle='modal'>Options</a>
+					</li>
+				</ul>
 			</li>
-			
+
 			<li id='menuRun'>
-			    <a href='#'>Run</a>
+				<a href='#'>Run</a>
 			</li>
-			
+
 			<li id='menuDebug'>
-			    <a href='#'>Debug</a>
+				<a href='#'>Debug</a>
 			</li>
-			
+
 			<li class="dropdown" id='menuTerminal'>
-			    <a class="dropdown-toggle" data-toggle="dropdown" href='#'>Terminal</a>
-	 			<ul class="dropdown-menu">
-				<li id='menuOpenNewTerminal'><a href='#'>Open New Terminal</a></li>
-			 	</ul>
+				<a class="dropdown-toggle" data-toggle="dropdown" href='#'>Terminal</a>
+				<ul class="dropdown-menu">
+					<li id='menuOpenNewTerminal'>
+						<a href='#'>Open New Terminal</a>
+					</li>
+				</ul>
 			</li>
-			
+
 			<li class="dropdown" id='menuGit'>
-			    <a class="dropdown-toggle" data-toggle="dropdown" href='#'>Git-Hub</a>
-	 			<ul class="dropdown-menu">
-				<li id='menuPull'><a href='#'>Pull</a></li>
-				<li id='menuPush'><a href='#'>Push</a></li>
-	 			<li class="divider"></li>
-				<li id='menuCommit'><a href='#'>Commit</a></li>
-				<li id='menuCheckout'><a href='#'>Checkout</a></li>
-	 			<li class="divider"></li>
-				<li id='menuClone'><a href='#'>Clone</a></li>
-			 	</ul>
+				<a class="dropdown-toggle" data-toggle="dropdown" href='#'>Git-Hub</a>
+				<ul class="dropdown-menu">
+					<li id='menuPull'>
+						<a href='#'>Pull</a>
+					</li>
+					<li id='menuPush'>
+						<a href='#'>Push</a>
+					</li>
+					<li class="divider"></li>
+					<li id='menuCommit'>
+						<a href='#'>Commit</a>
+					</li>
+					<li id='menuCheckout'>
+						<a href='#'>Checkout</a>
+					</li>
+					<li class="divider"></li>
+					<li id='menuClone'>
+						<a href='#'>Clone</a>
+					</li>
+				</ul>
 			</li>
 		</ul>
 	</div>
@@ -64,10 +100,10 @@
 		<div class="span10" id="content">
 			<ul id="tabs" class="nav nav-tabs">
 				<!-- <li class="active">
-					<a href="#editorRegion" data-toggle="tab"><i class="icon-check"></i> Editor</a>
+				<a href="#editorRegion" data-toggle="tab"><i class="icon-check"></i> Editor</a>
 				</li>
 				<li class>
-					<a href="#terminalRegion" data-toggle="tab">Terminal</a>
+				<a href="#terminalRegion" data-toggle="tab">Terminal</a>
 				</li> -->
 			</ul>
 			<div id="tab_content" class="tab-content">
@@ -79,24 +115,30 @@
 
 	<!-- Modal -->
 	<div id="optionsModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="optionsModalLabel" aria-hidden="true">
-	  	<div class="modal-header">
-	    	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-	    	<h3 id="optionsModalLabel">Options</h3>
-	  	</div>
-	  	<div class="modal-body">
-	    	<p>
-	    		<b>Editor theme:</b>
-	    		<select id="themeSelector">
-	    			<option value="ace/theme/monokai" selected>Monokai</option>
-	    			<option value="ace/theme/ambiance">Ambiance</option>
-	    			<option value="ace/theme/chaos">Chaos</option>
-	    			<option value="ace/theme/chrome">Chrome</option>
-	    		</select>
-	    	</p>
-	  	</div>
-	  	<div class="modal-footer">
-	    	<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-	    	<button id="saveOptionsButton" class="btn btn-primary">Save changes</button>
-	  	</div>
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+				×
+			</button>
+			<h3 id="optionsModalLabel">Options</h3>
+		</div>
+		<div class="modal-body">
+			<p>
+				<b>Editor theme:</b>
+				<select id="themeSelector">
+					<option value="ace/theme/monokai" selected>Monokai</option>
+					<option value="ace/theme/ambiance">Ambiance</option>
+					<option value="ace/theme/chaos">Chaos</option>
+					<option value="ace/theme/chrome">Chrome</option>
+				</select>
+			</p>
+		</div>
+		<div class="modal-footer">
+			<button class="btn" data-dismiss="modal" aria-hidden="true">
+				Close
+			</button>
+			<button id="saveOptionsButton" class="btn btn-primary">
+				Save changes
+			</button>
+		</div>
 	</div>
 </div>
