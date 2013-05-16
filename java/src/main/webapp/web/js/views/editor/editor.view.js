@@ -115,6 +115,15 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'bootbox', 'text!templates/ed
 
 			// keybinding for auto completion
 			var self = this;
+
+			self.editor.commands.addCommand({
+				name : 'saveFile',
+				bindKey : {},
+				exec : function(editor) {
+					self.save(self.model);
+				},
+				readOnly : true
+			});
 			self.editor.commands.addCommand({
 				name : 'myCommand',
 				bindKey : {
