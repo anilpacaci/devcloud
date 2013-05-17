@@ -83,7 +83,9 @@ public class FileExplorerResource {
 			List<File> folderList = new ArrayList<File>();
 
 			for (int i = 0; i < listOfFiles.length; i++) {
-
+				if(listOfFiles[i].getName().equals("GPATH") || listOfFiles[i].getName().equals("GRTAGS") || listOfFiles[i].getName().equals("GTAGS")) {
+					continue;
+				}
 				if (listOfFiles[i].isFile()) {
 					fileList.add(listOfFiles[i]);
 				} else {
@@ -133,6 +135,9 @@ public class FileExplorerResource {
 			File[] listOfFiles = folder.listFiles();
 
 			for (int i = 0; i < listOfFiles.length; i++) {
+				if(listOfFiles[i].getName().equals("GPATH") || listOfFiles[i].getName().equals("GRTAGS") || listOfFiles[i].getName().equals("GTAGS")) {
+					continue;
+				}
 				File file = listOfFiles[i];
 				TreeEntryModel fileObject = new TreeEntryModel();
 				AdditionalParameterModel parameters = new AdditionalParameterModel();

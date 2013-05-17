@@ -23,10 +23,18 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/global/global
 				self.$('a').parent().remove();
 				$(tags).each(function(index) {
 					var item = tags[index];
-					self('ul').append('<li><a href="#" line=' + item.line + 'path="' + item.path + '"">' + item.name + ' - ' + item.prototype + '</a></li>');
+					if(!item.name || !item.line || !item.path || !item.type) {
+						return;
+					}
+					self.$('ul').append('<li><a href="#" line=' + item.line + ' path="' + item.path + '"">' + item.name + ' - ' + item.type + '</a></li>');
 				});
 
 			});
+
+			var activeFilePath = $('li.active>a').attr('path');
+			if (activeFilePath) {
+				vent.trigger('global:update', activeFilePath);
+			}
 		},
 		// callback when an item on type navigator is clicked
 		itemClicked : function(e) {
