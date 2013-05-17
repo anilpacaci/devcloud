@@ -77,7 +77,7 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 
 			var self = this;
 			this.bindTo(this.options.vent, 'explorer:refresh', function(filePath) {
-				self.fileTree.show(new FileExplorerView({
+				self.fileTree.show(new FueluxTreeView({
 					vent : vent,
 					configuration : configuration,
 					user : user,
