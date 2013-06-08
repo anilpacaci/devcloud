@@ -78,6 +78,7 @@ require.config({
 var URL = '../devcloud/';
 var activeFileUUID = null;
 var selectedFile;
+var inDebug = false;
 
 require(['js/app/editor.app', 'jquery', 'underscore', 'backbone', 'marionette', 'bootstrap'], function(EditorApp) {
 	EditorApp.start();

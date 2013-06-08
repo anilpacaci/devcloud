@@ -47,7 +47,8 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			'click #contextMenuRename' : 'contextMenuRename',
 			'click #contextMenuCommit' : 'menuCommit',
 			'click #contextMenuCheckout' : 'menuCheckout',
-			'click #contextMenuBuild' : 'contextMenuBuild'
+			'click #contextMenuBuild' : 'contextMenuBuild',
+			'dblclick .ace_gutter-cell' : 'setBreakpoint'
 		},
 
 		onRender : function() {
@@ -380,10 +381,113 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			var v = this.options.vent;
 			v.trigger('file:run', activeTab);
 		},
-		debug : function(e) {
-			var activeTab = $("ul#tabs li.active a").attr('uuid');
-			var v = this.options.vent;
-			v.trigger('file:debug', activeTab);
+		debug : function() {
+			if (inDebug) {
+				return;
+			};
+			var self = this;
+			var path = selectedFile;
+			var executableName = path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('.'));
+			if (!executableName)
+				return;
+			if (!file)
+				return;
+			if (executableName.lastIndexOf('.') == -1) {
+				// which means its not an executable
+				bootbox.alert('This file type is not supported currently.');
+				return;
+			}
+			if (!socket || !socket.socket.connected)
+				return;
+
+			var pathArray = path.split('/');
+			pathArray.pop();
+			pathArray.push(executableName);
+			path = pathArray.join('/');
+			socket.emit('debugger:create', {
+				'executable' : path
+			});
+
+			var breakpoints = self.breakpoints;
+			socket.on('debugger:create_response', function(data) {
+				socket.debugger_id = data.id;
+				self.debugID = data.id;
+				inDebug = true;
+
+				for ( i = 0; i < breakpoints.length; i++) {
+					socket.emit('debugger:set_breakpoint', {
+						'file' : self.model.get('fileName'),
+						'line' : breakpoints[i],
+						'id' : self.debugID
+					});
+				}
+
+				socket.emit('debugger:run', {
+					id : self.debugID
+				});
+			});
+
+			socket.on('debugger:set_current_state', function(data) {
+				//alert(JSON.stringify(data));
+				expressions = data['expressions'];
+				$('#debugExpressions').html('<tr><th>Expression</th><th>Value</th><th><a href="#" id="addExpression">+</a></th></tr>');
+				for (var expr in expressions) {
+					$('#debugExpressions').append("<tr><td>" + expr + "</td><td>" + expressions[expr] + "</td><td><a href=\"#\" class=\"removeExpression\" name=\"" + expr + "\">-</a></td></tr>")
+				}
+				self.highlight(data.line);
+
+			});
+
+			$('#mainMenu').append('<li id="nextButton"><a href="#" class="btn btn-primary" title="Next"><i class="icon-play"></i></a></li>').append('<li id="continueButton"><a href="#" class="btn btn-primary" title="Continue"><i class="icon-step-forward"></i></a></li>').append('<li id="closeDebugButton"><a href="#" class="btn btn-primary" title="Close Debug Mode"><i class="icon-remove"></i></a></li>');
+
+			$('#nextButton').click(function(e) {
+				socket.emit('debugger:next', {
+					id : self.debugID
+				});
+			});
+			$('#continueButton').click(function(e) {
+				socket.emit('debugger:continue', {
+					id : self.debugID
+				});
+			});
+			$('#closeDebugButton').click(function(e) {
+				$('#nextButton').remove();
+				$('#continueButton').remove();
+				$('#closeDebugButton').remove();
+				$('#debugExpressions').remove();
+				inDebug = false;
+			});
+
+			$('#debug_div').append('<table id="debugExpressions" class="table table-striped table-bordered table-condensed"><tr><th>Expression</th><th>Value</th><th><a href="#" id="addExpression">+</a></th></tr></table>');
+
+		},
+		setBreakpoint : function(e) {
+			var self = this;
+			bpList = this.breakpoints;
+			e.stopPropagation();
+			e.preventDefault();
+			var id = $(e.target).text();
+			if ($(e.target).hasClass('ace_breakpoint')) {
+				bpList.splice($.inArray(id, bpList), 1);
+				$(e.target).removeClass('ace_breakpoint');
+				if (inDebug) {
+					socket.emit('debugger:remove_breakpoint', {
+						'file' : self.model.get('fileName'),
+						'line' : id,
+						'id' : self.debugID
+					});
+				}
+			} else {
+				bpList.push(id);
+				$(e.target).addClass('ace_breakpoint');
+				if (inDebug) {
+					socket.emit('debugger:set_breakpoint', {
+						'file' : self.model.get('fileName'),
+						'line' : id,
+						'id' : self.debugID
+					});
+				}
+			}
 		},
 		themeSelected : function(e) {
 			this.selectedTheme = e.currentTarget.value;
