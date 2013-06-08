@@ -3,7 +3,8 @@ define(['jquery', 'backbone', 'ace'], function($, Backbone, Ace) {
 		defaults : {
 			fileName : '',
 			content : '',
-			path : ''
+			path : '',
+			uuid : ''
 		},
 		url : function() {
 			return URL + "fileResource?path=" + this.get('path');
@@ -16,3 +17,4 @@ define(['jquery', 'backbone', 'ace'], function($, Backbone, Ace) {
 
 	return FileModel;
 });
+

@@ -112,30 +112,8 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/explorer/fuel
 
 		},
 		openFile : function(filePath) {
-
-			file = new FileModel({
-				path : filePath
-			});
-			file.fetch({
-				async : false
-			});
-			fileName = file.get('fileName').split('.')[0];
-
-			if ($('#editorRegion' + fileName).size() == 0) {
-				$('#tabs').append('<li class><a href="#editorRegion' + fileName + '" data-toggle="tab" path="' + filePath + '"">' + file.get('fileName') + ' <i class="icon-remove"></i></a></li>');
-				$('#tab_content').append('<div class="tab-pane fade" id="editorRegion' + fileName + '" path="'+ filePath + '"></div>');
-
-				var editorView = new EditorView({
-					vent : vent,
-					user : user,
-					configuration : configuration,
-					model : file,
-					socket : socket
-				});
-				editorView.render();
-				$('#editorRegion' + fileName).append(editorView.el);
-				$('#tabs a:last').tab('show');
-			}
+			// this event is opens a file in new tab if filePath given properly
+			this.options.vent.trigger('file:open', filePath);
 		},
 		uploadFile : function(e) {
 			var self = this;

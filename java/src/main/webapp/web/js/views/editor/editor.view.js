@@ -13,21 +13,14 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'bootbox', 'text!templates/ed
 			vent = this.options.vent;
 			this.breakpoints = [];
 
-			this.bindTo(vent, 'editor:open', function(file) {
-				//alert(file);
-				this.model = file;
-				//	currentTab = this;
-			});
-
 			var self = this;
 
 			this.bindTo(vent, 'editor:gotoLine', function(lineNumber) {
 				self.editor.gotoLine(lineNumber);
 			});
 
-			this.bindTo(vent, 'file:save', function(tabName) {
-				var tabNameSplitted = tabName.split(' ');
-				if (tabName.trim() == self.model.get('fileName') || self.el.parentElement.id == 'editorRegion' + tabNameSplitted[tabNameSplitted.length - 1]) {
+			this.bindTo(vent, 'file:save', function(uuid) {
+				if (uuid == self.model.get('uuid') ) {
 					self.save(self.model);
 					//this event is triggered when type navigator needs to be upated
 					vent.trigger('global:update', self.model.get('path'));
@@ -38,15 +31,21 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'bootbox', 'text!templates/ed
 				self.save(self.model);
 			});
 
-			this.bindTo(vent, 'file:run', function(tabName) {
-				if (tabName.trim() == self.model.get('fileName')) {
+			this.bindTo(vent, 'file:run', function(uuid) {
+				if (uuid == self.model.get('uuid')) {
 					self.run(self.model);
 				}
 			});
 
-			this.bindTo(vent, 'file:debug', function(tabName) {
-				if (tabName.trim() == self.model.get('fileName')) {
+			this.bindTo(vent, 'file:debug', function(uuid) {
+				if (uuid == self.model.get('uuid')) {
 					self.debug(self.model);
+				}
+			});
+			// this event removes this view from app, so all event bindings are removed
+			this.bindTo(vent, 'file:close', function(uuid) {
+				if(uuid == self.model.get('uuid')) {
+					self.remove();
 				}
 			});
 			this.bindTo(vent, 'menu:undo', function() {
@@ -106,9 +105,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'bootbox', 'text!templates/ed
 			var self = this;
 			var vent = this.options.vent;
 
-			if (!this.model) {
-				this.model = new FileModel();
-			} else {
+			if(self.model.get('path')) {
 				//this event is triggered when type navigator needs to be upated
 				vent.trigger('global:update', self.model.get('path'));
 			}

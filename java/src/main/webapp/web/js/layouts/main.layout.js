@@ -1,4 +1,4 @@
-define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.html', 'js/views/editor/editor.view', 'js/views/console/console.view', 'js/views/explorer/fuelux.tree.view', 'js/views/global/global.view'], function($, Backbone, Marionette, MainTemplate, EditorView, ConsoleView, FueluxTreeView, GlobalView) {
+define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.html', 'js/models/editor/file.model', 'js/views/editor/editor.view', 'js/views/console/console.view', 'js/views/explorer/fuelux.tree.view', 'js/views/global/global.view'], function($, Backbone, Marionette, MainTemplate, FileModel, EditorView, ConsoleView, FueluxTreeView, GlobalView) {
 	MainLayout = Backbone.Marionette.Layout.extend({
 		template : MainTemplate,
 
@@ -85,11 +85,34 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 				}));
 				self.options.vent.trigger('explorer:open', filePath);
 			});
-			// this.terminal.show(new ConsoleView({
-			// 	vent : vent,
-			// 	user : user,
-			// 	socket : socket
-			// }));
+			//this event gets the file path, open this file in new editor
+			this.bindTo(this.options.vent, 'file:open', function(filePath) {
+				var uuid = randomUUID();
+				file = new FileModel({
+					path : filePath,
+					uuid : uuid
+				});
+				file.fetch({
+					async : false
+				});
+				fileName = file.get('fileName').split('.')[0];
+
+				if ($('#editorRegion' + fileName).size() == 0) {
+					$('#tabs').append('<li class><a href="#editorRegion' + fileName + '" data-toggle="tab" path="' + filePath + '" uuid="' + uuid + '">' + file.get('fileName') + ' <i class="icon-remove"></i></a></li>');
+					$('#tab_content').append('<div class="tab-pane fade" id="editorRegion' + fileName + '" path="' + filePath + '"></div>');
+
+					var editorView = new EditorView({
+						vent : vent,
+						user : user,
+						configuration : configuration,
+						model : file,
+						socket : socket
+					});
+					editorView.render();
+					$('#editorRegion' + fileName).append(editorView.el);
+					$('#tabs a:last').tab('show');
+				}
+			});
 		},
 
 		tabShown : function(e) {
@@ -270,14 +293,19 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			});
 		},
 		newFile : function(e) {
+			var uuid = randomUUID();
 			$('#tabs').append('<li class><a href="#editorRegion' + this.editor_count + '" data-toggle="tab">Untitled File ' + this.editor_count + '<i class="icon-remove"></i></a></li>');
 			$('#tab_content').append('<div class="tab-pane fade" id="editorRegion' + this.editor_count + '"></div>');
-
+			
+			var file = new FileModel();
+			file.set('uuid',uuid);
+			
 			var newEditor = new EditorView({
 				vent : vent,
 				configuration : configuration,
 				socket : socket,
-				user : user
+				user : user,
+				model : file
 			});
 			newEditor.render();
 			$('#editorRegion' + this.editor_count).append(newEditor.el);
@@ -295,6 +323,10 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 				var process_id = id.substring('processRegion'.length + 1, id.length);
 				this.options.vent.trigger('process:unfocused');
 				this.options.vent.trigger('process:destroy', process_id);
+			} else {
+				// editor region is closed, send necessary events
+				var uuid = $(e.currentTarget).parent().attr('uuid');
+				this.options.vent.trigger('file:close', uuid);
 			}
 			$(e.currentTarget).parent().remove();
 			$(id).remove();
@@ -310,13 +342,16 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 				var process_id = id.substring('processRegion'.length + 1, id.length);
 				this.options.vent.trigger('process:unfocused');
 				this.options.vent.trigger('process:destroy', process_id);
+			} else {
+				// editor region is closed, send necessary events
+				var uuid = $("ul#tabs li.active a").attr('uuid');
+				this.options.vent.trigger('file:close', uuid);
 			}
 			$("ul#tabs li.active").remove();
 			$(id).remove();
 		},
 		saveFile : function(e) {
-			var activeTab = $("ul#tabs li.active").text();
-			//alert($("ul#tabs li.active").parent());
+			var activeTab = $("ul#tabs li.active a").attr('uuid');
 			var v = this.options.vent;
 			v.trigger('file:save', activeTab);
 		},
@@ -325,12 +360,12 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			v.trigger('file:saveAll');
 		},
 		run : function(e) {
-			var activeTab = $("ul#tabs li.active").text();
+			var activeTab = $("ul#tabs li.active a").attr('uuid');
 			var v = this.options.vent;
 			v.trigger('file:run', activeTab);
 		},
 		debug : function(e) {
-			var activeTab = $("ul#tabs li.active").text();
+			var activeTab = $("ul#tabs li.active a").attr('uuid');
 			var v = this.options.vent;
 			v.trigger('file:debug', activeTab);
 		},
