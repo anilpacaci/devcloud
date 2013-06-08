@@ -108,7 +108,7 @@ io.sockets.on('connection', function(socket) {
 		var path = data.path;
 		var width = data.width;
 		var height = data.height;
-
+		var execName = path.substring( path.lastIndexOf('/') + 1, path.lastIndexOf('.'));
 		if(!path)
 			return;
 		if(!width)
@@ -118,7 +118,7 @@ io.sockets.on('connection', function(socket) {
 		console.log('build_process request:\n' + JSON.stringify(data) + '\n');
 		var exec = require('child_process').exec;
 
-		exec("gcc -g " + path, {cwd:path.substring(0, path.lastIndexOf('/'))}, function (error, stdout, stderr) {
+		exec("gcc -g " + path + " -o " + execName, {cwd:path.substring(0, path.lastIndexOf('/'))}, function (error, stdout, stderr) {
 			socket.emit('build_response', {output: stdout, error: error, stderr: stderr});
 		});
 	});
