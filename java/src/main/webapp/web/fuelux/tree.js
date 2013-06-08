@@ -51,7 +51,7 @@ define(['require','jquery'],function(require) {
 						$entity.find('.tree-item-name').html(value.name);
 						$entity.data(value);
 					}
-
+					$entity.attr('path', value.additionalParameters.filePath);
 					if($el.hasClass('tree-folder-header')) {
 						$el.parent().find('.tree-folder-content:eq(0)').append($entity);
 					} else {
