@@ -117,6 +117,13 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 
 		tabShown : function(e) {
 			var path = $(e.target).attr('path');
+			var uuid = $(e.target).attr('uuid');
+			// determines if an editor opened, and if so, saves active file path
+			if(uuid) {
+				activeFileUUID = uuid;
+			} else {
+				activeFileUUID = null;
+			}
 			if (path) {
 				// when path is changed, global update shoud be called
 				this.options.vent.trigger('global:update', path);
@@ -135,20 +142,21 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 		},
 
 		addNewTerminal : function(e) {
+			var uuid = randomUUID();
 			if (!socket || !socket.socket.connected)
 				return;
 			if (this.terminal_count < 5) {
-				$('#tabs').append('<li class><a href="#terminalRegion' + this.terminal_count + '" data-toggle="tab">Terminal ' + this.terminal_count + '<i class="icon-remove"></i></a></li>');
-				$('#tab_content').append('<div class="tab-pane fade" id="terminalRegion' + this.terminal_count + '"></div>');
+				$('#tabs').append('<li class><a href="#terminalRegion' + uuid + '" data-toggle="tab">Terminal<i class="icon-remove"></i></a></li>');
+				$('#tab_content').append('<div class="tab-pane fade" id="terminalRegion' + uuid + '"></div>');
 
 				var consoleView = new ConsoleView({
 					vent : vent,
 					user : user,
 					socket : socket,
-					id : this.terminal_count
+					id : uuid
 				});
 				consoleView.render();
-				$('#terminalRegion' + this.terminal_count).append(consoleView.el);
+				$('#terminalRegion' + uuid).append(consoleView.el);
 				$('#tabs a:last').tab('show');
 				this.terminal_count++;
 			} else {
@@ -314,13 +322,13 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 		},
 		removeTab : function(e) {
 			var id = $(e.currentTarget).parent().attr('href');
-			if (id.substring(0, id.length - 1) == '#terminalRegion') {
-				var terminal_id = id.substring(id.length - 1, id.length);
+			if (id.substring(0, 'terminalRegion'.length + 1) == '#terminalRegion') {
+				var terminal_id = id.substring('#termainalRegion'.length);
 				this.options.vent.trigger('terminal:unfocused');
 				this.options.vent.trigger('terminal:destroy', terminal_id);
 				this.terminal_count--;
 			} else if (id.substring(0, 'processRegion'.length + 1) == '#processRegion') {
-				var process_id = id.substring('processRegion'.length + 1, id.length);
+				var process_id = id.substring('#processRegion'.length);
 				this.options.vent.trigger('process:unfocused');
 				this.options.vent.trigger('process:destroy', process_id);
 			} else {
@@ -334,12 +342,12 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 		},
 		menuRemoveTab : function(e) {
 			var id = $("ul#tabs li.active a").attr('href');
-			if (id.substring(0, id.length - 1) == '#terminalRegion') {
-				var terminal_id = id.substring(id.length - 1, id.length);
+			if (id.substring(0, 'terminalRegion'.length + 1) == '#terminalRegion') {
+				var terminal_id = id.substring('#termainalRegion'.length);
 				this.options.vent.trigger('terminal:unfocused');
 				this.options.vent.trigger('terminal:destroy', terminal_id);
 			} else if (id.substring(0, 'processRegion'.length + 1) == '#processRegion') {
-				var process_id = id.substring('processRegion'.length + 1, id.length);
+				var process_id = id.substring('#processRegion'.length);
 				this.options.vent.trigger('process:unfocused');
 				this.options.vent.trigger('process:destroy', process_id);
 			} else {
@@ -434,11 +442,11 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 		},
 		menuFindReplace : function(e) {
 			var v = this.options.vent;
-			v.trigger('menu:findReplace');
+			v.trigger('menu:findReplace', activeFileUUID);
 		},
 		menuFindReplaceAll : function(e) {
 			var v = this.options.vent;
-			v.trigger('menu:findReplaceAll');
+			v.trigger('menu:findReplaceAll', activeFileUUID);
 		}
 	});
 

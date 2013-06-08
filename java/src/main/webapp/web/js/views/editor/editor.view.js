@@ -20,7 +20,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'bootbox', 'text!templates/ed
 			});
 
 			this.bindTo(vent, 'file:save', function(uuid) {
-				if (uuid == self.model.get('uuid') ) {
+				if (uuid == self.model.get('uuid')) {
 					self.save(self.model);
 					//this event is triggered when type navigator needs to be upated
 					vent.trigger('global:update', self.model.get('path'));
@@ -44,7 +44,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'bootbox', 'text!templates/ed
 			});
 			// this event removes this view from app, so all event bindings are removed
 			this.bindTo(vent, 'file:close', function(uuid) {
-				if(uuid == self.model.get('uuid')) {
+				if (uuid == self.model.get('uuid')) {
 					self.remove();
 				}
 			});
@@ -63,11 +63,15 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'bootbox', 'text!templates/ed
 			this.bindTo(vent, 'menu:paste', function() {
 				self.paste(self.editor);
 			});
-			this.bindTo(vent, 'menu:findReplace', function() {
-				self.findReplace(self.editor);
+			this.bindTo(vent, 'menu:findReplace', function(uuid) {
+				if (uuid == self.model.get('uuid')) {
+					self.findReplace(self.editor);
+				}
 			});
-			this.bindTo(vent, 'menu:findReplaceAll', function() {
-				self.findReplaceAll(self.editor);
+			this.bindTo(vent, 'menu:findReplaceAll', function(uuid) {
+				if (uuid == self.model.get('uuid')) {
+					self.findReplaceAll(self.editor);
+				}
 			});
 		},
 		modelEvents : {
@@ -105,7 +109,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'bootbox', 'text!templates/ed
 			var self = this;
 			var vent = this.options.vent;
 
-			if(self.model.get('path')) {
+			if (self.model.get('path')) {
 				//this event is triggered when type navigator needs to be upated
 				vent.trigger('global:update', self.model.get('path'));
 			}
@@ -179,7 +183,6 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'bootbox', 'text!templates/ed
 				readOnly : true // false if this command should not apply in readOnly mode
 			});
 
-			//currentTab = this;//.model;
 
 		},
 		modelChanged : function() {
