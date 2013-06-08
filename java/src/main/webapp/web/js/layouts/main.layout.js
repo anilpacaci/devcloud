@@ -38,8 +38,16 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			'click #menuPull' : 'menuPull',
 			'click #menuPush' : 'menuPush',
 			'click #menuCommit' : 'menuCommit',
-			'click #menuCheckout' : 'menuCheckout'
-
+			'click #menuCheckout' : 'menuCheckout',
+			'click' : 'closeContextMenu',
+			'click #contextMenu' : 'closeContextMenu',
+			'click #contextMenuNewFolder' : 'contextMenuNewFolder',
+			'click #contextMenuNewFile' : 'contextMenuNewFile',
+			'click #contextMenuRemove' : 'contextMenuRemove',
+			'click #contextMenuRename' : 'contextMenuRename',
+			'click #contextMenuCommit' : 'menuCommit',
+			'click #contextMenuCheckout' : 'menuCheckout',
+			'click #contextMenuBuild' : 'contextMenuBuild'
 		},
 
 		onRender : function() {
@@ -447,7 +455,25 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 		menuFindReplaceAll : function(e) {
 			var v = this.options.vent;
 			v.trigger('menu:findReplaceAll', activeFileUUID);
-		}
+		},
+	    closeContextMenu : function(){
+	    	$('#contextMenu').hide();
+	    },
+	    contextMenuNewFolder : function(){
+	    	alert(selectedFile);
+	    },
+	    contextMenuNewFile : function(){
+	    	alert(selectedFile);
+	    },
+	    contextMenuRemove : function(){
+	    	alert(selectedFile);
+	    },
+	    contextMenuRename : function(){
+	    	alert(selectedFile);
+	    },
+	    contextMenuBuild : function(){
+	    	alert(selectedFile);
+	    }
 	});
 
 	return MainLayout;
