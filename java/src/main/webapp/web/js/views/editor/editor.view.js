@@ -316,10 +316,11 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'bootbox', 'text!templates/ed
 					for (var expr in expressions) {
 						$('#debugExpressions').append("<tr><td>" + expr + "</td><td>" + expressions[expr] + "</td><td><a href=\"#\" class=\"removeExpression\" name=\"" + expr + "\">-</a></td></tr>")
 					}
+					self.highlight(data.line);
 
 				});
 
-				$('#mainMenu').append('<li id="nextButton"><a href="#" class="btn btn-primary"><i class="icon-play"></i></a></li>').append('<li id="continueButton"><a href="#" class="btn btn-primary"><i class="icon-step-forward"></i></a></li>').append('<li id="closeDebugButton"><a href="#" class="btn btn-primary"><i class="icon-remove"></i></a></li>');
+				$('#mainMenu').append('<li id="nextButton"><a href="#" class="btn btn-primary" title="Next"><i class="icon-play"></i></a></li>').append('<li id="continueButton"><a href="#" class="btn btn-primary" title="Continue"><i class="icon-step-forward"></i></a></li>').append('<li id="closeDebugButton"><a href="#" class="btn btn-primary" title="Close Debug Mode"><i class="icon-remove"></i></a></li>');
 
 				$('#nextButton').click(function(e) {
 					socket.emit('debugger:next', {
