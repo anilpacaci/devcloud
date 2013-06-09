@@ -41,8 +41,9 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/global/global
 			var self = this;
 			var vent = this.options.vent;
 			var lineNumber = $(e.target).attr('line');
+			var path = $(e.target).attr('path');
 
-			vent.trigger('editor:gotoLine', lineNumber);
+			vent.trigger('editor:gotoLine', path, lineNumber);
 		}
 	});
 	return GlobalView;
