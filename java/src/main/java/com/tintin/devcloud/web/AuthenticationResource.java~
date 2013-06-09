@@ -78,8 +78,10 @@ public class AuthenticationResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getUser(@CookieParam(SID) String sessionID) {
 		User user = WebUtil.getUser(sessionID);
-		File userDirectory = new File("/home/"+user.getEmail());
-		
+		File userDirectory = new File(user.getEmail());
+		if (!userDirectory.exists()) {
+			userDirectory.mkdir();
+		}
 		user.setWorkspacePath(userDirectory.getAbsolutePath());
 		return Response.ok(user).build();
 	}
@@ -97,9 +99,7 @@ public class AuthenticationResource {
 					registerModel.getPassword(), "Mr.",
 					registerModel.getFirstName(), registerModel.getLastName(),
 					AccessLevel.READWRITE);
-		System.out.println("4");
 		} catch (Exception e) {
-			System.out.println("5");
 			logger.error(e.getMessage());
 			return Response.serverError().build();
 		}

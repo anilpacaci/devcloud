@@ -212,7 +212,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'bootbox', 'text!templates/ed
 
 			if (!file.get('fileName')) {
 				bootbox.prompt('Enter path to save file:', function(path) {
-					path = self.options.user.get('email') + '/' + path;
+					path = self.options.user.get('workspacePath') + '/' + path;
 					file = new FileModel({
 						path : path
 					});

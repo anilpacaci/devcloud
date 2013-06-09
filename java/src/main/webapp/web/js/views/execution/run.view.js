@@ -45,7 +45,7 @@ define(['jquery', 'backbone', 'marionette', 'socketio', 'term' , 'text!templates
 					return;
 				if(data.stderr == null || data.stderr == '') {
 					alert('Build successful.');
-					_this.socket.emit('create_process', {path: path.substring(0, path.lastIndexOf('/')) + '/a.out', width: width, height: height});
+					_this.socket.emit('create_process', {path: path.substr(0, path.lastIndexOf('.')), width: width, height: height});
 				} else {
 					alert(data.stderr);
 				}

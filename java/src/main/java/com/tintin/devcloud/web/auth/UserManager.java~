@@ -43,9 +43,8 @@ public class UserManager {
 		configuration.setThemeName(Configuration.DEFAULT_THEME);
 		user.setConfiguration(configuration);
 		GenericPersistanceManager.saveEntity(user);
-		Runtime.getRuntime().exec("sudo useradd -m " + email);
-		Runtime.getRuntime().exec("sudo su -c '(echo " + password + " & echo " + password + ") | sudo passwd " + email + "'");
-		Runtime.getRuntime().exec("rm -rf /home/" + email + "/examples.desktop");
+		Runtime.getRuntime().exec("sudo useradd " + email);
+		Runtime.getRuntime().exec("(echo " + password + " & echo " + password + ") | sudo passwd " + email);
 //		User user = new User(email, password, title, name, surname,
 //				accessLevel.ordinal());
 //
