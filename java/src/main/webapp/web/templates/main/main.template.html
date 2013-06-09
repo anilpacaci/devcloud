@@ -95,8 +95,21 @@
 
 	<div class="row-fluid">
 		<div id='fileTreeRegion' style="background-color:#EEE" class="span2 tabbable tabs-left">
-
 		</div>
+		
+        <ul id="contextMenu" class="dropdown-menu">
+          <li><a tabindex="-1" id="contextMenuNewFolder" href="#">New Folder</a></li>
+          <li><a tabindex="-1" id="contextMenuNewFile" href="#">New File</a></li>
+          <li class="divider"></li>
+          <li><a tabindex="-1" id="contextMenuRemove" href="#">Remove</a></li>
+          <li><a tabindex="-1" id="contextMenuRename" href="#">Rename</a></li>
+          <li class="divider"></li>
+          <li><a tabindex="-1" id="contextMenuCheckout" href="#">Checkout</a></li>
+          <li><a tabindex="-1" id="contextMenuCommit" href="#">Commit</a></li>
+          <li class="divider"></li>
+          <li><a tabindex="-1" id="contextMenuBuild" href="#">Build</a></li>
+        </ul>
+		
 		<div class="span10" id="content">
 			<div id="debug_div"></div>
 			<ul id="tabs" class="nav nav-tabs">

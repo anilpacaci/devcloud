@@ -53,7 +53,9 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/explorer/fuel
 			});
 		},
 		events : {
-			'click #uploadFile' : 'uploadFile'
+			'click #uploadFile' : 'uploadFile',
+			'contextmenu .tree-item' : 'rightClick',
+			'contextmenu .tree-folder' : 'rightClick'
 		},
 		onRender : function() {
 			var self = this;
@@ -155,7 +157,21 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/explorer/fuel
 				alert('The File APIs are not fully supported in this browser.');
 			}
 
-		}
+		},
+		rightClick : function(e) {
+			//this.$('#MyTree').tree.selectItem(e.currentTarget);
+			if(e.currentTarget.className == "tree-folder"){
+				e.currentTarget.children[0].click();			
+			} else {
+				e.currentTarget.click();
+			}
+			selectedFile = e.currentTarget.attributes.path.nodeValue;
+	        $('#contextMenu').css({
+	            top: e.pageY+'px',
+	            left: e.pageX+'px'
+	        }).show();
+	        return false;
+	    }
 	});
 	return FueluxTreeView;
 });
