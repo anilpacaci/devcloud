@@ -111,7 +111,11 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 					async : false
 				});
 				fileName = file.get('fileName').split('.')[0];
-
+				if(file.get('fileName').indexOf('.') == -1) {
+					// do not open because not a valid text file
+					console.log('Not a valid text file');
+					return;
+				}
 				if ($('#tabs a[path="' + filePath + '"]').size() == 0) {
 					$('#tabs').append('<li class><a href="#editorRegion' + fileName + '" data-toggle="tab" path="' + filePath + '" uuid="' + uuid + '">' + file.get('fileName') + ' <i class="icon-remove"></i></a></li>');
 					$('#tab_content').append('<div class="tab-pane fade" id="editorRegion' + fileName + '" path="' + filePath + '"></div>');

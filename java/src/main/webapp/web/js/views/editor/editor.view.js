@@ -96,22 +96,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'bootbox', 'text!templates/ed
 			this.editor.getSession().setMode("ace/mode/c_cpp");
 			this.editor.setValue(this.model.get('content'));
 
-			//if opened by debug or type navigator, goto given line
-			if (this.options.line) {
-				this.highlight(this.options.line);
-			}
-
-			//if opened by debug or type navigator, set existing breakpoints
-			if (this.options.breakpoints) {
-				this.options.breakpoints.each(function(breakpoint) {
-					if (breakpoint.fileName == self.model.get('fileName')) {
-						$('.ace_gutter-cell:nth-child(' + breakpoint.line + ')').addClass('ace_breakpoint');
-					}
-				});
-			}
-
 			// keybinding for auto completion
-
 			self.editor.commands.addCommand({
 				name : 'saveFile',
 				bindKey : {},
@@ -167,6 +152,20 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'bootbox', 'text!templates/ed
 				},
 				readOnly : true // false if this command should not apply in readOnly mode
 			});
+			
+			//if opened by debug or type navigator, goto given line
+			if (this.options.line) {
+				this.highlight(this.options.line);
+			}
+
+			//if opened by debug or type navigator, set existing breakpoints
+			if (self.options.breakpointList) {
+				$.each(self.options.breakpointList, function(breakpoint) {
+					if (self.options.breakpointList[breakpoint].fileName == self.model.get('fileName')) {
+						$('.ace_gutter-cell:nth-child(' + self.options.breakpointList[breakpoint].line + ')').addClass('ace_breakpoint');
+					}
+				});
+			}
 
 		},
 		modelChanged : function() {
