@@ -1,7 +1,9 @@
 define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.html', 'js/models/editor/file.model', 'js/views/editor/editor.view', 'js/views/console/console.view', 'js/views/explorer/fuelux.tree.view', 'js/views/global/global.view'], function($, Backbone, Marionette, MainTemplate, FileModel, EditorView, ConsoleView, FueluxTreeView, GlobalView) {
 	MainLayout = Backbone.Marionette.Layout.extend({
 		template : MainTemplate,
-
+		initialize : function() {
+			this.breakpoints = [];
+		},
 		regions : {
 			editor : "#editorRegion",
 			// terminal : "#terminalRegion",
@@ -39,7 +41,7 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			'click #menuPush' : 'menuPush',
 			'click #menuCommit' : 'menuCommit',
 			'click #menuCheckout' : 'menuCheckout',
-			
+
 			'dblclick .ace_gutter-cell' : 'setBreakpoint'
 
 		},
@@ -88,7 +90,7 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 				self.options.vent.trigger('explorer:open', filePath);
 			});
 			//this event gets the file path, open this file in new editor
-			this.bindTo(this.options.vent, 'file:open', function(filePath) {
+			this.bindTo(this.options.vent, 'file:open', function(filePath, line) {
 				var uuid = randomUUID();
 				file = new FileModel({
 					path : filePath,
@@ -108,7 +110,8 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 						user : user,
 						configuration : configuration,
 						model : file,
-						socket : socket
+						socket : socket,
+						line : line
 					});
 					editorView.render();
 					$('#editorRegion' + fileName).append(editorView.el);
@@ -121,7 +124,7 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			var path = $(e.target).attr('path');
 			var uuid = $(e.target).attr('uuid');
 			// determines if an editor opened, and if so, saves active file path
-			if(uuid) {
+			if (uuid) {
 				activeFileUUID = uuid;
 			} else {
 				activeFileUUID = null;
@@ -306,10 +309,10 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			var uuid = randomUUID();
 			$('#tabs').append('<li class><a href="#editorRegion' + this.editor_count + '" data-toggle="tab">Untitled File ' + this.editor_count + '<i class="icon-remove"></i></a></li>');
 			$('#tab_content').append('<div class="tab-pane fade" id="editorRegion' + this.editor_count + '"></div>');
-			
+
 			var file = new FileModel();
-			file.set('uuid',uuid);
-			
+			file.set('uuid', uuid);
+
 			var newEditor = new EditorView({
 				vent : vent,
 				configuration : configuration,
@@ -380,12 +383,12 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			};
 			var self = this;
 			var path = selectedFile;
-			var executableName = path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('.'));
+			var executableName = path.substring(path.lastIndexOf('/') + 1);
 			if (!executableName)
 				return;
 			if (!file)
 				return;
-			if (executableName.lastIndexOf('.') == -1) {
+			if (executableName.lastIndexOf('.') != -1) {
 				// which means its not an executable
 				bootbox.alert('This file type is not supported currently.');
 				return;
@@ -409,8 +412,8 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 
 				for ( i = 0; i < breakpoints.length; i++) {
 					socket.emit('debugger:set_breakpoint', {
-						'file' : self.model.get('fileName'),
-						'line' : breakpoints[i],
+						'file' : breakpoints[i].fileName,
+						'line' : breakpoints[i].line,
 						'id' : self.debugID
 					});
 				}
@@ -427,6 +430,7 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 				for (var expr in expressions) {
 					$('#debugExpressions').append("<tr><td>" + expr + "</td><td>" + expressions[expr] + "</td><td><a href=\"#\" class=\"removeExpression\" name=\"" + expr + "\">-</a></td></tr>")
 				}
+				self.options.vent.trigger('file:open', data.file, data.line);
 				self.highlight(data.line);
 
 			});
@@ -456,26 +460,35 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 		},
 		setBreakpoint : function(e) {
 			var self = this;
+			var fileName = $('#tabs .active a').text();
 			bpList = this.breakpoints;
 			e.stopPropagation();
 			e.preventDefault();
 			var id = $(e.target).text();
-			if ($(e.target).hasClass('ace_breakpoint')) {
-				bpList.splice($.inArray(id, bpList), 1);
+			var breakpoint = {
+				fileName : fileName,
+				line : id
+			};
+			if ($.grep(bpList, function(e) {
+				return e.fileName == fileName && e.line == id
+			}).length != 0) {
+				bpList = $.grep(bpList, function(e) {
+					return e.fileName != fileName || e.line != id
+				});
 				$(e.target).removeClass('ace_breakpoint');
 				if (inDebug) {
 					socket.emit('debugger:remove_breakpoint', {
-						'file' : self.model.get('fileName'),
+						'file' : fileName,
 						'line' : id,
 						'id' : self.debugID
 					});
 				}
 			} else {
-				bpList.push(id);
+				bpList.push(breakpoint);
 				$(e.target).addClass('ace_breakpoint');
 				if (inDebug) {
 					socket.emit('debugger:set_breakpoint', {
-						'file' : self.model.get('fileName'),
+						'file' : fileName,
 						'line' : id,
 						'id' : self.debugID
 					});

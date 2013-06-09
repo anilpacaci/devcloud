@@ -76,7 +76,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'bootbox', 'text!templates/ed
 		modelEvents : {
 			"change" : "modelChanged"
 		},
-				onRender : function() {
+		onRender : function() {
 			var self = this;
 			var vent = this.options.vent;
 
@@ -95,6 +95,11 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'bootbox', 'text!templates/ed
 			}
 			this.editor.getSession().setMode("ace/mode/c_cpp");
 			this.editor.setValue(this.model.get('content'));
+
+			//if opened by debug or type navigator, goto given line
+			if (this.options.line) {
+				this.highlight(this.options.line);
+			}
 
 			// keybinding for auto completion
 
