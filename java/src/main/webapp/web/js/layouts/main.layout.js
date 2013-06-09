@@ -56,7 +56,9 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			'click #contextMenuCheckout' : 'menuCheckout',
 			'click #contextMenuBuild' : 'contextMenuBuild',
 
-			'dblclick .ace_gutter-cell' : 'setBreakpoint'
+			'dblclick .ace_gutter-cell' : 'setBreakpoint',
+			'click a[id="addExpression"]' : 'addExpression',
+			'click a[class="removeExpression"]' : 'removeExpression'
 		},
 
 		onRender : function() {
@@ -103,7 +105,7 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 				self.options.vent.trigger('explorer:open', filePath);
 			});
 			//this event gets the file path, open this file in new editor
-			this.bindTo(this.options.vent, 'file:open', function(filePath, line) {
+			this.bindTo(this.options.vent, 'file:open', function(filePath, line, breakpointList) {
 				var uuid = randomUUID();
 				file = new FileModel({
 					path : filePath,
@@ -113,8 +115,12 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 					async : false
 				});
 				fileName = file.get('fileName').split('.')[0];
-
-				if ($('#editorRegion' + fileName).size() == 0) {
+				if(file.get('fileName').indexOf('.') == -1) {
+					// do not open because not a valid text file
+					console.log('Not a valid text file');
+					return;
+				}
+				if ($('#tabs a[path="' + filePath + '"]').size() == 0) {
 					$('#tabs').append('<li class><a href="#editorRegion' + fileName + '" data-toggle="tab" path="' + filePath + '" uuid="' + uuid + '">' + file.get('fileName') + ' <i class="icon-remove"></i></a></li>');
 					$('#tab_content').append('<div class="tab-pane fade" id="editorRegion' + fileName + '" path="' + filePath + '"></div>');
 
@@ -124,11 +130,16 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 						configuration : configuration,
 						model : file,
 						socket : socket,
-						line : line
+						line : line,
+						breakpointList : breakpointList
 					});
 					editorView.render();
 					$('#editorRegion' + fileName).append(editorView.el);
 					$('#tabs a:last').tab('show');
+				} else {
+					// if file is already open
+					$('#tabs a[path="' + filePath + '"]').tab('show');
+					vent.trigger('editor:gotoLine', filePath, line);
 				}
 			});
 		},
@@ -443,9 +454,14 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 				for (var expr in expressions) {
 					$('#debugExpressions').append("<tr><td>" + expr + "</td><td>" + expressions[expr] + "</td><td><a href=\"#\" class=\"removeExpression\" name=\"" + expr + "\">-</a></td></tr>")
 				}
-				self.options.vent.trigger('file:open', data.file, data.line);
-				self.highlight(data.line);
+				self.options.vent.trigger('file:open', data.file, data.line, breakpoints);
 
+			});
+			
+			socket.on('debugger:closed', function(data) {
+				//debugger interface should be closed
+				// simulate close debug button
+				$('#closeDebugButton').click();
 			});
 
 			$('#mainMenu').append('<li id="nextButton"><a href="#" class="btn btn-primary" title="Next"><i class="icon-play"></i></a></li>').append('<li id="continueButton"><a href="#" class="btn btn-primary" title="Continue"><i class="icon-step-forward"></i></a></li>').append('<li id="closeDebugButton"><a href="#" class="btn btn-primary" title="Close Debug Mode"><i class="icon-remove"></i></a></li>');
@@ -473,7 +489,7 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 		},
 		setBreakpoint : function(e) {
 			var self = this;
-			var fileName = $('#tabs .active a').text();
+			var fileName = $('#tabs .active a').text().trim();
 			bpList = this.breakpoints;
 			e.stopPropagation();
 			e.preventDefault();
@@ -507,6 +523,27 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 					});
 				}
 			}
+		},
+		addExpression : function() {
+			bootbox.prompt('Enter an expression', function(expression) {
+				if (expression) {
+					$('#debugExpressions').append("<tr><td>" + expression + "</td><td>...</td><td><a href=\"#\" class=\"removeExpression\" name=\"" + expression + "\">-</a></td></tr>")
+					socket.emit('debugger:add_expression', {
+						id : socket.debugger_id,
+						expression : expression
+					});
+				} else {
+					bootbox.alert('Not a valid expression');
+				}
+			});
+		},
+		removeExpression : function(e) {
+			var expr = e.target.name;
+			$(e.target).parent().parent().remove();
+			socket.emit('debugger:remove_expression', {
+				id : socket.debugger_id,
+				expression : expr
+			});
 		},
 		themeSelected : function(e) {
 			this.selectedTheme = e.currentTarget.value;
@@ -579,6 +616,7 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			var v = this.options.vent;
 			v.trigger('menu:findReplaceAll', activeFileUUID);
 		},
+
 	    closeContextMenu : function(){
 	    	$('#contextMenu').hide();
 	    },

@@ -293,6 +293,7 @@ io.sockets.on('connection', function(socket) {
 		}
 
 		if(_debugger) {
+			console.log('-break-insert ' + data.file  + ':' + data.line + '\n');
 			_debugger.process.stdin.write('-break-insert ' + data.file  + ':' + data.line + '\n');
 		}
 

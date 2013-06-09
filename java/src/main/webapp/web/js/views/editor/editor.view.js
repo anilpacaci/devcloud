@@ -4,9 +4,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'bootbox', 'text!templates/ed
 		className : '',
 		events : {
 			'click a[id="save_button"]' : 'saveButton',
-			'click a[id="run_button"]' : 'runButton',
-			'click a[id="addExpression"]' : 'addExpression',
-			'click a[class="removeExpression"]' : 'removeExpression'
+			'click a[id="run_button"]' : 'runButton'
 		},
 		initialize : function() {
 			vent = this.options.vent;
@@ -14,8 +12,10 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'bootbox', 'text!templates/ed
 
 			var self = this;
 
-			this.bindTo(vent, 'editor:gotoLine', function(lineNumber) {
-				self.editor.gotoLine(lineNumber);
+			this.bindTo(vent, 'editor:gotoLine', function(path, lineNumber) {
+				if (path == self.model.get('path')) {
+					self.editor.gotoLine(lineNumber);
+				}
 			});
 
 			this.bindTo(vent, 'file:save', function(uuid) {
@@ -96,13 +96,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'bootbox', 'text!templates/ed
 			this.editor.getSession().setMode("ace/mode/c_cpp");
 			this.editor.setValue(this.model.get('content'));
 
-			//if opened by debug or type navigator, goto given line
-			if (this.options.line) {
-				this.highlight(this.options.line);
-			}
-
 			// keybinding for auto completion
-
 			self.editor.commands.addCommand({
 				name : 'saveFile',
 				bindKey : {},
@@ -158,6 +152,20 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'bootbox', 'text!templates/ed
 				},
 				readOnly : true // false if this command should not apply in readOnly mode
 			});
+			
+			//if opened by debug or type navigator, goto given line
+			if (this.options.line) {
+				this.highlight(this.options.line);
+			}
+
+			//if opened by debug or type navigator, set existing breakpoints
+			if (self.options.breakpointList) {
+				$.each(self.options.breakpointList, function(breakpoint) {
+					if (self.options.breakpointList[breakpoint].fileName == self.model.get('fileName')) {
+						$('.ace_gutter-cell:nth-child(' + self.options.breakpointList[breakpoint].line + ')').addClass('ace_breakpoint');
+					}
+				});
+			}
 
 		},
 		modelChanged : function() {
@@ -238,27 +246,6 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'bootbox', 'text!templates/ed
 			});
 			runView.render();
 
-		},
-		addExpression : function() {
-			bootbox.prompt('Enter an expression', function(expression) {
-				if (expression) {
-					$('#debugExpressions').append("<tr><td>" + expression + "</td><td>...</td><td><a href=\"#\" class=\"removeExpression\" name=\"" + expression + "\">-</a></td></tr>")
-					socket.emit('debugger:add_expression', {
-						id : socket.debugger_id,
-						expression : expression
-					});
-				} else {
-					bootbox.alert('Not a valid expression');
-				}
-			});
-		},
-		removeExpression : function(e) {
-			var expr = e.target.name;
-			$(e.target).parent().parent().remove();
-			socket.emit('debugger:remove_expression', {
-				id : socket.debugger_id,
-				expression : expr
-			});
 		},
 		highlight : function(row) {
 			this.editor.gotoLine(row, 0, true);

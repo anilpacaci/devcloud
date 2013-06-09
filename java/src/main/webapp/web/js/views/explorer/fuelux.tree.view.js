@@ -159,12 +159,6 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/explorer/fuel
 
 		},
 		rightClick : function(e) {
-			//this.$('#MyTree').tree.selectItem(e.currentTarget);
-			if(e.currentTarget.className == "tree-folder"){
-				e.currentTarget.children[0].click();			
-			} else {
-				e.currentTarget.click();
-			}
 			selectedFile = e.currentTarget.attributes.path.nodeValue;
 	        $('#contextMenu').css({
 	            top: e.pageY+'px',
