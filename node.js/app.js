@@ -539,7 +539,106 @@ io.sockets.on('connection', function(socket) {
 	 **********************************************************************************************
 	 */
 	
+	socket.on('contextMenu:newFolder', function(data) {
+		if(!socket.sessionExists) {
+			return;
+		}
+		if(!data.path || !data.name) {
+			return;
+		}
+		
+		var exec = require('child_process').exec;
+		exec("mkdir "+data.name, {cwd: data.path}, function (error, stdout, stderr) {
+			socket.emit('explorer_refresh', {
+				'error': error,
+				'stdout': stdout,
+				'stderr': stderr});
+		});
+	});
+	
+	
+	socket.on('contextMenu:newFile', function(data) {
+		if(!socket.sessionExists) {
+			return;
+		}
+		if(!data.path || !data.name) {
+			return;
+		}
+		
+		var exec = require('child_process').exec;
+		exec("touch "+data.name, {cwd: data.path}, function (error, stdout, stderr) {
+			socket.emit('explorer_refresh', {
+				'error': error,
+				'stdout': stdout,
+				'stderr': stderr});
+		});
+	});
+	
+	socket.on('contextMenu:remove', function(data) {
+		if(!socket.sessionExists) {
+			return;
+		}
+		if(!data.path) {
+			return;
+		}
+		
+		var exec = require('child_process').exec;
+		exec("rm -rf "+data.path, function (error, stdout, stderr) {
+			socket.emit('explorer_refresh', {
+				'error': error,
+				'stdout': stdout,
+				'stderr': stderr});
+		});
+	});
 
+	socket.on('contextMenu:rename', function(data) {
+		if(!socket.sessionExists) {
+			return;
+		}
+		if(!data.path || !data.name) {
+			return;
+		}
+		
+		var newPath = data.path.substring(0,data.path.lastIndexOf("/")) + "/" + data.name;
+		var exec = require('child_process').exec;
+		exec("mv -f "+data.path+" "+newPath, function (error, stdout, stderr) {
+			socket.emit('explorer_refresh', {
+				'error': error,
+				'stdout': stdout,
+				'stderr': stderr});
+		});
+	});
+	
+	socket.on('contextMenu:build', function(data) {
+		if(!socket.sessionExists) {
+			return;
+		}
+		if(!data.path) {
+			return;
+		}
+		
+		var newPath = data.path + "/Makefile";
+		var path = require('path');
+		if (path.existsSync(newPath)) {
+			console.log("456");
+			var exec = require('child_process').exec;
+			exec("make", {cwd:data.path}, function (error, stdout, stderr) {
+				socket.emit('build_finished', {
+					'error': error,
+					'stdout': stdout,
+					'stderr': stderr});
+			});
+		} else{
+			console.log("123");
+			socket.emit('build_finished', {
+				'error': "",
+				'stdout': "Makefile cannot be found!",
+				'stderr': ""});
+		}
+		
+
+	});
+	
 	/**********************************************************************************/
 	
 	socket.on('global:parse', function(data) {
