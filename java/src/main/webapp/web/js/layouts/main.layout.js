@@ -3,6 +3,10 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 		template : MainTemplate,
 		initialize : function() {
 			this.breakpoints = [];
+			
+			this.options.socket.on('explorer_refresh', function(data) {
+				vent.trigger('explorer:refresh', selectedFile);
+			});
 		},
 		regions : {
 			editor : "#editorRegion",
@@ -612,24 +616,99 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			var v = this.options.vent;
 			v.trigger('menu:findReplaceAll', activeFileUUID);
 		},
-		closeContextMenu : function() {
-			$('#contextMenu').hide();
-		},
-		contextMenuNewFolder : function() {
-			alert(selectedFile);
-		},
-		contextMenuNewFile : function() {
-			alert(selectedFile);
-		},
-		contextMenuRemove : function() {
-			alert(selectedFile);
-		},
-		contextMenuRename : function() {
-			alert(selectedFile);
-		},
-		contextMenuBuild : function() {
-			alert(selectedFile);
-		}
+
+	    closeContextMenu : function(){
+	    	$('#contextMenu').hide();
+	    },
+	    contextMenuNewFolder : function(){
+			if (!selectedFile) {
+				bootbox.alert("You need to select a directory");
+				return;
+			}
+
+			if (!socket || !socket.socket.connected)
+				return;
+
+			bootbox.prompt('Folder name: ', function(name) {
+				socket.emit('contextMenu:newFolder', {
+					'path' : selectedFile,
+					'name' : name
+				});
+			});
+
+
+	    },
+	    contextMenuNewFile : function(){
+			if (!selectedFile) {
+				bootbox.alert("You need to select a directory");
+				return;
+			}
+
+			if (!socket || !socket.socket.connected)
+				return;
+
+			bootbox.prompt('File name: ', function(name) {
+				socket.emit('contextMenu:newFile', {
+					'path' : selectedFile,
+					'name' : name
+				});
+			});
+	    },
+	    contextMenuRemove : function(){
+			if (!selectedFile) {
+				bootbox.alert("You need to select a file");
+				return;
+			}
+
+			if (!socket || !socket.socket.connected)
+				return;
+
+			bootbox.confirm('Do you want to delete this file?', function() {
+				socket.emit('contextMenu:remove', {
+					'path' : selectedFile
+				});
+			});
+	    },
+	    contextMenuRename : function(){
+			if (!selectedFile) {
+				bootbox.alert("You need to select a file");
+				return;
+			}
+
+			if (!socket || !socket.socket.connected)
+				return;
+
+			bootbox.prompt('New filename: ', function(name) {
+				socket.emit('contextMenu:rename', {
+					'path' : selectedFile,
+					'name' : name
+				});
+			});
+	    },
+	    contextMenuBuild : function(){
+			if (!selectedFile) {
+				bootbox.alert("You need to select a folder");
+				return;
+			}
+
+			if (!socket || !socket.socket.connected)
+				return;
+
+			socket.emit('contextMenu:build', {
+				'path' : selectedFile
+			});
+			$('body').append('<div id="loading-image" class="waiting">Project is building...<img src="img/custom/loading.gif"></div>');
+			
+			socket.on('build_finished', function(data) {
+				vent.trigger('explorer:refresh', selectedFile);
+				$('#loading-image').html(data.stdout + data.stderr);
+				$('#loading-image').click(function() {
+					$('#loading-image').fadeOut('slow', function() {
+						$('#loading-image').remove();
+					});
+				});
+			});
+	    }
 	});
 
 	return MainLayout;
