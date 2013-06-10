@@ -14,7 +14,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/explorer/fuel
 
 		data : function(options, callback) {
 			var self = this;
-			var path = user.get('email');
+			var path = null;
 			if (options.additionalParameters) {
 				path = options.additionalParameters.filePath;
 			}
@@ -106,7 +106,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/explorer/fuel
 					self.openFile(path);
 				}
 				selectedItems = self.$('#MyTree').tree('selectedItems');
-				selectedFile = user.get('email');
+				selectedFile = user.get('workspacePath');
 				if (selectedItems[0] && selectedItems[0].additionalParameters) {
 					selectedFile = selectedItems[0].additionalParameters.filePath;
 				}
@@ -120,7 +120,7 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'text!templates/explorer/fuel
 		uploadFile : function(e) {
 			var self = this;
 			selectedItems = this.$('#MyTree').tree('selectedItems');
-			selectedFile = user.get('email');
+			selectedFile = user.get('workspacePath');
 			if (selectedItems[0] && selectedItems[0].additionalParameters) {
 				selectedFile = selectedItems[0].additionalParameters.filePath;
 			}

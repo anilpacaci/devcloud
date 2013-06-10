@@ -13,12 +13,14 @@ var pool = mysql.createPool({
 
 function checkSession(socket) {
 	pool.getConnection(function(err,connection) {
-		connection.query("SELECT * FROM Session s WHERE s.sessionID = ?", [socket.handshake.query.sessionID], function(err, results) {
+		connection.query("SELECT * FROM User u WHERE u.session_sessionID = ?", [socket.handshake.query.sessionID], function(err, results) {
 			if(!err && results && results.length > 0) {
 				socket.sessionExists = true;
+				socket.user = results[0];
 				console.log(results.length + ": " + JSON.stringify(results));
 			} else {
 				socket.sessionExists = false;
+				socket.user = null;
 				console.log(err);
 			}
 		})
@@ -38,7 +40,7 @@ io.sockets.on('connection', function(socket) {
 	socket.debuggers = [];
 
 	socket.on('create_terminal', function(data) {
-		if(!socket.sessionExists) {
+		if(!socket.sessionExists || !socket.user) {
 			return;
 		}
 		var terminal_id = uuid.v4();
@@ -53,13 +55,13 @@ io.sockets.on('connection', function(socket) {
 		if(!height)
 			height = 20;
 		console.log('create_terminal request:\n' + JSON.stringify(data) + '\n');
-		var term = pty.fork(process.env.SHELL || 'sh', [], {
+		var term = pty.fork('sudo', ['su', socket.user.email, '-c', '"sh"'], {
 			name: 'xterm',
 			cols: width,
 			rows: height,
-		cwd: path//process.env.PWD
+			cwd: path//process.env.PWD
 		});
-
+		
 		term.on('data', function(data) {
 			socket.emit('data', {id: terminal_id, data: data});
 		});
@@ -85,7 +87,7 @@ io.sockets.on('connection', function(socket) {
 		if(!height)
 			height = 20;
 		console.log('create_process request:\n' + JSON.stringify(data) + '\n');
-		var term = pty.fork(path, [], {
+		var term = pty.fork('sudo', ['su', socket.user.email, '-c', '"'+path+'"'], {
 			name: 'xterm',
 			cols: width,
 			rows: height,
@@ -118,7 +120,7 @@ io.sockets.on('connection', function(socket) {
 		console.log('build_process request:\n' + JSON.stringify(data) + '\n');
 		var exec = require('child_process').exec;
 
-		exec("gcc -g " + path + " -o " + execName, {cwd:path.substring(0, path.lastIndexOf('/'))}, function (error, stdout, stderr) {
+		exec("sudo su " + socket.user.email + " -c 'gcc -g " + path + " -o " + execName + "'", {cwd:path.substring(0, path.lastIndexOf('/'))}, function (error, stdout, stderr) {
 			socket.emit('build_response', {output: stdout, error: error, stderr: stderr});
 		});
 	});
@@ -457,7 +459,7 @@ io.sockets.on('connection', function(socket) {
 		}
 		
 		var exec = require('child_process').exec;
-		exec("cd "+ data.path + ";git clone " + data.url, function (error, stdout, stderr) {
+		exec("cd "+ data.path + ";su " + socket.user.email + " -c 'git clone " + data.url + "'", function (error, stdout, stderr) {
 			console.log('gitClone: ' + stdout);
 			socket.emit('git_finished', {
 				'error': error,
@@ -475,7 +477,7 @@ io.sockets.on('connection', function(socket) {
 		}
 		
 		var exec = require('child_process').exec;
-		exec("cd "+ data.path + ";git pull", function (error, stdout, stderr) {
+		exec("cd "+ data.path + ";su " + socket.user.email + " -c 'git pull'", function (error, stdout, stderr) {
 			console.log('gitPull: ' + stdout);
 			socket.emit('git_finished', {
 				'error': error,
@@ -512,7 +514,7 @@ io.sockets.on('connection', function(socket) {
 		}
 		
 		var exec = require('child_process').exec;
-		exec('git add .;git commit -m "'+data.message+'"', {cwd: data.path}, function (error, stdout, stderr) {
+		exec('su ' + socket.user.email + ' -c "git add .";su ' + socket.user.email + ' -c "git commit -m \"'+data.message+'\""', {cwd: data.path}, function (error, stdout, stderr) {
 			socket.emit('git_finished', {
 				'error': error,
 				'stdout': stdout,
@@ -529,7 +531,7 @@ io.sockets.on('connection', function(socket) {
 		}
 		
 		var exec = require('child_process').exec;
-		exec("git checkout --theirs .", {cwd: data.path}, function (error, stdout, stderr) {
+		exec("su " + socket.user.email + " -c 'git checkout --theirs .'", {cwd: data.path}, function (error, stdout, stderr) {
 			console.log('gitPull: ' + stdout);
 			socket.emit('git_finished', {
 				'error': error,
@@ -550,7 +552,7 @@ io.sockets.on('connection', function(socket) {
 		}
 		
 		var exec = require('child_process').exec;
-		exec("mkdir "+data.name, {cwd: data.path}, function (error, stdout, stderr) {
+		exec("su " + socket.user.email + " -c 'mkdir "+data.name+"'", {cwd: data.path}, function (error, stdout, stderr) {
 			socket.emit('explorer_refresh', {
 				'error': error,
 				'stdout': stdout,
@@ -568,7 +570,7 @@ io.sockets.on('connection', function(socket) {
 		}
 		
 		var exec = require('child_process').exec;
-		exec("touch "+data.name, {cwd: data.path}, function (error, stdout, stderr) {
+		exec("su " + socket.user.email + " -c 'touch "+data.name+"'", {cwd: data.path}, function (error, stdout, stderr) {
 			socket.emit('explorer_refresh', {
 				'error': error,
 				'stdout': stdout,
@@ -603,7 +605,7 @@ io.sockets.on('connection', function(socket) {
 		
 		var newPath = data.path.substring(0,data.path.lastIndexOf("/")) + "/" + data.name;
 		var exec = require('child_process').exec;
-		exec("mv -f "+data.path+" "+newPath, function (error, stdout, stderr) {
+		exec("su " + socket.user.email + " -c 'mv -f "+data.path+" "+newPath+"'", function (error, stdout, stderr) {
 			socket.emit('explorer_refresh', {
 				'error': error,
 				'stdout': stdout,
@@ -621,6 +623,7 @@ io.sockets.on('connection', function(socket) {
 		
 		var newPath = data.path + "/Makefile";
 		var path = require('path');
+
 		var fs = require('fs');
 		fs.stat(data.path, function(err, stat) {
 			if(stat.isDirectory()){
@@ -649,6 +652,7 @@ io.sockets.on('connection', function(socket) {
 				socket.emit('build_finished',{output: "Error", error: error, stderr: stderr});
 			}
 		});
+
 	});
 	
 	/**********************************************************************************/

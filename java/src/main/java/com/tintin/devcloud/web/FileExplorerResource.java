@@ -45,6 +45,7 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ws.rs.CookieParam;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -57,8 +58,10 @@ import javax.ws.rs.core.Response;
 
 import org.codehaus.jettison.json.JSONObject;
 
+import com.tintin.devcloud.database.model.User;
 import com.tintin.devcloud.web.util.AdditionalParameterModel;
 import com.tintin.devcloud.web.util.TreeEntryModel;
+import com.tintin.devcloud.web.util.WebUtil;
 
 /**
  * 
@@ -68,6 +71,8 @@ import com.tintin.devcloud.web.util.TreeEntryModel;
 public class FileExplorerResource {
 
 	private static final String APPLICATION_FORM_URLENCODED = null;
+
+	public static final String SID = "SID";
 
 	@POST
 	@Path("/old")
@@ -83,7 +88,9 @@ public class FileExplorerResource {
 			List<File> folderList = new ArrayList<File>();
 
 			for (int i = 0; i < listOfFiles.length; i++) {
-				if(listOfFiles[i].getName().equals("GPATH") || listOfFiles[i].getName().equals("GRTAGS") || listOfFiles[i].getName().equals("GTAGS")) {
+				if (listOfFiles[i].getName().equals("GPATH")
+						|| listOfFiles[i].getName().equals("GRTAGS")
+						|| listOfFiles[i].getName().equals("GTAGS")) {
 					continue;
 				}
 				if (listOfFiles[i].isFile()) {
@@ -127,7 +134,12 @@ public class FileExplorerResource {
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getDirectoryContent(
-			@FormParam("path") @DefaultValue(".") String directoryPath) {
+			@FormParam("path") String directoryPath,
+			@CookieParam(SID) String sessionID) {
+		User user = WebUtil.getUser(sessionID);
+		if (directoryPath == null || directoryPath.trim().isEmpty()) {
+			directoryPath = "/home/" + user.getEmail();
+		}
 		List<TreeEntryModel> response = new ArrayList<TreeEntryModel>();
 		try {
 			directoryPath = URLDecoder.decode(directoryPath, "UTF-8");
@@ -135,7 +147,9 @@ public class FileExplorerResource {
 			File[] listOfFiles = folder.listFiles();
 
 			for (int i = 0; i < listOfFiles.length; i++) {
-				if(listOfFiles[i].getName().equals("GPATH") || listOfFiles[i].getName().equals("GRTAGS") || listOfFiles[i].getName().equals("GTAGS")) {
+				if (listOfFiles[i].getName().equals("GPATH")
+						|| listOfFiles[i].getName().equals("GRTAGS")
+						|| listOfFiles[i].getName().equals("GTAGS")) {
 					continue;
 				}
 				File file = listOfFiles[i];
