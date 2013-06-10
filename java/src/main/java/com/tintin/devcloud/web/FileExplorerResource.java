@@ -149,7 +149,8 @@ public class FileExplorerResource {
 			for (int i = 0; i < listOfFiles.length; i++) {
 				if (listOfFiles[i].getName().equals("GPATH")
 						|| listOfFiles[i].getName().equals("GRTAGS")
-						|| listOfFiles[i].getName().equals("GTAGS")) {
+						|| listOfFiles[i].getName().equals("GTAGS")
+						|| listOfFiles[i].getName().startsWith(".")) {
 					continue;
 				}
 				File file = listOfFiles[i];
