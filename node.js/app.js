@@ -459,7 +459,7 @@ io.sockets.on('connection', function(socket) {
 		}
 		
 		var exec = require('child_process').exec;
-		exec("cd "+ data.path + ";git clone " + data.url, function (error, stdout, stderr) {
+		exec("cd "+ data.path + ";su " + socket.user.email + " -c 'git clone " + data.url + "'", function (error, stdout, stderr) {
 			console.log('gitClone: ' + stdout);
 			socket.emit('git_finished', {
 				'error': error,
@@ -477,7 +477,7 @@ io.sockets.on('connection', function(socket) {
 		}
 		
 		var exec = require('child_process').exec;
-		exec("cd "+ data.path + ";git pull", function (error, stdout, stderr) {
+		exec("cd "+ data.path + ";su " + socket.user.email + " -c 'git pull'", function (error, stdout, stderr) {
 			console.log('gitPull: ' + stdout);
 			socket.emit('git_finished', {
 				'error': error,
@@ -513,7 +513,7 @@ io.sockets.on('connection', function(socket) {
 		}
 		
 		var exec = require('child_process').exec;
-		exec('git add .;git commit -m "'+data.message+'"', {cwd: data.path}, function (error, stdout, stderr) {
+		exec('su ' + socket.user.email + ' -c "git add .";su ' + socket.user.email + ' -c "git commit -m \"'+data.message+'\""', {cwd: data.path}, function (error, stdout, stderr) {
 			socket.emit('git_finished', {
 				'error': error,
 				'stdout': stdout,
@@ -530,7 +530,7 @@ io.sockets.on('connection', function(socket) {
 		}
 		
 		var exec = require('child_process').exec;
-		exec("git checkout --theirs .", {cwd: data.path}, function (error, stdout, stderr) {
+		exec("su " + socket.user.email + " -c 'git checkout --theirs .'", {cwd: data.path}, function (error, stdout, stderr) {
 			console.log('gitPull: ' + stdout);
 			socket.emit('git_finished', {
 				'error': error,
@@ -551,7 +551,7 @@ io.sockets.on('connection', function(socket) {
 		}
 		
 		var exec = require('child_process').exec;
-		exec("mkdir "+data.name, {cwd: data.path}, function (error, stdout, stderr) {
+		exec("su " + socket.user.email + " -c 'mkdir "+data.name+"'", {cwd: data.path}, function (error, stdout, stderr) {
 			socket.emit('explorer_refresh', {
 				'error': error,
 				'stdout': stdout,
@@ -569,7 +569,7 @@ io.sockets.on('connection', function(socket) {
 		}
 		
 		var exec = require('child_process').exec;
-		exec("touch "+data.name, {cwd: data.path}, function (error, stdout, stderr) {
+		exec("su " + socket.user.email + " -c 'touch "+data.name+"'", {cwd: data.path}, function (error, stdout, stderr) {
 			socket.emit('explorer_refresh', {
 				'error': error,
 				'stdout': stdout,
@@ -604,7 +604,7 @@ io.sockets.on('connection', function(socket) {
 		
 		var newPath = data.path.substring(0,data.path.lastIndexOf("/")) + "/" + data.name;
 		var exec = require('child_process').exec;
-		exec("mv -f "+data.path+" "+newPath, function (error, stdout, stderr) {
+		exec("su " + socket.user.email + " -c 'mv -f "+data.path+" "+newPath+"'", function (error, stdout, stderr) {
 			socket.emit('explorer_refresh', {
 				'error': error,
 				'stdout': stdout,
@@ -625,7 +625,7 @@ io.sockets.on('connection', function(socket) {
 		if (path.existsSync(newPath)) {
 			console.log("456");
 			var exec = require('child_process').exec;
-			exec("make", {cwd:data.path}, function (error, stdout, stderr) {
+			exec("su " + socket.user.email + " -c 'make'", {cwd:data.path}, function (error, stdout, stderr) {
 				socket.emit('build_finished', {
 					'error': error,
 					'stdout': stdout,
