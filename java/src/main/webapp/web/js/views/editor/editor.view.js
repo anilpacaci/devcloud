@@ -152,7 +152,36 @@ define(['jquery', 'backbone', 'marionette', 'ace', 'bootbox', 'text!templates/ed
 				},
 				readOnly : true // false if this command should not apply in readOnly mode
 			});
-			
+			self.editor.commands.addCommand({
+			    name: 'navigateCommand',
+			    bindKey: {win: 'Alt-f3',  mac: 'Alt-f3'},
+			    exec: function(editor) {
+			    	var cursorPosition = editor.getCursorPosition();
+					var range = editor.selection.getWordRange(editor.selection.getSelectionLead());
+					//range.end = cursorPosition;
+					var toNavigate = editor.session.getTextRange(range);
+			        			        
+			        var data = new Object();
+			        data.toNavigate = toNavigate;
+			        data.path = self.model.get('path');
+			        
+			        socket.emit('global:searchItem',data);
+			        
+			        
+			        socket.on('global:item', function(item) {
+									        	
+			        	if(!item) {
+			        		return;
+						}
+
+			        	
+			        	vent.trigger("file:open",item.path,item.line);
+			        
+					});
+			    },
+			    readOnly: true // false if this command should not apply in readOnly mode
+			});
+					
 			//if opened by debug or type navigator, goto given line
 			if (this.options.line) {
 				this.highlight(this.options.line);

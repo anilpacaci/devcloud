@@ -7,7 +7,7 @@ mysql = require('mysql');
 var pool = mysql.createPool({
 	host: 'localhost',
 	user: 'root',
-	password: 'root',
+	password: 'pass',
 	database: 'devcloud'
 });
 
@@ -642,7 +642,7 @@ io.sockets.on('connection', function(socket) {
 
 	});
 	
-	/**********************************************************************************/
+	
 	
 	socket.on('global:parse', function(data) {
 		console.log(data);
@@ -661,8 +661,7 @@ io.sockets.on('connection', function(socket) {
 			parentFolder += arr[i] + "/";	
 		
 		}
-		
-		
+				
 		var exec = require('child_process').exec;
 		exec("cd " + parentFolder + ";gtags;" + "global -af " + data, function (error, stdout, stderr) {
 			var response = [];
@@ -682,7 +681,44 @@ io.sockets.on('connection', function(socket) {
 		});
 	});
 	
-	/*****************************************************************************************/
+
+
+	socket.on('global:searchItem', function(data) {
+		console.log(data);
+		if(!socket.sessionExists) {
+			return;
+		}
+		if(!data) {
+			return;
+		}
+		
+		var parentFolder = "";
+		var arr = data.path.split('/');
+		arr.pop();
+		for(var i=0; i<arr.length; i++){
+			
+			parentFolder += arr[i] + "/";	
+		
+		}
+						
+		var exec = require('child_process').exec;
+		exec("cd " + parentFolder  + ";global -ax " + data.toNavigate, function (error, stdout, stderr) {
+			var response;
+			var result = stdout;
+			
+			var item = new Object();
+			itemParameters = result.split(new RegExp("\\s+"));
+			item.name = itemParameters[0];
+			item.line = itemParameters[1];
+			item.path = itemParameters[2];
+
+			response = item;
+			
+			socket.emit('global:item', response);
+		});
+	});
+	
+	
 
 
 	socket.on('destroy_terminal', function(data) {
