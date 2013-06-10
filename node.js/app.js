@@ -7,7 +7,7 @@ mysql = require('mysql');
 var pool = mysql.createPool({
 	host: 'localhost',
 	user: 'root',
-	password: 'pass',
+	password: 'root',
 	database: 'devcloud'
 });
 
