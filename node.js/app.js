@@ -492,13 +492,14 @@ io.sockets.on('connection', function(socket) {
 			return;
 		}
 		
-		var spawn = require('child_process').spawn;
-		var gitPush = spawn('git', ['push'], {cwd: data.path});
-		
-		gitPush.stdin.setEncoding('utf-8');
-		gitPush.stdout.setEncoding('utf-8');
-		gitPush.stdin.write(data.username+"\n");
-		gitPush.stdin.write(data.password+"\n");
+		var exec = require('child_process').exec;
+		console.log("(echo "+data.username+" & echo "+data.password+" ) | git push");
+		exec("su -c '(echo "+data.username+" & echo "+data.password+" ) | git push'", {cwd:data.path}, function (error, stdout, stderr) {
+			socket.emit('git_finished', {
+				'error': error,
+				'stdout': stdout,
+				'stderr': stderr});
+		});
 
 	});
 	
@@ -620,24 +621,34 @@ io.sockets.on('connection', function(socket) {
 		
 		var newPath = data.path + "/Makefile";
 		var path = require('path');
-		if (path.existsSync(newPath)) {
-			console.log("456");
-			var exec = require('child_process').exec;
-			exec("make", {cwd:data.path}, function (error, stdout, stderr) {
-				socket.emit('build_finished', {
-					'error': error,
-					'stdout': stdout,
-					'stderr': stderr});
-			});
-		} else{
-			console.log("123");
-			socket.emit('build_finished', {
-				'error': "",
-				'stdout': "Makefile cannot be found!",
-				'stderr': ""});
-		}
-		
+		var fs = require('fs');
+		fs.stat(data.path, function(err, stat) {
+			if(stat.isDirectory()){
+				if (path.existsSync(newPath)) {
+					var exec = require('child_process').exec;
+					exec("make", {cwd:data.path}, function (error, stdout, stderr) {
+						socket.emit('build_finished', {
+							'error': error,
+							'stdout': stdout,
+							'stderr': stderr});
+					});
+				} else{
 
+					socket.emit('build_finished', {
+						'error': "",
+						'stdout': "Makefile cannot be found!",
+						'stderr': ""});
+				}
+			} else if(stat.isFile()){
+				var exec = require('child_process').exec;
+				var execName = data.path.substring( data.path.lastIndexOf('/') + 1, data.path.lastIndexOf('.'));
+				exec("gcc -g " + data.path + " -o " + execName, {cwd:data.path.substring(0, data.path.lastIndexOf('/'))}, function (error, stdout, stderr) {
+					socket.emit('build_finished', {output: "Build successfully", error: error, stderr: stderr});
+				});
+			} else {
+				socket.emit('build_finished',{output: "Error", error: error, stderr: stderr});
+			}
+		});
 	});
 	
 	/**********************************************************************************/
