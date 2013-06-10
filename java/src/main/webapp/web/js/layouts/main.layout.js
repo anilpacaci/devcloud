@@ -115,7 +115,7 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 					async : false
 				});
 				fileName = file.get('fileName').split('.')[0];
-				if(file.get('fileName').indexOf('.') == -1) {
+				if(file.get('fileName').indexOf('.') == -1 && file.get('fileName').indexOf('Makefile') == -1) {
 					// do not open because not a valid text file
 					console.log('Not a valid text file');
 					return;
@@ -252,8 +252,8 @@ define(['jquery', 'backbone', 'marionette', 'text!templates/main/main.template.h
 			if (!socket || !socket.socket.connected)
 				return;
 
-			bootbox.prompt('Git-Hub Username: ', function(username) {
-				bootbox.prompt('Git-Hub Password: ', function(password) {
+			bootbox.prompt('Git Username: ', function(username) {
+				bootbox.prompt('Git Password: ', function(password) {
 					socket.emit('git:push', {
 						'path' : selectedFile,
 						'username' : username,
