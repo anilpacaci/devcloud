@@ -48,7 +48,7 @@ public class UserManager {
 			Runtime.getRuntime().exec("sudo useradd -m " + email).waitFor();
 			Runtime.getRuntime().exec("sudo su -c '(echo " + password + " & echo " + password + ") | sudo passwd " + email + "'").waitFor();
 			Runtime.getRuntime().exec("rm -rf /home/" + email + "/examples.desktop").waitFor();
-			Runtime.getRuntime().exec("mkdir /home/" + email + "/Workspace").waitFor();
+			//Runtime.getRuntime().exec("sudo su " + email + " -c 'mkdir /home/" + email + "/Workspace'").waitFor();
 			Runtime.getRuntime().exec(new String[] {"chmod", "-R", "700", "/home/"+email}).waitFor();
 		} catch (InterruptedException e) {
 			e.printStackTrace();

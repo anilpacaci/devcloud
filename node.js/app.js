@@ -201,7 +201,11 @@ io.sockets.on('connection', function(socket) {
 
 								for(var j=0; j<attribute_list.length; j++) {
 									var attribute = attribute_list[j];
-									frame[attribute[0]] = JSON.parse(attribute[1]);
+									debugger;
+									try {
+										frame[attribute[0]] = JSON.parse(attribute[1]);
+									} catch (Error) {
+									}
 								}
 
 								_debugger.frame = frame;
@@ -552,7 +556,7 @@ io.sockets.on('connection', function(socket) {
 		}
 		
 		var exec = require('child_process').exec;
-		exec("su " + socket.user.email + " -c 'mkdir "+data.name+"'", {cwd: data.path}, function (error, stdout, stderr) {
+		exec("sudo su " + socket.user.email + " -c 'mkdir "+data.name+"'", {cwd: data.path}, function (error, stdout, stderr) {
 			socket.emit('explorer_refresh', {
 				'error': error,
 				'stdout': stdout,
